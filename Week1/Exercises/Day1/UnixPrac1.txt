@@ -1,0 +1,24 @@
+#directory is the git dir in Documents
+
+
+tail -n +2 fasta/E.coli.fasta ## omitts first line
+
+tail -n +2 fasta/E.coli.fasta | wc -m  ## count sequence length
+
+tail -n +2 fasta/E.coli.fasta | tr -d "\n" | grep -o "ATGC" |  wc -l  ## count ATGC
+
+tail -n +2 fasta/E.coli.fasta | tr -d "\n" | grep -o "A""T" | grep -o "C""G" |  wc -l            ## AT/GC ratio
+
+
+tail -n +2 fasta/E.coli.fasta | tr -d "\n" | AT = $(grep -o "A""T") |  echo"${AT}"
+
+
+
+
+
+some_var=$(grep -c "some text" /tmp/somePath)
+echo "var value is: ${some_var}"
+
+
+result=$(ls -l | grep -c "rahul.*patle")
+result=$(ls -l | grep -c "rahul.*patle")
