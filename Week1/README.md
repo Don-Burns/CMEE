@@ -47,6 +47,7 @@ A script which takes an imput from the user to put in a string and separately ta
 
 [**Data**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Data)
 Where inputs for the code are stored.
+
 Directories:
     fasta           - contains genomic data used as an input for UnixPrac1.txt
     Temperatures    - contains .csv files to be used with csvtospace.sh
