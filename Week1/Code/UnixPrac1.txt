@@ -1,0 +1,13 @@
+#directory is the git dir in data
+## Desc: a file to assess fasta sequence as found in Week1/Data of this repository
+
+wc -l Data/fasta/407228326.fasta && wc -l Data/fasta/407228412.fasta && wc -l Data/fasta/E.coli.fasta  ## 1 - count numbe of lines 
+
+tail -n +2 Data/fasta/E.coli.fasta ## 2 - omitts first line
+
+tail -n +2 Data/fasta/E.coli.fasta | wc -m  ## 3 - count sequence length
+
+tail -n +2 Data/fasta/E.coli.fasta | tr -d "\n" | grep -o "ATGC" |  wc -l  ## 4 -  count ATGC
+
+AT=$(tail -n +2 Data/fasta/E.coli.fasta | tr -d "\n" | grep -o "A\|T" | wc -l ) && CG=$(tail -n +2 fasta/E.coli.fasta | tr -d "\n" | grep -o "C\|G" | wc -l) && echo "$AT/$CG" | bc -l    ## AT/GC ratio
+

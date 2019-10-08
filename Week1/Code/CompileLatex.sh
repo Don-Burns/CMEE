@@ -19,6 +19,7 @@ rm *.bbl
 rm *.blg
 rm *.fdb* ##produced a _latex file
 rm *.fls
+rm *.synctex.gz
 
 
 echo "Done! Saved in:" && pwd

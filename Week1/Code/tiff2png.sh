@@ -5,7 +5,6 @@
 # Arguments: none
 # Date: Oct 2019
 
-##CHECK for jpg or png for output
 for f in *.tif;
     do
         echo "Converting $f";
