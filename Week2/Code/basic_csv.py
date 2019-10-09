@@ -14,14 +14,14 @@ for row in csvread:
 f.close()
 
 # write a file containing only species name and Body mass
-f = open('../data/testcsv', 'r')
+f = open('../data/testcsv.csv', 'r')
 g = open('../data/bodymass.csv', 'w')
 
 csvread = csv.reader(f)
 csvwrite = csv.writer(g)
 for row in csvread:
     print(row)
-    csvwrite.writerow([row[0]], row[4])
+    csvwrite.writerow([[row[0]], row[4]])
 
 f.close()
 g.close()
