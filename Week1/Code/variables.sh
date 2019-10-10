@@ -1,7 +1,7 @@
 #!/bin/bash
 # Author: Donal Burns db319@ic.ac.uk 
 # Script variables.sh
-# Desc: a script which takes an imput from the user to put in a string and separately takes two numbers adds them together.
+# Desc: a script which takes an input from the user to put in a string and separately takes two numbers adds them together.
 # Arguments: none
 # Date: Oct 2019
 

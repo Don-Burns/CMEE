@@ -2,9 +2,12 @@
 pdflatex $1.tex
 pdflatex $1.tex
 bibtex $1
-pdflatex $1
-pdflatex $1
-evince $1.pdf &
+pdflatex $1.tex
+pdflatex $1.tex
+mv $1.pdf ../Results ## move file to results folder in week 1
+filename=$(basename $1)
+echo ..Results/$filename
+evince ../Results/$filename.pdf &   ## opens file from ../Results
 
 ## Cleanup
 rm *~
@@ -22,7 +25,8 @@ rm *.fls
 rm *.synctex.gz
 
 
-echo "Done! Saved in:" && pwd
+
+echo "Done! Saved in: ../Results"
 
 
 exit 

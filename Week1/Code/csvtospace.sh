@@ -8,11 +8,12 @@
 
 
 echo "Creating a space separated version of $1"
-cat $1 | tr -s "," " " >> ../Results/"$1_spaced".csv
+cat $1 | tr -s "," " " >> "$1_spaced".csv
+
+newfile=$"$1_spaced".csv
+mv $newfile ../Results
 echo "DONE!"
 
 exit
 
 
-
-# where does samrat what the output to be saved?

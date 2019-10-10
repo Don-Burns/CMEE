@@ -8,7 +8,10 @@
 cat $1 > $3
 cat $2 >> $3
 
-echo "merged File is"
+echo "Merged File is"
 
 cat $3
 
+mv $3 ../Results 
+
+echo "Saved in ../Results."

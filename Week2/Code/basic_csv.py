@@ -8,8 +8,13 @@ csvread = csv.reader(f)
 temp = []
 for row in csvread:
     temp.append(tuple(row))
-    print(row)
-    print("The species is", row[0])
+    if row[0] == "Species":
+        print("Data layout:")
+        print(str(row) + "\n")
+        
+    else:    
+        print("The species is", row[0])
+        print(str(row) + "\n")
     
 f.close()
 
@@ -22,6 +27,6 @@ csvwrite = csv.writer(g)
 for row in csvread:
     print(row)
     csvwrite.writerow([[row[0]], row[4]])
-
+print("\n\nFile has been saved as 'bodymass.csv' within /data \n")
 f.close()
 g.close()
