@@ -114,7 +114,7 @@ tmp = None
 # test = []
 for i in range(l1): # Note that you just take the last alignment with the highest score
     z = calculate_score(s1, s2, l1, l2, i)
-    test.append(z)
+    # test.append(z)
     if z > my_best_score:
         with open("../data/align_tmp.txt", "wb") as file:
             # pickle.load(file) ## dont need to load because it will overwrite ?
