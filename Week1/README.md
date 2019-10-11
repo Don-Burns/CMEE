@@ -1,12 +1,12 @@
 # Week 1 CMEE Course Repositoty
 ## **Description**
-This week covered using the Unix Terminal, shell scripting using bash and how to use Latex to typeset and create a document.  All Code is written to be run from the Code folder.
+This week covered using the Unix Terminal, shell scripting using bash and how to use Latex to typeset and create a document.  All Code is written to be run from the [`Code`](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Code) folder.
 
 ## Structure
-Contains Code with the code produced during this week's class', Data with the data required for the code to run and Results which is where the code will output the resulting file of code if it produces any. This week also contains SandBox which is where
+Contains [`Code`](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Code) with the code produced during this week's class', [`Data`](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Data) with the data required for the code to run and [`Results`](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Results) which is where the code will output the resulting file of code if any is produced. This week also contains [`SandBox`](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/SandBox) which is where simpler concepts are tested.
 
 ## **Table of Contents**
-[**Code**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Code) - Title of codes with brief description.
+[**Code**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Code) - List of codes with brief descriptions.
 
 ```
 boilerplate.sh
@@ -53,7 +53,7 @@ Directories:
     Temperatures    - contains .csv files to be used with csvtospace.sh
 
 [**Results**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Results)
-For any outputs of the code to be placed.
+Where any outputs of the code to be placed.
 
 [**SandBox**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/SandBox)
 For any testing of code or files.

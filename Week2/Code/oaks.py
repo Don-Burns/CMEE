@@ -1,4 +1,7 @@
-## Desc: Finds just those taxa that are oak trees from a list of species
+#!/usr/bin/env python3
+# Author: Donal Burns (db319@ic.ac.uk)
+# Date: Oct 2019
+# Desc: Finds just those taxa that are oak trees from a list of species
 
 taxa = ['Quercus robur', 
 'Fraxinus exelsior', 

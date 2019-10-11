@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+# Author: Donal Burns (db319@ic.ac.uk)
+# Date: Oct 2019
+# Desc: A script taking birds latin names, common names and body mass and outputting them alone.
+
+
 birds = ( ('Passerculus sandwichensis','Savannah sparrow',18.7),
           ('Delichon urbica','House martin',19),
           ('Junco phaeonotus','Yellow-eyed junco',19.5),

@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# Author: Donal Burns (db319@ic.ac.uk)
+# Date: Oct 2019
+# Desc: A script examining how sys.argv is handeled in Python.
+
 # Average UK Rainfall (mm) for 1910 by month
 # http://www.metoffice.gov.uk/climate/uk/datasets
 rainfall = (('JAN',111.4),
