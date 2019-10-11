@@ -63,8 +63,8 @@ else:
 
 
 # Two example sequences to match, will run should no other files be specified.  found as align_seqs.csv in ../Results
-seq2 = "ATCGCCGGATTACGGG"
-seq1 = "CAATTCGGAT"
+# seq2 = "ATCGCCGGATTACGGG"
+# seq1 = "CAATTCGGAT"
 
 # Assign the longer sequence s1, and the shorter to s2
 # l1 is length of the longest, l2 that of the shortest
@@ -111,7 +111,7 @@ def calculate_score(s1, s2, l1, l2, startpoint):
 my_best_align = [""]
 my_best_score = -1
 tmp = None
-test = []
+# test = []
 for i in range(l1): # Note that you just take the last alignment with the highest score
     z = calculate_score(s1, s2, l1, l2, i)
     test.append(z)
@@ -153,8 +153,8 @@ def main(argv):
                 # import ipdb; ipdb.set_trace()
         print("DING! All Done.")
 
-print(set(test))
-print(test)
+# print(set(test))
+# print(test)
 ###  NOTE need to loop through lines of my_best _align for final file print?
 
 if (__name__ =="__main__"):
