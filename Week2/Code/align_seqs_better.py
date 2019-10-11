@@ -57,7 +57,7 @@ else:
         seq2 = ""
         for s in reader.readlines()[1:]:
             s = s.rstrip('\n')
-            seq1 = seq2 + s
+            seq1 = seq1 + s
 
 
 
@@ -121,20 +121,19 @@ for i in range(l1): # Note that you just take the last alignment with the highes
             my_best_align = ["." * i + s2]
             my_best_score = z 
             pickle.dump(my_best_align, file)
-
+        # print(z)
     ##for storage of values which are equal to the current best score.
     elif z == my_best_score:
-        my_best_align = ["." * i + s2]
-        tmp = my_best_align
+        tmp = ["." * i + s2]
         with open("../data/align_tmp.txt", "br+") as file:
             pickle.load(file)
             my_best_align.append(tmp)  
                 
             pickle.dump(my_best_align, file)
+            # import ipdb; ipdb.set_trace()
     ## if no higher or equal continue
     else:
         None
-# import ipdb; ipdb.set_trace()
 
 
 

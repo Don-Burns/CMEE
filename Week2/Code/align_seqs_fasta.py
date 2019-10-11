@@ -123,7 +123,6 @@ def main(argv):
         file.write("Best score:" + str(my_best_score) + "\n")
         print("DING! All Done.")
 
-print(test)
 
 if (__name__ =="__main__"):
     status = main(sys.argv)
