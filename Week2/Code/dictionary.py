@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""A script taking a list with species stored with their order as a tuple in a list. It creates a dictionary mapping orders as keys and species as values to their respective orders."""
+
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
 # Author: Donal Burns (db319@ic.ac.uk)
 # Date: Oct 2019
 # Desc: A script taking a list with species stored with their order as a tuple in a list. It creates a dictionary mapping orders as keys and species as values to their respective orders.

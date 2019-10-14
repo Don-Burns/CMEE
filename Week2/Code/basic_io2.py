@@ -1,3 +1,5 @@
+""" Takes# '../sandbox/testout.txt' and adds new lines at the end of each line. """
+
 ###########################
 # FILE INPUT
 ###########################

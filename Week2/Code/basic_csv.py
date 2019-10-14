@@ -1,3 +1,6 @@
+""" takes a file '../data/testcsv.csv' and writes a file to ../Results called bodymass.csv  which contains only the species name and body mass"""
+
+
 import csv
 
 # Read a file containing:

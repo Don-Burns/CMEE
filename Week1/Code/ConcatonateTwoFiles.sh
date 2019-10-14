@@ -12,6 +12,6 @@ echo "Merged File is"
 
 cat $3
 
-mv $3 ../Results 
+mv $3 ../Results/ 
 
 echo "Saved in ../Results."

@@ -1,3 +1,7 @@
+""" Takes a file prints it then removes blank lines and outputs to the terminal."""
+
+
+
 
 ###########################
 # FILE INPUT

@@ -1,5 +1,5 @@
-# Week 1 CMEE Course Repositoty
-## **Description**
+# Week 1 CMEE Course Repository
+# Week 1 CMEE Course Repository
 This week covered using the Unix Terminal, shell scripting using bash and how to use Latex to typeset and create a document.  All Code is written to be run from the [`Code`](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Code) folder.
 
 ## Structure

@@ -1,3 +1,5 @@
+""" Creates a binary file '../testp.p' containing a dictionary with 2 keys. """
+
 
 #######################
 # STORING OBJECTS

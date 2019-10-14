@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""A script taking birds latin names, common names and body mass and outputting them alone"""
+
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
 # Author: Donal Burns (db319@ic.ac.uk)
 # Date: Oct 2019
 # Desc: A script taking birds latin names, common names and body mass and outputting them alone.

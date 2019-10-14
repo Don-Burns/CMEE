@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+""" A script looking at how global and local funtions are handled inside and outside functions."""
+
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1
+
 #PART 1
 _a_global = 10  # a global variable
 

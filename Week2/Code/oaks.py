@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""Finds just those taxa that are oak trees from a list of species."""
+
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
 # Author: Donal Burns (db319@ic.ac.uk)
 # Date: Oct 2019
 # Desc: Finds just those taxa that are oak trees from a list of species

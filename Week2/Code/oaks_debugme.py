@@ -17,7 +17,7 @@ import sys
 import re ##regular expression module for quercus typos
 #Define function
 def is_an_oak(name):
-    """ Returns True if name is starts with 'quercus', has some ability to allow typos to be correctly interpreted e.g. Qaecuss.
+    """ Returns True if name is starts with 'quercus', has some ability to allow typos to be correctly interpreted e.g. Qaecuss.  Will not accept if the user makes 3 typos in a row or has one typo and too many letters.  Have judged this to be an acceptable level of redundancy while maintaining strictness of passing.
 
     doctest
     >>> is_an_oak('Fagus syvatica')
@@ -26,6 +26,8 @@ def is_an_oak(name):
     True
     >>> is_an_oak('Qaercuss maximus')
     True
+    >>> is_an_oak('Qaurcuss maximus')
+    False
      """
 
     oak = name.lower()
@@ -33,6 +35,7 @@ def is_an_oak(name):
 
     if oak.startswith('quercus'):
         return True
+        ##checks for user typos begin
     if re.match(re.compile('q.e.c.s'), oak):
         return True 
     if re.match(re.compile('.u.r.c.s'), oak):

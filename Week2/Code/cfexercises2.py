@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+"""A series of tests looking at how python does some simple calculations and printing a result if they meet various criterea."""
+
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
+
+
 for j in range(12):  # prints hello 4 times
     if j % 3 == 0:
         print('hello')

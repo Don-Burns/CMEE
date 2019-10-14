@@ -15,3 +15,6 @@ The course is broken into weeks with each week covering different material.  Thi
 
 [**Week 2**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week2)
     Python Week
+
+[**Week 3**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week3)
+    R Week
