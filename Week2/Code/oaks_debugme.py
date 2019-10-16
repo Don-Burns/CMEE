@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""A program which parses a list and takes all members of the 'Quercuss' genus and saves them to a sperate file in ../data
+"""A program which parses a list and takes all members of the 'Quercuss' genus and saves them to a sperate file in `../data`
 """
 
 

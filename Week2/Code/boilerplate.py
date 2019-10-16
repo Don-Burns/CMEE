@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Description of this program or application. 
-You can use several lines."""
+"""Description of this program or application.  You can use several lines."""
 
 __appname__ = '[application name here]'
 __author__ = 'Donal Burns (db319@ic.ac.uk)'

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ A programme which takes two genetic sequences and aligns them to provide the best direct match possible.
-
-It will run even if no inputs are given using short examples sequences, by using files 407228326.fasta and 407228412.fasta found within ../data/fasta """
+It will run even if no inputs are given using short examples sequences, by using files `407228326.fasta` and `407228412.fasta` found within `../data/fasta`.  Uses `pickle` to speed up the allignment for very large files."""
 
 
 __appname__ = 'align_seqs_fasta.py'

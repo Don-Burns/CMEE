@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """ A programme which takes two genetic sequences and aligns them to provide the best direct match possible.
-
-It will run even if no inputs are given using short examples sequences, by using align_seqs.csv found within ../data """
+It will run even if no inputs are given using short examples sequences, by using align_seqs.csv found within `../data` """
 
 
 __appname__ = 'align_seqs.py'
