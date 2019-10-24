@@ -1,9 +1,9 @@
 ## Desc: This script calculates heights of tree given  distance of each from its base and angle to its top, using trigonometric formula and writes a new file with the heights of the tree appended. \nInput: Realtive directory to .csv file containing species names, distance from tree in meters and angle to top of each tree in degress./nOutput: File named InputFileName"_Treeheight.csv"
 
 ####### Read in file #############
-title = "../data/trees.csv"
+title <- "../data/trees.csv"
 # if no file is given run with a test file.
-File = "../data/trees.csv"
+File <- "../data/trees.csv"
 
 # else run with the file given
 if(length(commandArgs(trailingOnly = T)) != 0) {
@@ -27,7 +27,7 @@ WriteFile <- function(input,outputDir){
     FileDeg <- rep(NA, nrow(input))
     FileHeight  <- rep(NA, nrow(input))
     
-    i = 0
+    i <- 0
     for (i in 1:nrow(input)){
         FileSpecies[i] <- input[i,1]
         FileDist[i] <-  input[i,2]
@@ -46,11 +46,11 @@ WriteFile <- function(input,outputDir){
 File <- read.table(File, sep = ',', header = TRUE, as.is = 1) ## read in data from trees.csv
 
 ## make new file name for output
-title = basename(title)
-FileName = gsub(".csv", "", title, ignore.case = F)
+title <- basename(title)
+FileName <- gsub(".csv", "", title, ignore.case = F)
 
 
 ## output file to results
-outputTitle = paste("../Results/",FileName,"_TreeHts.csv", sep = "")
+outputTitle <- paste("../Results/",FileName,"_TreeHts.csv", sep = "")
 
 WriteFile(File, outputTitle)

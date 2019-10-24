@@ -59,14 +59,14 @@ def WriteFile(input,outputDir):
 
         for rows in range(rowCount):
             if rows == 1:
-                #write in headersm for final file
+                #write in headers for final file
                 writer[rows, 1] = "Species"
                 writer[rows, 2] = "Distance.m"
                 writer[rows, 3] = "angle.degrees"
                 writer[rows, 4] = "Tree.Height.m"
             else:
                 #else write in the data to the final table
-                writer[rows, 1] = FileSpecies[rows]
+                writer.writerow([rows, 1]) = FileSpecies[rows]
                 writer[rows, 2] = FileDist[rows]
                 writer[rows, 3] = FileDeg[rows]
                 writer[rows, 4] = FileHeight[rows]

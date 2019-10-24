@@ -40,15 +40,16 @@ require(tidyr) # load the tidyr package
 
 
 
-MyWrangledData <- gather(TempData, key = "Species",  value = "Count", c(Cultivation -Block -Plot -Quadra)
+MyWrangledData <- TempData %>% gather( key = "Species",  value = "Count", -Cultivation, -Block, -Plot, -Quadrat)
+
 head(MyWrangledData); tail(MyWrangledData)
 
-MyWrangledData[, "Cultivaton"] <- as.factor(MyWrangledData[, "Cultivation"])
+MyWrangledData[, "Cultivation"] <- as.factor(MyWrangledData[, "Cultivation"])
 MyWrangledData[, "Block"] <- as.factor(MyWrangledData[, "Block"])
 MyWrangledData[, "Plot"] <- as.factor(MyWrangledData[, "Plot"])
 MyWrangledData[, "Count"] <- as.integer(MyWrangledData[, "Count"])
 str(MyWrangledData)
 
-
+hist(MyWrangledData$Count)
 
 

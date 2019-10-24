@@ -1,5 +1,8 @@
 ## Desc:  A script finding the correlation between Temperature change across years. \n Input: Data in a style such as that found in `../data/KeyWestAnnualMeanTemperature.RData` with the same headers\n Output: A graph showing the correlation of temperature changes over years vs if the same data were just chosen in a random order without time having any influence.
 
+#### Clearing data ###
+rm(list=ls())
+
 ############## File information - edit here to changematch input file layout ##############################
 File <- "../data/KeyWestAnnualMeanTemperature.RData"  ## file to be read in
 data = load(File)
@@ -33,6 +36,7 @@ trim <- function(trimSpot, vector){
 CorYrs <- function(Temp){
     # uses trim function to make, shift and trim to size two lists for comparison of 
     YrCor <- cor(trim("bot", Temp), trim("top", Temp))
+    return(YrCor)
 }
 
 
@@ -43,7 +47,7 @@ sampleYrs <- function(Temp, NumSamples){
     samples <- rep(NA, size)
     for (i in 1:NumSamples){
     sampleTemp <- sample(Temp, size, replace = FALSE)
-    samples[i] <- CorYrs(sampleTmp)
+    samples[i] <- CorYrs(sampleTemp)
     }
     return(samples)
     
@@ -81,7 +85,7 @@ plot (Temp)
 p <- p_val(ObservedCor, Samples)
 print(p)
 qplot(Samples, geom = "histogram")
-qplot()
+qplot(Samples)
 
 
 ################GRAVEYARD###################
