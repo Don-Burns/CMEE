@@ -1,0 +1,31 @@
+%%Desc: A first of typesetting a dcoument using latex.
+
+\documentclass[a4paper, 12pt]{article}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\title{A Simple Document}
+\author{Donal Burns}
+\date{02/10/2019}
+\begin{document}
+  \maketitle
+  
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.4\linewdth}    
+    \includegraphics[width=\linewidth]{../Results/TAuto_Temps.pdf}
+    \caption{Graph of timeshifted temperature data.}
+    \label{Figure 1}
+    \end{subfigure}
+
+
+    \begin{subfigure}[t]{0.4\linewdth} 
+    \includegraphics{../Results/TAuto_SampleCor.pdf}
+    \caption{Graph showing the distribution of the correlations generated during sampling}
+    \label{Figure 2}
+    \end{subfigure}
+\end{figure}
+
+
+
+
+\end{document}

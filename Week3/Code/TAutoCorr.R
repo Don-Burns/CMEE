@@ -33,9 +33,9 @@ trim <- function(trimSpot, vector){
 
 
  
-CorYrs <- function(Temp){
+corYrs <- function(Temp){
     # uses trim function to make, shift and trim to size two lists for comparison of 
-    YrCor <- cor(trim("bot", Temp), trim("top", Temp))
+    YrCor <- cor(trim("bot", Temp), trim("top", Temp)) #bot is for t, top is for t+1
     return(YrCor)
 }
 
@@ -44,15 +44,21 @@ sampleYrs <- function(Temp, NumSamples){
     # for randomly sampling the years 
     size = length(Temp)
     sampleTemp <- rep(NA, size)
-    samples <- rep(NA, size)
+    samples <- matrix(NA, ncol = NumSamples, nrow =  size)
     for (i in 1:NumSamples){
-    sampleTemp <- sample(Temp, size, replace = FALSE)
-    samples[i] <- CorYrs(sampleTemp)
+    samples[,i] <- sample(Temp, size, replace = FALSE)
     }
     return(samples)
     
 }
 
+corSamples <- function(samples){
+    cor <- rep(NA, length(samples[1,]))
+    for(i in 1:length(samples)){
+        cor[i] <- corYrs(samples[i])
+    }
+    return(cor)
+}
 
 p_val <- function(ObservedCor, random_samples){
     reps <- length(random_samples)
@@ -67,13 +73,22 @@ p_val <- function(ObservedCor, random_samples){
 }
 ##############BODY#####################
 ##Check that samples are indeed representing a random selection.  Should be as close to 0 as possible.
-ObservedCor <- CorYrs(Temp)
+ObservedCor <- corYrs(Temp)
 Samples <- sampleYrs(Temp, 10000)
+CorSamples <- corSamples(Samples)
 SampleMean <- mean(Samples)
 print(SampleMean)
 plot (Temp)
 
 
+
+
+### get data for the plot
+d <- matrix(NA, nrow = (length(Samples[1,] - 2)), ncol = 2) # col 1 is t col 2 is t+1
+for(i in 1:length(Samples[1,])){
+    d[i, 1] <- trim("bot", Samples[,i])
+    d[i, 2] <- trim("top", Samples[,i])
+}
 
 
 
@@ -91,7 +106,7 @@ qplot(Samples)
 ################GRAVEYARD###################
 
 
-# print(CorYrs())
+# print(corYrs())
 # print(cor(trim("top", ats[,2]), trim("bot", ats[,2])))
 
 
