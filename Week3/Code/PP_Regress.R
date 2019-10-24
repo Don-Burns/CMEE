@@ -1,4 +1,5 @@
-## Desc
+## Desc:  A script to make a regression, create a graph to match a pre-made example as closely as possible and save the key data generated to a `csv`
+
 
 ##House keeping##
 rm(list = ls())

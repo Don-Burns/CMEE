@@ -1,4 +1,4 @@
-## Desc: NONE
+## Desc: A script experimenting with *apply functions in R
 
 SomeOperation <- function(v){ # What does this function do?
 if(sum(v) > 0) {
