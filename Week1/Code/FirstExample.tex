@@ -1,35 +1,32 @@
-%%Desc: Script for writing latex write-up for `TAutoCor.R`.
 
-\documentclass[a4paper, 12pt]{article}
-\usepackage{graphicx}
-\usepackage{subcaption}
-\title{TAutoCor Report}
+\documentclass[12pt]{article}
+
+\title{A Simple Document}
+
 \author{Donal Burns}
-\date{24/10/2019}
+
+\date{}
+
 \begin{document}
-
+  \maketitle
   
+  \begin{abstract}
+    This paper must be cool!
+  \end{abstract}
   
-
-
- 
-\begin{figure}[h!]
-  \centering
-  \begin{subfigure}[t]{0.4\linewidth}
-    \includegraphics[width=\linewidth]{TAuto_Temps.pdf}
-    \caption{Graph of time shifted temperature data. \newline t - temperature at time of recording}
-    \label{Figure 1}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.4\linewidth}
-    \includegraphics[width=\linewidth]{TAuto_SampleCor.pdf}
-    \caption{Distribution of the correlations generated during sampling}
-  \end{subfigure}
-  \caption{}
-  \label{Figure 2}
-\end{figure}
-
-Figure 1 (a) shows the data as it was recorded at time t against a time shifted (t+1) version of that same data.  This is done to see if a previous years temperature can be show with this data to not be independent.  The correlation of the data sampled 10000 times randomly without replacement is show in the histogram (Fig. 1 (b)).  Looking at the distribution, that there is little correlation between the randomly sampled data.
-
-
-
+  \section{Introduction}
+    Blah Blah!
+  
+  \section{Materials \& Methods}
+  One of the most famous equations is:
+  \begin{equation}
+    E = mc^2
+  \end{equation}
+  This equation was first proposed by Einstein in 1905 
+  \cite{einstein1905does}.
+  
+  \bibliographystyle{plain}
+  \bibliography{FirstBiblio}
 \end{document}
+
+
