@@ -1,5 +1,7 @@
 ## Desc: a script to plot two dataframes by using Girko's circular Law as an example. /nSaves the output to `../Results/Girko.pdf`
 
+## load packages
+require(ggplot2)
 build_elipse <- function(hradius, vradius) {# function that returns an ellipse
     npoints = 250
     a <- seq(0, 2 * pi, length = npoints + 1)
@@ -7,7 +9,7 @@ build_elipse <- function(hradius, vradius) {# function that returns an ellipse
     y <- vradius * sin(a)
     return(data.frame(x = x, y = y))
 }
-
+##main
 N <- 250
 M <- matrix(rnorm(N * N), N, N)
 eigvals <- eigen(M)$values # find eigen values

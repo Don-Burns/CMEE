@@ -3,3 +3,4 @@ plotting.R
 ggplot.R
 *.pdf
 *.Rdata
+.Rhistory

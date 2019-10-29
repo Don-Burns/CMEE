@@ -1,5 +1,8 @@
 # Desc: A script to experiment with layering bar charts using gg plot
+##laod packages
+require(ggplot2)
 
+##Main##
 
 a <- read.table("../data/Results.txt", header = TRUE)
 

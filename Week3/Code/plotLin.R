@@ -1,6 +1,10 @@
 ## Desc: A script to make the data for and plot a linear regression using ggplot
 rm(list = ls())
 
+##load packages
+require(ggplot2)
+
+
 x <- seq(0, 100, by = 0.1)
 y <- -4. + 0.25 * x +
     rnorm(length(x), mean = 0., sd = 2.5)
