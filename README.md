@@ -9,12 +9,19 @@ The course is broken into weeks with each week covering different material.  Thi
 
 ## **Table of Contents**
 [**Week 1**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1)
-    Unix Terminal
+
+    Unix Terminal 
     Shell Scripting (Bash)
     Latex Document creation
 
 [**Week 2**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week2)
+
     Python Week
 
 [**Week 3**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week3)
+
     R Week
+
+[**Week 4**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week4)
+
+    Statistics Week
