@@ -3,3 +3,7 @@
 __pycache__
 *.pyc
 ./Week4/notes # dont need the notes from Week4 on git
+*.shp
+.Rhistory
+*.ppt*
+*.odp
