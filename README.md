@@ -25,3 +25,11 @@ The course is broken into weeks with each week covering different material.  Thi
 [**Week 4**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week4)
 
     Statistics Week
+
+[**Week 5**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week5)
+
+    GIS Week
+
+[**Week 6**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week6)
+
+    Bioinformatics Week
