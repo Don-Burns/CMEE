@@ -20,7 +20,7 @@ for( i in 1:length(d[,1])){
         d$Prey.mass.unit[i] = "g"
     }
 }
-unique(d$Prey.mass.unit)
+
 
 #qplot(log(Prey.mass), log(Predator.mass), data = MyDF, geom = c("point", "smooth"), colour = Type.of.feeding.interaction) + geom_smooth(method = "lm" ,fullrange = TRUE)
 

@@ -85,7 +85,7 @@ plot (Temp)
 
 ### get data for the plot
 d <- matrix(NA, nrow = (length(Samples[1,] - 2)), ncol = 2) # col 1 is t col 2 is t+1
-for(i in 1:length(Samples[1,])){
+    for(i in 1:length(Samples[1,])){
     d[i, 1] <- trim("bot", Samples[,i])
     d[i, 2] <- trim("top", Samples[,i])
 }
