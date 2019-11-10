@@ -1,4 +1,4 @@
-## Desc: need to add
+## Desc: A script looking at vectorisation in R.
 
 
 M <- matrix(runif(1000000), 1000, 1000)
@@ -13,8 +13,9 @@ SumAllElements <- function(M){
     }
     return(Tot)
 }
+
 print("Using loops, the time taken is: ")
 print(system.time(SumAllElements(M)))
-print("Using the in0built vectorized function, the time taken is: ")
+print("Using the in built vectorized function, the time taken is: ")
 print(system.time(sum(M)))
 
