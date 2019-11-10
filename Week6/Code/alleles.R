@@ -1,4 +1,4 @@
-# Desc: 
+# Desc: A script to look at the alleles, genotype, heterozygosity and homozygosity of a data set.  Input: `../data/bears.csv`.
 
 ############HOUSEKEEPING#############
 rm(list = ls())
