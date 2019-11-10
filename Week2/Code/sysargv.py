@@ -2,7 +2,7 @@
 """ A script examining how sys.argv is handeled in Python."""
 
 __author__ = 'Donal Burns (db319@ic.ac.uk)'
-__version__ = '0.0.1
+__version__ = '0.0.1'
 # Author: Donal Burns (db319@ic.ac.uk)
 # Date: Oct 2019
 # Desc: A script examining how sys.argv is handeled in Python.
