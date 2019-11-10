@@ -1,7 +1,5 @@
 
 
-getwd()
-seted("~/Documents/CMEECourseWork/Week4/stats/Code")
 2 * 2 + 1
 2 * (2+1)
 12/2^3
@@ -30,7 +28,6 @@ str(myCharacterVector)
 str(myLogicalVector)
 myMixedVector <- c(1, T, F, 3, "help", 1.2, T, "notwhatIplanned")
 
-install.packages("lme4")
 library(lme4) ## will load regardless of if it is currently loaded or not
 require(lme4) ## will check if it is loaded first, then load if its not
 
@@ -42,7 +39,7 @@ sqrt(4); 4^0.5; log(0); log(1); log(10); log(Inf)
 exp(1)
 pi
 rm(list=ls())
-d<-­â€read.table("SparrowSize.txt",  header=TRUE)
+d<-read.table("../data/SparrowSize.txt",  header=TRUE)
 str(d)
 
 

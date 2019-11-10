@@ -1,7 +1,6 @@
 rm(list = ls())
-setwd("~/Documents/CMEECourseWork/Week4/notes/HandOutsandData'18/")
 
-daphnia <- read.delim("daphnia.txt")
+daphnia <- read.delim("../data/daphnia.txt")
 summary(daphnia)
 
 
@@ -76,7 +75,7 @@ plot(daphniaMod)
 
 ## multi regression
 
-timber <- read.delim("timber.txt")
+timber <- read.delim("../data/timber.txt")
 summary(timber)
 
 par(mfrow = c(2, 2))

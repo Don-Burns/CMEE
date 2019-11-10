@@ -1,6 +1,5 @@
 rm(list=ls())
-setwd("~/Documents/CMEECourseWork/Week4/notes/HandOutsandData'18/")
-d <- read.table("SparrowSize.txt", header = T)
+d <- read.table("../data/SparrowSize.txt", header = T)
 boxplot(d$Mass~d$Sex.1, col = c("red", "blue"), ylab = "Body mass (g)")
 T.test1 <- t.test(d$Mass~d$Sex.1)
 T.test1

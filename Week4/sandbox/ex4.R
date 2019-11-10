@@ -1,6 +1,5 @@
 rm(list=ls())
-setwd("~/Documents/CMEECourseWork/Week4/notes/HandOutsandData'18/")
-d <- read.table("SparrowSize.txt", header = T)
+d <- read.table("../data/SparrowSize.txt", header = T)
 d1 <- subset(d, d$Tarsus!="NA")
 d2 <- subset(d, d$Mass != "NA")
 d3 <- subset(d, d$Wing != "NA")

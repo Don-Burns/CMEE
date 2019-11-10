@@ -1,6 +1,5 @@
 rm(list=ls())
-setwd("~/Documents/CMEECourseWork/Week4/stats/data/HandOutsandData'18/HandOutsandData'18")
-d <- read.table("SparrowSize.txt", header =T)
+d <- read.table("../data/SparrowSize.txt", header =T)
 str(d)
 names(d)
 head(d)
@@ -25,10 +24,10 @@ hist(d$Tarsus, breaks = 100, col="grey")
 #mlv(d2$Tarsus)
 
 #range, var and sd
-range(d$Tarsus, na.rm = T)
-range(d2$Tarsus, na.rm = T)
-var(d$Tarsus, na.rm = T)
-var(d2$Tarsus, na.rm = T)
+#range(d$Tarsus, na.rm = T)
+#range(d2$Tarsus, na.rm = T)
+#var(d$Tarsus, na.rm = T)
+#var(d2$Tarsus, na.rm = T)
 
 
 

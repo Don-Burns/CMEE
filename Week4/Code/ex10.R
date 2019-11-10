@@ -1,6 +1,8 @@
+## Desc: A script showing an example of getting residuals and testing fit of a linear model
+
 rm(list = ls())
-setwd("~/Documents/CMEECourseWork/Week4/notes/HandOutsandData'18/")
-d <- read.table("SparrowSize.txt", header = T)
+
+d <- read.table("../data/SparrowSize.txt", header = T)
 
 plot(d$Mass ~ d$Tarsus, ylab = "Mass (g)", xlab = "Tarsus (mm)", pch = 19, cex = 0.4)
 

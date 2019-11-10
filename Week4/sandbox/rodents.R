@@ -1,4 +1,4 @@
-## Desc: working in groups, looking at the rodents.csv data.  Looking at abundance with yaer and rain
+## Desc: working in groups, looking at the rodents.csv data.  Looking at abundance with year and rain
 ## House keeping ##
 rm(list = ls())
 

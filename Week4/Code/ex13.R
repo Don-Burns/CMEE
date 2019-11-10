@@ -1,8 +1,7 @@
 ## Desc: Script looking at using and interpreting Anova test.  Use data obtained from students measureing the same sparrow tarsus and bill.
 
 rm(list = ls())
-setwd("~/Documents/CMEECourseWork/Week4/notes/HandOutsandData'18/")
-d <- read.table("SparrowSize.txt", header = T)
+d <- read.table("../data/SparrowSize.txt", header = T)
 d1 <- subset(d, d$Wing != "NA")
 summary(d1$Wing)
 hist(d1$Wing)
