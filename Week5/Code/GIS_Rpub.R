@@ -1,3 +1,6 @@
+# Desc: A script exploring how to make, manipulate and save maps made using coordinate specified directly in code
+
+
 rm(list = ls())
 
 
@@ -122,7 +125,7 @@ uk_eire$area <- set_units(uk_eire$area, 'km^2')
 uk_eire$length <- set_units(uk_eire$length, 'km')
 
 # And which won't let you make silly error like turning a length into weight
-uk_eire$area <- set_units(uk_eire$area, 'kg')
+#uk_eire$area <- set_units(uk_eire$area, 'kg')
 
 #Or you can simply convert the 'units' version to simple numbers
 uk_eire$length <- as.numeric(uk_eire$length) # will be a string by default
@@ -133,7 +136,6 @@ st_distance(uk_eire)
 
 st_distance(uk_eire_centroids)
 
-dev.off()
 ########################################################
 #############PLOTTING sf OBJECTS########################
 ########################################################

@@ -1,5 +1,5 @@
-## Desc: Due to constant crashing of the uk data handling. the code was split where that data was no longer being used to pregress
-
+## Desc: script which takes files from `../data` and creates maps.  However, many files are too large for this repository so they need to be obtained from elsewhere
+rm(list = ls())
 require(raster)
 require(sf)
 require(viridis)
@@ -84,28 +84,41 @@ plot(so_data['chlorophyll'], add=TRUE, logz=TRUE, pch=20, cex=2, pal=viridis, bo
 
 
 ############# spatial joining###################
-
+dev.off()
 # extract Africa from the ne_110
  africa <- subset(ne_110, CONTINENT == 'Africa', select = c('ADMIN', 'POP_EST'))
 
 # transform to the Robinson Projection
 africa <- st_transform(africa, crs = 54030)
+# create a random sample of points
+mosquito_points <- st_sample(africa, 1000)
+
+# create the plot
+plot(st_geometry(africa), col = 'khaki')
+plot(mosquito_points, col = 'firebrick', add = T)
 
 
+mosquito_points <- st_sf(mosquito_points)
+mosquito_points <- st_join(mosquito_points, africa['ADMIN'])
+plot(st_geometry(africa), col = 'khaki')
+plot(mosquito_points['ADMIN'], add = T)
+
+mosquito_points_agg <- aggregate(mosquito_points, by = list(country = mosquito_points$ADMIN), FUN = length)
+names(mosquito_points_agg)[2] <- 'n_outbreaks'
+head(mosquito_points_agg)
 
 
+africa <- st_join(africa, mosquito_points_agg)
+africa$area <- as.numeric(st_area(africa))
+head(africa)
 
+par(mfrow = c(1, 2), mar = c(3, 3, 1, 1), mgp = c(2, 1, 0))
+plot(n_outbreaks ~ POP_EST, data = africa, log = 'xy',
+     ylab = 'Number of outbreaks', xlab = 'Population size')
+plot(n_outbreaks ~ area, data = africa, log ='xy', 
+     ylab = 'Number of outbreaks', xlab = 'Area (m2)')
 
-
-
-
-
-
-
-
-
-
-
+########alien task#########
 
 
 
