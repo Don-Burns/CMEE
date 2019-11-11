@@ -34,13 +34,9 @@ def TreeHeight(degrees, distance):
 def WriteFile(input, outputDir):
     """a function to construct the table of data and write to a file"""
     with open(input, "r") as data:
-        csvRead = csv.reader(data)
-        # predefine column size
-        rowCount = 121
-
-        # rowCount = sum(1 for row in csvRead)
-        # for rows in csvRead:
-        #     rowCount = rowCount + 1
+        csvRead = list(csv.reader(data))  # make it a list because i want to loop through more than one.  if i don't the first loop will be fine, but second will result in the obeject only being the last line of the file aka `blank`
+        # predefine columns
+        rowCount = len(csvRead)
         print("number of rows counted = " + str(rowCount))
         FileSpecies = ["Blank"] * rowCount
         FileDist = ["Blank"] * rowCount
@@ -48,8 +44,9 @@ def WriteFile(input, outputDir):
         FileHeight = ["Blank"] * rowCount
         tmp = 0
 
+
         for i in csvRead:
-            # read in file ensuring to skip the headers
+            #read in file ensuring to skip the headers
             if "Species" in i:
                 None
             else:
@@ -70,18 +67,10 @@ def WriteFile(input, outputDir):
             if rows == 0:
                 # write in headers for final file
                 writer.writerow(["Species", "Distance", "angle.degrees", "Tree.Height.m"])
-            #     writer[rows, 1] = "Species"
-            #     writer[rows, 2] = "Distance.m"
-            #     writer[rows, 3] = "angle.degrees"
-            #     writer[rows, 4] = "Tree.Height.m"
             else:
                 # else write in the data to the final table
                 thisRow = [FileSpecies[rows], FileDist[rows], FileDeg[rows], FileHeight[rows]]
                 writer.writerow(thisRow)
-                # writer[rows, 1] = FileSpecies[rows]
-                # writer[rows, 2] = FileDist[rows]
-                # writer[rows, 3] = FileDeg[rows]
-                # writer[rows, 4] = FileHeight[rows]
 
     return ("Done!!!")
 
