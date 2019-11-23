@@ -1,5 +1,15 @@
 #!/bin/usr/env python3
-# Desc: 
+# Desc: Models the Lotka-Volterra model using integration.
+
+"""
+Models the Lotka-Volterra model using integration.
+"""
+
+__appname__ = 'LV1.py'
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
+__liscense__ = "Apache 2"
+###############################################################
 ####Packages#####
 def LV1():
     import scipy as sc

@@ -1,4 +1,14 @@
-## Desc: A script to run and profile `LV1.py` and `LV2.py`
+## Desc: run and profiles the `LV`1-5.py scripts
+
+"""
+run and profiles the `LV`1-5.py scripts
+"""
+
+__appname__ = ''
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
+__liscense__ = "Apache 2"
+########################################################
 
 import cProfile
 import pstats

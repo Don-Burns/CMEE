@@ -2,6 +2,15 @@
 
 # Desc: Discrete-time version of `LV2.py`, with variation in Resources and Consumers
 
+"""
+Discrete-time version of the Lotka-Volterra model Lotka-Volterra model with prey density dependence, with variation in Resources and Consumers.
+"""
+
+__appname__ = 'LV5.py'
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
+__liscense__ = "Apache 2"
+###############################################################
 
 def LV5(argv):
     ####Packages#####

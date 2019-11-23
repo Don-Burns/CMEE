@@ -1,4 +1,14 @@
-""" This is blah blah"""
+#!/bin/usr/env python3
+
+"""
+Finds all directories which start with uppercase 'C', file and directories which start with either upper or lowercase 'C' and finally all directories which start with  either upper or lowercase 'C'. The results are printed to the terminal as the number of files found in each case.
+"""
+
+__appname__ = 'using_os.py'
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
+__liscense__ = "Apache 2"
+
 
 # Use the subprocess.os module to get a list of files and  directories 
 # in your ubuntu home directory 
@@ -24,16 +34,8 @@ FilesDirsStartingWithCc = []
 FilesStartingWithCc = []
 
 # Use a for loop to walk through the home directory.
-# pattern = re.compile(home+"C\w*\/.*")
-# pattern = re.compile(home+"C\w*\/.*")
-# for (dir, subdir, files) in subprocess.os.walk(home):
-#     tmp = re.findall(pattern, dir)
-#     if len(tmp) >0:
-#         FilesDirsStartingWithC.append(tmp)
 
-
-
-pattern = ".*C\w*.*"
+pattern = ".*C\w*.*\/"
 for (dir, subdir, files) in subprocess.os.walk(home):
     tmp = re.findall(re.compile(pattern), dir)
     if len(tmp) >0:
@@ -52,7 +54,7 @@ for (dir, subdir, files) in subprocess.os.walk(home):
     if len(tmp) >0:
         FilesDirsStartingWithCc.append(tmp)
 
-print("Dirs which start with C or c " + str(len(FilesDirsStartingWithCc)))
+print("Dirs and files which start with C or c " + str(len(FilesDirsStartingWithCc)))
 
 #################################
 # Get only directories in your home/ that start with either an upper or 
@@ -63,6 +65,6 @@ for (dir, subdir, files) in subprocess.os.walk(home):
     tmp = re.findall(re.compile(pattern), str(dir))
     if len(tmp) >0:
         FilesStartingWithCc.append(tmp)
-print("Files only which start with C or c " + str(len(FilesStartingWithCc)))
+print("Dirs which start with C or c " + str(len(FilesStartingWithCc)))
 
 

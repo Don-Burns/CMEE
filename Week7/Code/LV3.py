@@ -1,7 +1,15 @@
 #!/bin/usr/env python3
 
 # Desc: Discrete-time version of `LV2.py`
+"""
+Discrete-time version of the Lotka-Volterra model Lotka-Volterra model with prey density dependence.
+"""
 
+__appname__ = 'LV3.py'
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
+__liscense__ = "Apache 2"
+###############################################################
 
 def LV3(argv):
     ####Packages#####

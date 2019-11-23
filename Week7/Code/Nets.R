@@ -1,3 +1,7 @@
+## Desc: Plots a network of the organisations invloves in the QMEE CDT programme
+
+###############################################################################
+
 library(igraph) # Load the igraph package
 
 rm(list = ls())

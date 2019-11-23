@@ -1,7 +1,15 @@
 #!/bin/usr/env python3
 
-# Desc:
+# Desc: Models the Lotka-Volterra model Lotka-Volterra model with prey density dependence.
+"""
+Models the Lotka-Volterra model Lotka-Volterra model with prey density dependence.
+"""
 
+__appname__ = 'LV2.py'
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
+__liscense__ = "Apache 2"
+###############################################################
 
 def LV2(argv):
     ####Packages#####

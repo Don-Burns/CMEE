@@ -1,3 +1,13 @@
+#!/bin/usr/env python3
+"""
+Takes `blackbirds.txt`  with species and genus present and returns the kindom, phylum and species' found as a list in terminal
+"""
+
+__appname__ = 'blackbirds.py'
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
+__liscense__ = "Apache 2"
+###############################################################
 import re
 
 # Read the file (using a different, more python 3 way, just for fun!)
