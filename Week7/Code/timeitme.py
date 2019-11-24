@@ -1,6 +1,6 @@
 #!/bin/usr/env python3
 """
-
+Script manually profiling the `profileme.py` and `profileme2.py` scripts using `timeit`.
 """
 
 __appname__ = ''

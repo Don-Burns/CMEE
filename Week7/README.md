@@ -111,8 +111,7 @@ run and profiles the `LV`1-5.py scripts
 timeitme.py
 ```
 """
-Script manually profiling the `profileme.py` and `profileme2.py` scripts.
-"""
+Script manually profiling the `profileme.py` and `profileme2.py` scripts using `timeit`."""
 
 ```
 using_os.py
