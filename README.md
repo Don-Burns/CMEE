@@ -16,7 +16,7 @@ The course is broken into weeks with each week covering different material.  Thi
 
 [**Week 2**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week2)
 
-    Python Week
+    Python I Week
 
 [**Week 3**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week3)
 
@@ -33,3 +33,7 @@ The course is broken into weeks with each week covering different material.  Thi
 [**Week 6**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week6)
 
     Bioinformatics Week
+
+[**Week 7**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week7)
+
+    Python II Week
