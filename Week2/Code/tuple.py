@@ -2,7 +2,11 @@
 # Author: Donal Burns (db319@ic.ac.uk)
 # Date: Oct 2019
 # Desc: A script taking a tuple containing tuples with the latin name, common name and body mass of various bird species.  
-#
+#!/usr/bin/env python3
+"""A script taking a tuple containing tuples with the latin name, common name and body mass of various bird species. """
+
+__author__ = 'Donal Burns (db319@ic.ac.uk)'
+__version__ = '0.0.1'
 
 
 birds = ( ('Passerculus sandwichensis','Savannah sparrow',18.7),
