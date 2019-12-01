@@ -1,0 +1,2 @@
+this is a file to be used with `ConcatonateTwoFiles.sh` when no arguments are given.  
+If you are seeing this in your results and it is not the desired output please given 2 file names as arguments.
