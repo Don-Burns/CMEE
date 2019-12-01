@@ -8,3 +8,4 @@ __pycache__
 *.ppt*
 *.odp
 .idea/
+.vscode
