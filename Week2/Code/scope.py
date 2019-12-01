@@ -93,7 +93,7 @@ print("The value of a_global in main workspace / namespace is ", _a_global)
 
 _a_global = 10
 def a_function():
-    """ mroe global vs local """
+    """ more global vs local """
     def _a_function2():
         """ even more global vs local"""
         global _a_global
