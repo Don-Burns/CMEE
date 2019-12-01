@@ -37,3 +37,11 @@ The course is broken into weeks with each week covering different material.  Thi
 [**Week 7**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week7)
 
     Python II Week
+
+[**Week 8**](https://github.com/Don-Burns/CMEECourseWork/tree/master/MiniProject)
+
+    Mini Project Week
+
+[**Week 7**](https://github.com/Don-Burns/CMEECourseWork/tree/master/HPC)
+
+    HPC Week
