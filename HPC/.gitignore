@@ -1,0 +1,12 @@
+############
+#Ignore all#
+############
+Notes.md
+Worksheets/
+###########
+#Whitelist#
+###########
+# !.gitignore
+# !/Code/db319*
+# !/Results/*
+# !/data/*
