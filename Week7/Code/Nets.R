@@ -27,12 +27,12 @@ net <- graph.adjacency(as.matrix(links), mode = "directed", weighted=TRUE, diag=
 #Test plot
 # plot(net, edge.arrow.size=1, edge.curved=.1,
 #      vertex.color="orange", vertex.frame.color="#555555",
-#      vertex.label=V(net)$Type, vertex.label.color="black",
+    #      vertex.label=V(net)$Type, vertex.label.color="black",
 #      vertex.label.cex=.7)
 
 # Generate colors based on partner type:
-colrs <- c("green", "red", "blue")
-V(net)$color <- colrs[nodes$Type]
+    colrs <- c("green", "red", "blue")
+    V(net)$color <- colrs[nodes$Type]
 
 # Set node size based on Number of PIs:
 # V(net)$size <- V(net)$Pis*0.9
@@ -40,7 +40,7 @@ V(net)$color <- colrs[nodes$Type]
 V(net)$size <- 50
 
 # Set edge width based on weight (PhD Students):
-E(net)$width <- E(net)$weight
+    E(net)$width <- E(net)$weight
 
 #change arrow size and edge color:
 E(net)$arrow.size <- 1

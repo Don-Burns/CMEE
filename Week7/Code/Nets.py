@@ -29,6 +29,7 @@ for r in range(len(links)):
     for c in range(len(links)):
         if r == c: # to skip the diagonal
             None
+
         else:   #assign the value with direction
             # AdjList[posInAdjList] = links.iloc[r,c] 
             # AdjListKey[posInAdjList] = links.columns[r] + '-->' + links.columns[c]
@@ -41,12 +42,14 @@ for r in range(len(links)):
 # SizRan = ([-10, 10]) # use log10 scale
 # Sizs = sc.random.uniform(SizRan[0], SizRan[1], 30)
 
+p.ioff()
+col = ("red", "green", "blue")
 
-# pos = nx.circular_layout(nodeList)
+pos = nx.circular_layout(nodeList)
 
-G = nx.Graph()
-
-G.add_nodes_from(nodeList)
+G = nx.DiGraph()
+test = set(nodes["Type"])
+G.add_nodes_from(nodes["id"])
 G.add_weighted_edges_from(tuple(AdjList))
 
 
@@ -54,14 +57,15 @@ G.add_weighted_edges_from(tuple(AdjList))
 
 f = p.figure() 
 # nx.draw_networkx(G, pos, node_size = NodSizs)
-nx.draw_networkx(G, node_size=500, arrowstyle='->', arrowsize=10, width=2, arrows = True)
-# nx.draw_networkx_edges(G, node_size=100, arrowstyle='->', arrowsize=10, width=2)
+nx.draw_networkx(G, node_size=1000, arrowstyle= 'Fancy', arrowsize=30, width=.5, arrows = True)
+# nx.draw_networkx_edges(G, pos = pos, node_size=100, arrows = True, arrowstyle='->', arrowsize=200, width=2)
 
 # nx.draw_networkx_edges(G, pos, node_size=node_sizes, arrowstyle='->', arrowsize=10, edge_color=edge_colors, edge_cmap=plt.cm.Blues, width=2)  #example from documentation
 
 
 # nx.drawing.nx_pylab.draw_networkx_edges(G, arrows = True, arrowstyle = "Fancy")
-p.show()
+# p.show()
+f.savefig("../Results/QMEENet_py.svg", width = 7, height  = 7)
 
 
 
