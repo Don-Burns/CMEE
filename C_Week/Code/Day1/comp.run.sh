@@ -5,7 +5,7 @@ gcc -Wall -o"${1//.c}".out $1
 
 error=$?
 
-if [$error != 0]
+if [ $error != 0 ]
     then 
         echo " Fix erors to obtain output"
     else

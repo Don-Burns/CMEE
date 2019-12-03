@@ -67,7 +67,8 @@ y = x++;
 
 
 
-
+# Misc
+* control warning/error in the compiler.  control is the current point in the programme, in this case at time of error
 
 
 
