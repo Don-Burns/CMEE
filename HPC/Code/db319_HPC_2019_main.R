@@ -548,11 +548,11 @@ draw_fern <- function(start_position, direction, length)  {
 
 # Question 30
 fern2 <- function(start_position, direction, length, dir)  {
-  if(length > 0.0001){
+  if(length > 0.01){
     
     midpoint <- turtle(start_position = start_position, direction = direction, length = length)
     
-    fern2(start_position = midpoint, direction = (direction + pi/4), length = 0.38 * length, dir = -dir)
+    fern2(start_position = midpoint, direction = (direction + pi/4 *dir), length = 0.38 * length, dir = dir)
     
     fern2(start_position = midpoint, direction = direction, length = 0.87 * length, dir = -dir)
   }  
@@ -597,9 +597,17 @@ Challenge_E <- function() {
 }
 
 # Challenge question F
-Challenge_F <- function() {
+Challenge_F <- function(start_position, direction, length) {
   # clear any existing graphs and plot your graph within the R window
-  return("type your written answer here")
+  if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
+  
+  plot(start_position, cex = 0.000001, xlim = c(0, 8), ylim = c(0, 8))
+  
+  fern2(start_position = start_position, direction = direction, length = length, dir = 1)
+  
+  
+  
+  return("As the linethreshold shrinks the time to run the function increases.  Additionally, the image produced becomes 'bushier', i.e. there are much more 'leaves' produced due to the fractal being able to branch at much smaller intervals.")
 }
 
 # Challenge question G should be written in a separate file that has no dependencies on any functions here.

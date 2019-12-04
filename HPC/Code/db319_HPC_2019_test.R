@@ -105,9 +105,21 @@ species_richness(c(1,4,4,5,1,6,1))
 # Q29
 # draw_fern(start_position = c(4,0), direction = pi/2, length = 1)
 
-# # Q30
-draw_fern2(start_position = c(4,0), direction = pi/2, length = 1)
+# Q30
+# draw_fern2(start_position = c(4,0), direction = pi/2, length = 1)
 
+# Challenge_A
+
+# Challenge_B
+
+# Challenge_C
+
+# Challenge_D
+
+# Challenge_E
+
+# Challenge_F
+Challenge_F(start_position = c(4,0), direction = pi/2, length = 1)
 
 
 
