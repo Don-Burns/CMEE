@@ -7,12 +7,12 @@ require(lattice)
 d <- read.csv("../data/EcolArchives-E089-51-D1.csv", stringsAsFactors = F)
 
 #check for unique values in unit to look at what the units being used are, this can only be done with prey mass, just have to assume by looking at the data that predators are in g - prey is mg, g
-unique(d$Prey.mass.unit)
+# unique(d$Prey.mass.unit)
 
 
 preyG <- subset(d, d$Prey.mass.unit == "g")
 preyMG <- subset(d, d$Prey.mass.unit == "mg")
-d
+
 
 for( i in 1:length(d[,1])){
     if (d$Prey.mass.unit[i] == "mg"){
@@ -57,7 +57,7 @@ preylog <-mean(log(prey))
 predlog <- mean(log(predator))
 sizeLog <- mean(log(sizeRatio))
 csvHeaders <- c("Type of Feeding Interaction", "log Prey Mass", "log Predator Mass", "log Size")
-unique(d$Prey.mass.unit)
+# unique(d$Prey.mass.unit)
 
 csvData <- matrix(NA, nrow = 1, ncol = 4)
 for(feed in unique(d$Type.of.feeding.interaction)){
