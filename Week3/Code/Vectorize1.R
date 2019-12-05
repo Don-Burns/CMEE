@@ -15,7 +15,7 @@ SumAllElements <- function(M){
 }
 
 print("Using loops, the time taken is: ")
-print(system.time(SumAllElements(M)))
+print(system.time(SumAllElements(M))[3])
 print("Using the in built vectorized function, the time taken is: ")
-print(system.time(sum(M)))
+print(system.time(sum(M))[3])
 

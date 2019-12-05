@@ -2,10 +2,10 @@
 # Desc: A script looking at vectorisation in python. Spefically an python version of `Vectorize1.R`
 
 import random
-import timeit
+import time
+import numpy as np
 
 M = [[random.uniform(0, 1) for x in range(1000)] for x in range(1000)]
-
 
 def SumAllElements(M):
     Tot = 0
@@ -18,10 +18,10 @@ def SumAllElements(M):
 
 
 def elapsed_time(TestCode):
-    start = timeit.default_timer()
+    start = time.time()
     TestCode
-    end  = timeit.default_timer()
-    return end  - start # returns time in seconds
+    end  = time.time()
+    return end  - start # returns time in second
 
 
 def test(number):
@@ -29,9 +29,7 @@ def test(number):
         a = 5*4*3*45*28*4434
         return a
 
-
-
 print("Using loops, the time taken is: ")
 print(elapsed_time(SumAllElements(M)))
 print("Using the in built vectorized function, the time taken is: ")
-print(elapsed_time(sum(M)))
+print(elapsed_time(np.sum(M)))
