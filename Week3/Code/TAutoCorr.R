@@ -83,7 +83,7 @@ SampleMean <- mean(Samples)
 print(SampleMean)
 # plot (Temp)
 
-
+ 
 
 
 
