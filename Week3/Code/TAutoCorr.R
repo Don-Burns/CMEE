@@ -6,8 +6,8 @@ rm(list=ls())
 ############## File information - edit here to changematch input file layout ##############################
 File <- "../data/KeyWestAnnualMeanTemperature.RData"  ## file to be read in
 data = load(File)
-Temp <- ats[,2]
-Year <- ats[,1]
+Temp <- ats[,2] # observed temperature data
+Year <- ats[,1] # year it was observed
 ################################################################################
 
 ######### Load packages ##############
@@ -52,13 +52,15 @@ sampleYrs <- function(Temp, NumSamples){
     
 }
 
+
 corSamples <- function(samples){
-    cor <- rep(NA, length(samples[1,]))
-    for(i in 1:length(samples)){
-        cor[i] <- corYrs(samples[i])
+    cor <- rep(NA, ncol(samples))
+    for(i in 1:ncol(samples)){
+        cor[i] <- corYrs(samples[,i])
     }
     return(cor)
 }
+
 
 p_val <- function(ObservedCor, random_samples){
     reps <- length(random_samples)
@@ -71,6 +73,7 @@ p_val <- function(ObservedCor, random_samples){
     }
     p <- over / reps
 }
+
 ##############BODY#####################
 ##Check that samples are indeed representing a random selection.  Should be as close to 0 as possible.
 ObservedCor <- corYrs(Temp)
@@ -78,45 +81,53 @@ Samples <- sampleYrs(Temp, 10000)
 CorSamples <- corSamples(Samples)
 SampleMean <- mean(Samples)
 print(SampleMean)
-plot (Temp)
+# plot (Temp)
 
 
 
 
-### get data for the plot
-d <- matrix(NA, nrow = (length(Samples[1,] - 2)), ncol = 2) # col 1 is t col 2 is t+1
-    for(i in 1:length(Samples[1,])){
-    d[i, 1] <- trim("bot", Samples[,i])
-    d[i, 2] <- trim("top", Samples[,i])
-}
+
+##### Calculate P-value
+
+p <- p_val(ObservedCor, CorSamples)
+print(paste("The p-value of the observed data vs randomly generated data is", p))
+
+
+#######plotting########
+# d <- data.frame(NA, nrow = length(Temp) -1, ncol = 2)## combine timen shifted data for plotting
+# d[,1] <- t(trim("bot", Temp)) # t
+# d[,2] <- t(trim("top", Temp)) # t+1
+
+# d <- as.data.frame(d)d <- matrix(NA, nrow = length(Temp) -1, ncol = 2)## combine timen shifted data for plotting
+# d[,1] <- trim("bot", Temp) # t
+# d[,2] <- trim("top", Temp) # t+1
+# 
+# d <- as.data.frame(d)
 
 
 
-#### Calculate P-value
-# sapply(1:)
+pdf("../Results/TAuto_SampleCor.pdf")
+qplot(CorSamples, geom = "histogram", col = I("black"), fill =I("gray"), xlab = "Samples", ylab = "Count")
+graphics.off()
+# qplot(as.numeric(d1), as.numeric(d2))
+pdf("../Results/TAuto_Temps.pdf")
+qplot(trim("bot", Temp), trim("top", Temp), geom = c("point", "smooth"), method = "lm", xlab = "t", ylab = "t+1")
+graphics.off()
 
 
 
-p <- p_val(ObservedCor, Samples)
-print(p)
-qplot(Samples, geom = "histogram")
-qplot(Samples)
 
 
 ################GRAVEYARD###################
 
-
-# print(corYrs())
-# print(cor(trim("top", ats[,2]), trim("bot", ats[,2])))
-
-
-
-
-
-
-
-# plot(ats)
-# print(cor(ats["Year"], ats["Temp"]))
+# ### get data for the plot
+# d1 <- matrix(NA, nrow = (nrow(Samples)-1), ncol = ncol(Samples)) # d1 1 is t d2 2 is t+1
+# d2 <- d1 <- matrix(NA, nrow = (nrow(Samples)-1), ncol = ncol(Samples)) #d2 2 is t+1
+# 
+# for(i in 1:ncol(Samples)){
+#     d1[, i] <- trim("bot", Samples[,i])
+#     d2[, i] <- trim("top", Samples[,i])
+# }
 
 
 ## NOTES;   include plot of original series in pdf
