@@ -9,7 +9,6 @@ python3 Vectorize1.py
 
 echo ""
 echo "-----------------Now Running Vectorize2 scripts-----------------"
-echo ""
 echo "Vectorize2.R"
 Rscript Vectorize2.R
 echo ""
