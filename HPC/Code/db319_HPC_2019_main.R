@@ -121,7 +121,7 @@ neutral_step_speciation <- function(community,speciation_rate)  {
 
 # Question 10
 neutral_generation_speciation <- function(community,speciation_rate)  {
-  # Will use `neutral_step_speciation` to simulate the death and either reporduction or mutaiton of individuals over a generation where generation length = number of individuals / 2.
+  # Will use `neutral_step_speciation` to simulate the death and either reporduction or mutation of individuals over a generation where generation length = number of individuals / 2.
   roundUpDown <- sample(c(T,F), 1) # choose to round up or down randomly
   
   if(roundUpDown){ # if `round_updown` is True then round up
@@ -374,7 +374,7 @@ process_cluster_results <- function(filePrefix = "Cluster_Run_output", numFiles 
   barplot(mean500, main = "Mean Octaves, Size = 500", xlab = xlabel, ylab = ylabel, ylim =c(0, max(mean500)+1))
   barplot(mean1000, main = "Mean Octaves, Size = 1000", xlab = xlabel, ylab = ylabel, ylim =c(0, max(mean1000)+1))
   barplot(mean2500, main = "Mean Octaves, Size = 2500", xlab = xlabel, ylab = ylabel, ylim =c(0, max(mean2500)+1))
-  barplot(mean5000, mean = "Mean Octaves, Size = 5000", xlab = xlabel, ylab = ylabel, ylim =c(0, max(mean5000)+5))
+  barplot(mean5000, main = "Mean Octaves, Size = 5000", xlab = xlabel, ylab = ylabel, ylim =c(0, max(mean5000)+5))
 
 
   
@@ -437,7 +437,7 @@ chaos_game <- function(repeats = 100000)  {
   plot(c(0,0), cex = 0.000001, pch = 8,xlim = c(0, max(Xstore)), ylim = c(0, max(Xstore))) # define the starting value of `X` manually as (0,0)
   points(Xstore, cex = 0.000001, pch = 8)
   
-  return("What is returned is a series of points which draw one triangle with a triangle of black space enclosed inside, this reapeats producing increasingly smaller versions of the original pattern.  In other words a sierpinski gasket.")
+  return("What is returned is a series of points which draw one triangle with a triangle of black space enclosed inside, this reapeats producing increasingly smaller versions of the original pattern.  In other words a shape that closely ressembles a Sierpinski Gasket.")
 }
 
 # Question 24
@@ -570,29 +570,331 @@ draw_fern2 <- function(start_position, direction, length)  {
 # Challenge questions - these are optional, substantially harder, and a maximum of 16% is available for doing them.  
 
 # Challenge question A
+multi_calc_rich <- function(sim_num = 30, burnin = 200, speciation_rate = 0.1, community = init_community_max(100), generations = 2000){
+  ## function to calculate the richness of the community over multiple simulations and return a matrix of the results
+  
+  ## define matrix to store species richness values from which to calculate means later, defined as each row being a simulation and each column a generation
+  rich_store <- matrix(NA, nrow = sim_num, ncol = burnin + generations)
+  
+  
+  for(i in 1:sim_num){
+    runCommunity <- community # community for the current simulation
+    
+    # simulate the community over number of generations
+    
+    for(j in 1:burnin){ # loop over `burnin` generations and store the output
+      runCommunity <- neutral_generation_speciation(runCommunity, speciation_rate)
+      rich_store[i,j] <- species_richness(runCommunity)
+    }
+    
+
+    
+    ##### simulation after burn in#####
+    
+
+    for(j in  1:generations){
+      # simulate the community change with mutation from 1 to n generations and save the octave of every 20th generation
+      runCommunity <- neutral_generation_speciation(runCommunity, speciation_rate)
+      # store the mean at each generation
+      rich_store[i, j+burnin] <- species_richness(runCommunity) # inlcude offset for burnin gens
+      
+    }
+
+  }
+  return(rich_store)
+}
+
 Challenge_A <- function() {
   # clear any existing graphs and plot your graph within the R window
+  if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
+
+  ##### simulate with max intitial richness####
+  burnin <- 200 # number of genrations for burn in
+  speciation_rate <- 0.1 # speciation rate
+  # community <- init_community_max(100) # define the community as having maximum richness for a community of 100 individuals
+  # 
+  generations <- 2000 # number of generation after burn in
+  
+  MaxSims <- multi_calc_rich(sim_num = 30, burnin = 200, speciation_rate = 0.1, community = init_community_max(100), generations= 2000)
+  MinSims <- multi_calc_rich(sim_num = 30, burnin = 200, speciation_rate = 0.1, community = init_community_min(100), generations= 2000)
+  
+  ## make vectors to store mean richness of simulation at each generation
+  MaxMean <- rep(NA, ncol(MaxSims))
+  MinMean <- rep(NA, ncol(MinSims))
+  
+  # loop and calculate means for max and min
+  for(i in 1:length(MaxMean)) MaxMean[i] <- mean(MaxSims[,i])
+  for(i in 1:length(MinMean)) MinMean[i] <- mean(MinSims[,i])
+  
+  ##### 97.5 CI #######
+  
+  # error <- qnorm(0.975)*s/sqrt(n)
+  
+  errorMax <- rep(NA, ncol(MaxSims))  # the deviation of MaxSims
+  for(i in 1:ncol(MaxSims)) errorMax[i] <- qnorm(0.975)*(sd(MaxSims[,i])/sqrt(nrow(MaxSims)))
+  errorMaxUpper <- MaxMean + errorMax
+  errorMaxLower <- MaxMean - errorMax
+  
+  errorMin <- rep(NA, ncol(MinSims))  # the deviation of MinSims
+  for(i in 1:ncol(MinSims)) errorMin[i] <- qnorm(0.975)*(sd(MinSims[,i])/sqrt(nrow(MinSims)))
+  errorMinUpper <- MinMean + errorMin
+  errorMinLower <- MinMean - errorMin
+  
+  
+  ##### Estimate min burnin time #####
+  # take the highest value within the last 200 gens then find where the value starts to stay within the range for 50 gens, take that point as burnin finished.
+  # should not matter if the max or min is taken as by the end of the sim they are at dynamic EQ
+  upperLim <- max(tail(errorMinUpper, 200))
+  lowerLim <- min(tail(errorMinUpper, 200))
+  burninGens <- NA # gens needed for burnin
+  for(i in 1:length(MinMean)){
+    if (MinMean[i] < upperLim && MinMean[i] > lowerLim){#
+      for(j in 1:50){
+        if (MinMean[i+j] < upperLim && MinMean[i+j] > lowerLim){
+        }
+        else break()
+      }
+      burninGens <- i
+      break
+    }
+  }
+  
+  ###### Plotting ######
+  # plot colours
+  maxRed <- rgb(1,0,0,alpha = 0.5)
+  minBlue <- rgb(0,0,1,alpha = 0.5)
+  
+  
+  # plot graph
+  xPoints <- seq(burnin + generations) # x axis values
+  plot(MaxMean, type = "l", xlab = "Generations", ylab = "Mean Species Richness", col = "red") # plot mean max initial richness from simulation
+  polygon(c(xPoints, rev(xPoints)),c(errorMaxLower,rev(errorMaxUpper)), col = maxRed, border = FALSE) #plot the 97.5% CI for MaxMean
+  lines(MinMean, col = "blue") # plot min richness 
+  abline(v = burninGens)
+  polygon(c(xPoints, rev(xPoints)),c(errorMinLower,rev(errorMinUpper)), col = minBlue, border = FALSE) #plot the 97.5% CI for MinMean
+  legend("topright", legend = c("Initial Max Richness", "Initial Min Richness", paste("Generations to burnin:", burninGens)), col = c("red", "blue", "black"), lty = 1) # add a legend for the lines
+  title("Challenge_A")
+  
+  return(0)
+  
 }
 
 # Challenge question B
+init_community <- function(size = 100, richness = NULL){
+  ## a function to intialize a communtiy of a given richness and size
+  ##### warnings/errors ####
+  if (is.null(richness)) cat("Please give a richness value")
+  else if (richness > size) cat("Richness cannot be greater than size")
+  else{
+    #### body####
+    
+    # multiplier <- ceiling(size/richness)
+    # oversizedCommunity <- matrix(NA, ncol = richness, nrow = multiplier)
+    # for(i in 1:multiplier){
+    #   oversizedCommunity <- sample(c(seq(1:richness)), replace = F, size = richness)
+    # }
+    # oversizedCommunity <- as.numeric(oversizedCommunity)
+    # community <- oversizedCommunity[1:size]
+
+    
+  }
+  
+  
+  
+  return(community)
+}
+
+
 Challenge_B <- function() {
   # clear any existing graphs and plot your graph within the R window
+  if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
+ 
+  
+  # here we generate the desired richness and plot
+   
+  
+  a <- init_community(size = 100, richness = 30)
+  rich <- species_richness(a)
+  
+  
 }
 
 # Challenge question C
-Challenge_C <- function() {
+Challenge_C <- function(filePrefix = "Cluster_Run_output", numFiles = length(list.files(pattern = paste(filePrefix, "*", sep = '')))) {
+  
   # clear any existing graphs and plot your graph within the R window
+  if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
+  
+  #### assign list to sum to ###
+  sum500 <- c()
+  sum1000 <- c()
+  sum2500 <- c()
+  sum5000 <- c()
+  
+  ## counter for finding the average later
+  counter500 <- 0
+  counter1000 <- 0
+  counter2500 <- 0
+  counter5000 <- 0
+  
+  
+  
+  for(i in 1:numFiles){ # loop through files and remove the burn in generations before stroing the average octave of each `size` of population.
+    
+    
+    
+    load(paste(filePrefix, i, ".rda", sep = '')) # load file
+    
+
+    
+    
+    ## Depending on `size` used when running the file save it to a corresponding list
+    if(size == 500){
+      # list500[[length(list500)+1]] <- c(richList)
+      for(j in 1:length(richList)){
+        sum500 <- sum_vect(sum500, richList[[j]])
+        counter500 <- counter500 +1
+      }
+    }
+    if(size == 1000){
+      # list1000[[length(list1000)+1]] <- c(richList)
+      for(j in 1:length(richList)){
+        sum1000 <- sum_vect(sum1000, richList[[j]])
+        counter1000 <- counter1000 + 1
+      }
+    }
+    
+    if(size == 2500){
+      # list2500[[length(list2500)+1]] <- c(richList)
+      for(j in 1:length(richList)){
+        sum2500 <- sum_vect(sum2500, richList[[j]])
+        counter2500 <- counter2500 + 1
+      }
+    }
+    
+    if(size == 5000){
+      # list5000[[length(list5000)+1]] <- c(richList)
+      for(j in 1:length(richList)){
+        sum5000 <- sum_vect(sum5000, richList[[j]])
+        counter5000 <- counter5000 + 1
+      }
+    }
+    
+    
+  }
+  
+  
+  # average each size
+  mean500 <- sum500 / counter500
+  mean1000 <- sum1000 / counter1000
+  mean2500 <- sum2500 / counter2500
+  mean5000 <- sum5000 / counter5000
+  
+  
+  
+  
+  
+  combined_results <- list(mean500, mean1000, mean2500, mean5000) #create your list output here to return
+  ## Plotting
+  ylabel <- "Mean Species Richness"
+  xlabel <- "Generations"
+  par(mfrow = c(2,2))
+  plot(mean500, main = "Mean Richness, Size = 500", xlab = xlabel, ylab = ylabel, ylim =c(0, max(mean500)+1), type = "l")
+  plot(mean1000, main = "Mean Richness, Size = 1000", xlab = xlabel, ylab = ylabel, ylim =c(0, max(mean1000)+1), type = "l")
+  plot(mean2500, main = "Mean Richness, Size = 2500", xlab = xlabel, ylab = ylabel, ylim =c(0, max(mean2500)+1), type = "l")
+  plot(mean5000, main = "Mean Richness, Size = 5000", xlab = xlabel, ylab = ylabel, ylim =c(0, max(mean5000)+5), type = "l")
+  
+  ##############ISSUES#######################
+  # the mean are being returned as one value not a vector, prob need to look at sum vect function to see what is happening
+  
+  return(combined_results)
 }
 
+
+
 # Challenge question D
-Challenge_D <- function() {
+Challenge_D <- function(size = 1000) {
   # clear any existing graphs and plot your graph within the R window
+  if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
+  
+  v <- 0.005502 # speciation rate (personal one from the top)
+  
+  lineages <- rep(1, size)
+  
+  abundances <- c()
+  
+  N <- size
+  while(N >1){
+    theta <- v * ((N-1) / (1-v))
+    
+    # choose runif from 1 - 0 multiplied by the len, i.e. pick a position a certain % along the vector,  then ceiling for index, use ceiling to account for less than one ans that rounds to 0
+    index <- ceiling(N * (runif(n = 1, min = 0, max = 1)))  #part e
+    
+    randnum <- runif(n = 1, min = 0, max = 1)
+    
+    threshold <- theta / (theta + N -1) # threshold for following if statements to decide what to do
+    
+    if (randnum < threshold) abundances <- append(abundances, lineages[index])
+    
+    if (randnum >= threshold) {
+      index2 <- ceiling(N * (runif(n = 1, min = 0, max = 1)))
+      while (index2 == index) index2 <- ceiling(N * (runif(n = 1, min = 0, max = 1))) # to ensure index and index2 never match
+      
+      lineages[index2] <- lineages[index2] + lineages[index]
+    }
+    lineages <- lineages[-index] # remove the jth entry
+    
+    N <- N - 1 # decrease the size to reflect the new size#
+  }    
+  
+  
+  abundances <- append(abundances, lineages) # add the only remaining result to abundances
+  print(abundances)
+  
+  ######Comparison with cluster results######
+  # cat("time to run `process_cluster_run`")
+  # cat(system.time(process_cluster_results())[3])
+  # 
+  # 
+  
+  
+  
+  
+  
+  
   return("type your written answer here")
 }
 
 # Challenge question E
-Challenge_E <- function() {
+Challenge_E <- function(repeats = 100000) {
   # clear any existing graphs and plot your graph within the R window
+  if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
+  #points to jump towards when plotting fractal
+  A <- c(0,0)
+  B <- c(3,4)
+  C <- c(4,1)
+  
+  
+  # list of points ABC for sampling from when deciding which to direction to jump
+  ABClist <- list(A, B, C)
+  
+  X <- c(4,4) # point to initially jump from
+  
+  Xstore <- matrix(NA, nrow = repeats, ncol = 2) # list to store where X jumps during the simulation
+  
+  
+  
+  for(i in 1:repeats){
+    choice <- unlist(sample(c(ABClist),1)) # randomly choose to jump towards A, B or C
+    X <- (X + choice)/2    # X <- X + (choice/2)
+    Xstore[i,] <- X # store the value of X
+  }
+  
+  # plot the results of the loop above
+  plot(c(0,0), cex = 0.000001, pch = 8,xlim = c(0, max(Xstore)), ylim = c(0, max(Xstore))) # define the starting value of `X` manually as (0,0)
+  points(Xstore, cex = 0.000001, pch = 8)
+  
+  
   return("type your written answer here")
 }
 
