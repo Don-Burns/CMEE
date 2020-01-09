@@ -97,7 +97,7 @@ question_8 <- function() {
   plot(SimOutput, type = "l", xlab = "Generations", ylab = "Species Richness")
   title("Question 8")
   
-  return("The system will always converge on a species richness of one.  This is because this simulation is always choosing onw individual to reproduce and one to die.  There is also no mutation or migration in the system.  Meaning that one species will slowly take over the system.")
+  return("The system will always converge on a species richness of one.  This is because this simulation is always choosing one individual to reproduce and one to die.  There is also no speciation in the system.  Meaning that one species will slowly take over the system.")
 }
 
 # Question 9
@@ -175,7 +175,7 @@ question_12 <- function()  {
   legend("topright", legend = c("Max Richness", "Min Richness"), col = c("red", "blue"), lty = 1) # add a legend for the lines
   title("Question 12")
   
-  return("From the plot it can be seen that given enough time species richness will reach a sort of equilibrium and fluctuate around it given mutation is occuring.  This occurs irrespective of starting species richness.  This is the result of richness decreasing, and given no mutation it would fixate at one, as seen in `quesiton 8`.  Given only mutation as a factor diversity would increase to the maximum possible value.  Here after enough time mutation add richness while wihtout it would decrease, resulting in the 'equilibrium'.")
+  return("From the plot it can be seen that given enough time species richness will reach a sort of equilibrium and fluctuate around it given speciation is occuring.  This occurs irrespective of starting species richness.  This is the result of richness decreasing, and given no speciation it would fixate at one, as seen in `quesiton 8`.  Given only speciation as a factor diversity would increase to the maximum possible value.  Here however, after enough time speciations adds richness while without it would decrease, resulting in the 'equilibrium'.")
 }
 
 # Question 13
@@ -259,7 +259,7 @@ question_16 <- function()  {
   
   barplot(averageOctaves, xlab = "Bins", ylab = "Species Abundance", names.arg = seq(1, length(averageOctaves)), main = "Question 16") # plot the mean as a barplot
   
-  return("So long as the number of individuals in the community remains the same, the starting condition of the system does not matter.  This is because the system will reach an equilibrium by the time the burn in period has finished.  This equilibrium will occur around the same species abundances regardless of starting state.")
+  return("So long as the number of individuals in the community remains the same, the starting condition of the system does not matter.  This is because the system will reach an equilibrium by the time the burn in period has finished.  This equilibrium will occur around the same species abundances regardless of starting richness")
 }
 
 # Question 17
@@ -393,7 +393,7 @@ question_21 <- function()  {
   
   dimension <- log(8)/log(3)
   
-  return(list(dimension,"The number needed to make a fractal which is three times the width of the original fractal, eight copies are needed.  one ommited in comparison to a plain cube due to the 'whole' in the middle.  Can then find the dimension according to `x = log(8) / log(3)`, where x is the dimension, 8 because of the number of copies needed to replicate the orgininal at 3 times the size and 3 because that is the amount being scaling by"))
+  return(list(dimension,"To make a fractal which is three times the width of the original fractal, eight copies are needed.  One ommited in comparison to a plain cube due to the 'hole' in the middle.  Can then find the dimension according to `x = log(8) / log(3)`, where x is the dimension, 8 because of the number of copies needed to replicate the orgininal at 3 times the size and 3 because that is the amount being scaling by."))
 }
 
 # Question 22
@@ -437,11 +437,11 @@ chaos_game <- function(repeats = 100000)  {
   plot(c(0,0), cex = 0.000001, pch = 8,xlim = c(0, max(Xstore)), ylim = c(0, max(Xstore)), axes = F, xlab = "", ylab = "") # define the starting value of `X` manually as (0,0)
   points(Xstore, cex = 0.000001, pch = 8)
   
-  return("What is returned is a series of points which draw one triangle with a triangle of black space enclosed inside, this reapeats producing increasingly smaller versions of the original pattern.  In other words a shape that closely ressembles a Sierpinski Gasket.")
+  return("What is returned is a series of points which draw one triangle with a triangle of black space enclosed inside, this repeats producing increasingly smaller versions of the original pattern.  In other words, a shape that closely ressembles a Sierpinski Gasket.")
 }
 
 # Question 24
-turtle <- function(start_position = c(4,2), direction = pi/3, length = 5)  {# funtion to find the endpoint of a line `length` units away from a point `start_position` in a `direction`.  the `direction` needs to be between 0 and pi/2
+turtle <- function(start_position = c(4,2), direction = pi/3, length = 5)  {# function to find the endpoint of a line `length` units away from a point `start_position` in a `direction`.  the `direction` needs to be between 0 and pi/2
 
   xDist <- length * cos(direction)# distance along x axis between start and endpoint
   yDist <- length * sin(direction)# distance along y axis between start and endpoint
@@ -455,6 +455,7 @@ turtle <- function(start_position = c(4,2), direction = pi/3, length = 5)  {# fu
 
 # Question 25
 elbow <- function(start_position = c(4,2), direction = pi/10, length = 5)  {
+  # draw a line then draws a second line which is at a 45 degree angle to the first
   
   midpoint <- turtle(start_position = start_position, direction = direction, length = length) # store the midpoint for the elbow
 
@@ -473,7 +474,7 @@ elbow <- function(start_position = c(4,2), direction = pi/10, length = 5)  {
 
 # Question 26
 spiral <- function(start_position = c(4,2), direction = pi/4, length = 1)  {
-  
+  # plots a series of lines which slowly bend inwards to form a spiral
   if(length > 0.01){
   
   midpoint <- turtle(start_position = start_position, direction = direction, length = length)
@@ -488,6 +489,8 @@ spiral <- function(start_position = c(4,2), direction = pi/4, length = 1)  {
 
 # Question 27
 draw_spiral <- function(start_position = c(4,2), direction = pi/4, length = 1)  {
+  # creates a plot a call `spiral` to draw a spiral pattern on that plot
+  
   # clear any existing graphs and plot your graph within the R window
   if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
   
@@ -501,7 +504,8 @@ draw_spiral <- function(start_position = c(4,2), direction = pi/4, length = 1)  
 
 # Question 28
 tree <- function(start_position = c(4,2), direction = pi/4, length = 1)  {
- 
+ # draws a bifurcating tree pattern
+  
    if(length > 0.01){
     
     midpoint <- turtle(start_position = start_position, direction = direction, length = length)
@@ -513,6 +517,8 @@ tree <- function(start_position = c(4,2), direction = pi/4, length = 1)  {
   
 }
 draw_tree <- function(start_position = c(4,2), direction = pi/4, length = 1)  {
+  # creates a blank plot and calls `tree` to draw a tree on that plot
+  
   # clear any existing graphs and plot your graph within the R window
   if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
   
@@ -525,7 +531,7 @@ draw_tree <- function(start_position = c(4,2), direction = pi/4, length = 1)  {
 
 # Question 29
 fern <- function(start_position = c(4,0), direction = pi/2, length = 1)  {
-  
+  #  draws half a fern
   if(length > 0.01){
     
     midpoint <- turtle(start_position = start_position, direction = direction, length = length)
@@ -538,6 +544,8 @@ fern <- function(start_position = c(4,0), direction = pi/2, length = 1)  {
   
 }
 draw_fern <- function(start_position = c(4,0), direction = pi/2, length = 1)  {
+  # creates a blank plot and calls `fern` to draw a tree on that plot
+  
   # clear any existing graphs and plot your graph within the R window
   if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
   
@@ -548,6 +556,7 @@ draw_fern <- function(start_position = c(4,0), direction = pi/2, length = 1)  {
 
 # Question 30
 fern2 <- function(start_position = c(4,0), direction = pi/2, length = 1, dir = 1)  {
+  #draws a full fern with "leaves" on both sides of each branch
   if(length > 0.01){
     
     midpoint <- turtle(start_position = start_position, direction = direction, length = length)
@@ -560,6 +569,8 @@ fern2 <- function(start_position = c(4,0), direction = pi/2, length = 1, dir = 1
 }
 
 draw_fern2 <- function(start_position = c(4,0), direction = pi/2, length = 1)  {
+  # creates a blank plot and calls `fern2` to draw a tree on that plot
+  
   # clear any existing graphs and plot your graph within the R window
   if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
   
@@ -607,6 +618,8 @@ multi_calc_rich <- function(sim_num = 30, burnin = 200, speciation_rate = 0.1, c
 }
 
 Challenge_A <- function() {
+  # creates a plot with confidence intervals for mean species richness averaged from multiple simulations for max and minimum starting richness 
+  
   # clear any existing graphs and plot your graph within the R window
   if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
 
@@ -768,7 +781,7 @@ calc_burnin_gens <- function(meanVector, len = length(meanVector)){
 }
 
 Challenge_C <- function(filePrefix = "Cluster_Run_output", numFiles = length(list.files(pattern = paste(filePrefix, "*", sep = '')))) {
-  
+  # plots mean species richness and calculate how long should be needed for burnin before dynamic equilibrium is reached
   # clear any existing graphs and plot your graph within the R window
   if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
   
@@ -799,7 +812,6 @@ Challenge_C <- function(filePrefix = "Cluster_Run_output", numFiles = length(lis
     
     ## Depending on `size` used when running the file save it to a corresponding list
     if(size == 500){
-      # list500[[length(list500)+1]] <- c(richList)
       for(j in 1:length(richList)){
         richVect[j] <- richList[[j]]
       }
@@ -807,7 +819,6 @@ Challenge_C <- function(filePrefix = "Cluster_Run_output", numFiles = length(lis
       counter500 <- counter500 + 1
     }
     if(size == 1000){
-      # list1000[[length(list1000)+1]] <- c(richList)
       for(j in 1:length(richList)){
         richVect[j] <- richList[[j]]
       }
@@ -816,7 +827,6 @@ Challenge_C <- function(filePrefix = "Cluster_Run_output", numFiles = length(lis
     }
     
     if(size == 2500){
-      # list2500[[length(list2500)+1]] <- c(richList)
       for(j in 1:length(richList)){
         richVect[j] <- richList[[j]]
       }
@@ -826,7 +836,6 @@ Challenge_C <- function(filePrefix = "Cluster_Run_output", numFiles = length(lis
     }
     
     if(size == 5000){
-      # list5000[[length(list5000)+1]] <- c(richList)
       for(j in 1:length(richList)){
         richVect[j] <- richList[[j]]
       }
@@ -929,6 +938,8 @@ calc_avg_octave <- function(size = 1000, reps = 100){
 }
 
 Challenge_D <- function() {
+  # runs a coalescence model and compares speed and results with that of the cluster_run results
+  
   # clear any existing graphs and plot your graph within the R window
   if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
 
@@ -936,8 +947,6 @@ Challenge_D <- function() {
   
   mean500 <- calc_avg_octave(size = 500, reps = reps)
   mean1000 <- calc_avg_octave(size = 1000, reps = reps)
-  # mean2500 <- calc_avg_octave(size = 2500, reps = reps)
-  # mean5000 <- calc_avg_octave(size = 5000, reps = reps)
 
   
   ######Comparison with cluster results######  used for answer below
@@ -1056,6 +1065,7 @@ five_points <- function(repeats = 100000){
 
 
 Challenge_E <- function() {
+  # a function to plot a sierpinski gasket and try a new five pointed pattern
   # clear any existing graphs and plot your graph within the R window
   if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
   par(mfrow = c(2,2))
@@ -1064,7 +1074,7 @@ Challenge_E <- function() {
   five_points()
   
   
-  return("When the starting position is changed the points will initially shoot outside the 'bounds' of ABC, but eventially return inside and slowly return to the same patter as the initial starting point used in `chaos_game`.  This is because as the simulation runs and the distance of the 'jumps' is decreased more and more, the affects of the starting value decrease.  This results in the final pattern produced not being hugely different.")
+  return("When the starting position is changed the points will initially shoot outside the 'bounds' of ABC, but eventually return inside and slowly return to the same patter as the initial starting point used in `chaos_game`.  This is because as the simulation runs and the distance of the 'jumps' is decreased more and more, the affects of the starting value decrease.  This results in the final pattern produced not being hugely different.")
 }
 
 # Challenge question F
@@ -1074,7 +1084,8 @@ green_red_turtle <- function(start_position, direction, length)  {# funtion to f
   yDist <- length * sin(direction)# distance along y axis between start and endpoint
   
   
-  endpoint <- c(start_position[1] + xDist, start_position[2] + yDist) # define the endpoint as the start point plus the distances traveled to reach a point `length` units away from `startpoint`.
+  endpoint <- c(start_position[1] + xDist, start_position[2] + yDist) 
+  # define the endpoint as the start point plus the distances traveled to reach a point `length` units away from `startpoint`. also changes colour based on length.
   
   ## to shift colours as the plot progresses
   
@@ -1140,7 +1151,7 @@ challenge_fern2 <- function(start_position, direction, length, dir)  {
   
 }
 
-irish_turtle <- function(start_position, direction, length)  {# funtion to find the endpoint of a line `length` units away from a point `start_position` in a `direction`.  the `direction` needs to be between 0 and pi/2
+irish_turtle <- function(start_position, direction, length)  {# funtion to find the endpoint of a line `length` units away from a point `start_position` in a `direction`.  Changes colour depending on location on x-axis to produce an Irish flag pattern.
   
   xDist <- length * cos(direction)# distance along x axis between start and endpoint
   yDist <- length * sin(direction)# distance along y axis between start and endpoint
@@ -1158,7 +1169,7 @@ irish_turtle <- function(start_position, direction, length)  {# funtion to find 
   return(endpoint) # you should return your endpoint here.
 }
 irish_fern <- function(start_position, direction, length, dir)  {
-  # plots the same as fern2 but uses colours
+  # plots the same as fern2 but uses Irish flag colours
   if(length > 0.01){
     
     midpoint <- irish_turtle(start_position = start_position, direction = direction, length = length)
@@ -1171,6 +1182,7 @@ irish_fern <- function(start_position, direction, length, dir)  {
 }
 
 Challenge_F <- function(start_position = c(4,0), direction = pi/2, length = 1) {
+  # function to plot various other types of fern
   # clear any existing graphs and plot your graph within the R window
   if(is.null(dev.list()) == F) dev.off() # need if statement or else error will occur due to no device being present to close
   par(mfrow = c(2,2))
