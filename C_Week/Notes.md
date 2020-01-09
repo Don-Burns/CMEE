@@ -65,11 +65,69 @@ y = x++;
 * here y will equal 0 while x will equal 1
 
 
+# Day 3 - 
+#### Trees
+
+* downpass == postorder (for the sake of trees, postorder is with down, down pass from tips down to root)
+* uppass == preorder 
+## bitwise operations
+
+set bit = 1
+unset bit = 0
+
+* | bitwise or
+* & bitwise AND
+* ^ XOR
+* \>> right shidt
+* << left shift
+
+union construction method  aka |
+01101
+10100
+\-----
+11101
+
+intersection operator aka &
+
+01101
+10100
+\-----
+00100
+
+exclusive OR aka XOR ^ ( only takes what is different for set bits)
+
+01101
+10100
+\----
+11001
+
+
+
+
+left shift aka <<
+011010
+\-----
+110100
+right shift aka >>
+110100
+\---
+011010
+
+# Stack and Heap
+
+Stack is on the CPU
+
+Heap is in RAM
+
+
 
 
 # Misc
 * control warning/error in the compiler.  control is the current point in the programme, in this case at time of error
 
+* possible exam bonus Q: int (*(*x)())(double); // X  is a pointer to a function which takes nothing, which points to a function that takes a double, and returns an int
 
 
+why use pointer in recursion over globals for a counter/ index?
+    just plains safer than using a global.
 
