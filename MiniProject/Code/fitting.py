@@ -189,6 +189,11 @@ CQmodError = ["Files which gave errors in generalised Hollings"]  # list of IDs 
 counter = 0
 IDlen = len(data.ID.unique())
 print("fitting data")
+
+### Troubleshooting
+hEstList = [] # for hEstimates
+aEstList =[] #  for a Estimates
+
 ######Main########
 for ID in data.ID.unique():
     
@@ -213,9 +218,13 @@ for ID in data.ID.unique():
 
     ##Estimate `a` as the slope of the line which give the lowest RSS which is above a threshold number of points that the model is still acceptable. 
     aEst = est_a(ResDens, NTrait, hEst)
-
-
     q = 0
+
+    ### Troubleshooting ###
+    hEstList.append(hEst)
+    aEstList.append(aEst)
+    
+
     ### Fit Models### Using lmfit.Model()###
     ####### Use Hollings 1959 model#####
 
@@ -261,17 +270,18 @@ print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError,
 
 
 
+print("h Estimates", hEstList)
+
+print("a Estimates", aEstList)
+
+max(hEstList)
+min(hEstList)
 
 
 
 
 
-
-
-
-
-
-
+exit
 
 
 
