@@ -23,7 +23,7 @@ def calc_C(Xr, a, h):
     C = top/bot
     return C 
 
-def calc_Clmfit(params, Xr):  ## arbitrarily difined right now as 0.05
+def calc_Clmfit(params, Xr):  ## arbitrarily defined right now as 0.05
     """
     The equation for the more general Type II functional response curve.
     Need an argument params which is a dictionary containing the parameter values.
@@ -39,7 +39,7 @@ def calc_Clmfit(params, Xr):  ## arbitrarily difined right now as 0.05
     C = top/bot
     return C 
 
-def calc_CQ(Xr, a, h, q=0.8):  ## arbitrarily difined right now as 0.8
+def calc_CQ(Xr, a, h, q=0.8):  ## arbitrarily defined right now as 0.8
     """
     The equation for the more general Type II functional response curve.  
     Includes a dimensionless parameter `q` which is used to account for a small lag phase at the start of the curve
@@ -49,7 +49,7 @@ def calc_CQ(Xr, a, h, q=0.8):  ## arbitrarily difined right now as 0.8
     C = top/bot
     return C 
 
-def calc_CQlmfit(params, Xr):  ## arbitrarily difined right now as 0.05
+def calc_CQlmfit(params, Xr):  ## arbitrarily defined right now as 0.05
     """
     The equation for the more general Type II functional response curve.
     Need an argument params which is a dictionary containing the parameter values.
@@ -66,7 +66,7 @@ def calc_CQlmfit(params, Xr):  ## arbitrarily difined right now as 0.05
     C = top/bot
     return C 
 
-def calc_RSS(data2fitx, ModelFit, Model = calc_C, mode = "NLS"):## model var is to specifty which equation should be used. Model fit is popt under sc.optimize
+def calc_RSS(data2fitx, ModelFit, Model = calc_C, mode = "NLS"):## model var is to specify which equation should be used. Model fit is popt under sc.optimize
     """
     Calculates the Residual Sum of Squares for a set of data given the model fit.  
     The equation used to fit the model can also be changed using the `Model` argument, default is the `calc_C` function.
@@ -96,7 +96,7 @@ def pModel(coefficients):
     """Return number of parameters of a model when given a list of them."""
     return len(coefficients)
 
-def AIC(data2fit, n, Model_RSS, pModel):
+def calc_AIC(data2fit, n, Model_RSS, pModel):
     """
     Calculates the AIC value given the data (data2fit), number of samples (n), the RSS of the model (Model_RSS) and number of parameters in the model(pModel).
     """
@@ -115,7 +115,7 @@ def est_a(ResDens, NTrait, h):
     best_a = None # for recording the value of `a` which gave the lowest RSS value.
     smallest_RSS = None # for recording the lowest RSS value.
 
-    for i in range(len(ResDens), -1, -1): ## loop backawrds from len(ResDens)
+    for i in range(len(ResDens), -1, -1): ## loop backwards from len(ResDens)
 
         if len(ResDens[0:i]) <3:
             # print("less than 3 points")
@@ -157,7 +157,7 @@ data = pd.read_csv("../data/CRat.csv")
 
 
 ## `a` best value lists
-aCmodList = []  ###########Look into making these dictinaries for speed
+aCmodList = []  ###########Look into making these dictionaries for speed
 aCQmodList = []
 
 
@@ -252,7 +252,7 @@ for ID in data.ID.unique():
     except ValueError:
         CQmodError.append(ID)
 
-print("finished data \nPlotting graphs")
+print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError, "\nPlotting graphs")
 
 
 ###take data for output###
