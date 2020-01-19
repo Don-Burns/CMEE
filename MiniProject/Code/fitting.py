@@ -117,7 +117,7 @@ def est_a(ResDens, NTrait, h):
 
     for i in range(len(ResDens), -1, -1): ## loop backwards from len(ResDens)
 
-        if len(ResDens[0:i]) <3:
+        if len(ResDens[0:i]) < 3 or i < (0.3 * len(ResDens)):
             # print("less than 3 points")
             break
         #linear regression with ever shrinking data set from 
@@ -194,6 +194,8 @@ print("fitting data")
 hEstList = [] # for hEstimates
 aEstList =[] #  for a Estimates
 
+CModResultsDict = {}
+CQModResultsDict = {}
 ######Main########
 for ID in data.ID.unique():
     
@@ -218,7 +220,7 @@ for ID in data.ID.unique():
 
     ##Estimate `a` as the slope of the line which give the lowest RSS which is above a threshold number of points that the model is still acceptable. 
     aEst = est_a(ResDens, NTrait, hEst)
-    q = 0
+    q = 0.2
 
     ### Troubleshooting ###
     hEstList.append(hEst)
@@ -241,6 +243,9 @@ for ID in data.ID.unique():
 
         CmodPass.append(ID)
 
+        ### Troubleshooting
+        CModResultsDict[ID] = resultsCmod.fit_report()
+
     except ValueError:
         CmodError.append(ID)
     ####### Fit Generalised Hollings #####
@@ -258,6 +263,9 @@ for ID in data.ID.unique():
 
         CQmodPass.append(ID)
         # print(resultsCQmod.best_values["q"])
+         ### Troubleshooting
+        CQModResultsDict[ID] = resultsCQmod.fit_report()
+
     except ValueError:
         CQmodError.append(ID)
 
@@ -265,26 +273,16 @@ print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError,
 
 
 ###take data for output###
+import csv
 
 
+w = csv.writer(open("../Results/CModResultsDict.csv", "w"))
+for key, val in CModResultsDict.items():
+    w.writerow([key, val])
 
-
-
-print("h Estimates", hEstList)
-
-print("a Estimates", aEstList)
-
-max(hEstList)
-min(hEstList)
-
-
-
-
-
-exit
-
-
-
+w = csv.writer(open("../Results/CQModResultsDict.csv", "w"))
+for key, val in CQModResultsDict.items():
+    w.writerow([key, val])
 
 #####Plotting and saving in pdf######
 print("Plotting Hollings 1959.")
@@ -303,7 +301,7 @@ with PdfPages('../Results/FittedPlots_Hollings1959.pdf') as pdf:
         plt.scatter(ResDens, NTrait)
         plt.plot(ResDens, calc_C(ResDens, a = aCmodList[i][1], h = hCmodList[i][1]), '-r')
         plt.plot(RDensities, calc_C(RDensities, a = aCmodList[i][1], h = hCmodList[i][1]), '-g')
-        plt.ylim(bottom = 0, top = max(NTrait)*1.5)
+        # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
         plt.xlabel('ResourceDensity')
         plt.ylabel('N_TraitValue')
         plt.title(CmodPass[i])
@@ -325,7 +323,7 @@ with PdfPages('../Results/FittedPlots_HollingsGeneral.pdf') as pdf:
         plt.scatter(ResDens, NTrait)
         plt.plot(ResDens, calc_CQ(ResDens, a = aCQmodList[i][1], h = hCQmodList[i][1]), '-r')
         plt.plot(RDensities, calc_CQ(RDensities, a = aCQmodList[i][1], h = hCQmodList[i][1]), '-g')
-        plt.ylim(bottom = 0, top = max(NTrait)*1.5)
+        # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
         plt.xlabel('ResourceDensity')
         plt.ylabel('N_TraitValue')
         plt.title(CQmodPass[i])
@@ -351,3 +349,11 @@ with PdfPages('../Results/FittedPlots_HollingsGeneral.pdf') as pdf:
 
 
 print("100% finished =)")
+
+
+
+### things to pick up on for next time:
+# 1959 fitting well enough,but generalised is a mess, despite the fact that a starting value of q means they are the same equation to start
+#   means that something is going wrong in the fit..., 
+# could try to limit q to positive? 
+# try non-zero value for q like .1?
