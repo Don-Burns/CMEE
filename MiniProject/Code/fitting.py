@@ -13,6 +13,13 @@ from math import pi as pi
 from numpy.polynomial import polynomial as polynomial
 from matplotlib.backends.backend_pdf import PdfPages as PdfPages
 
+######## Script options #########
+# model plots - deternmines whether or no certain models are plotted
+plot1959Hollings = False
+plotGeneralHollings = True
+plotpolys = False
+
+plotAll =False # will plot all models regardless of other options
 
 #######FUNCTIONS############
 def calc_C(Xr, a, h):
@@ -189,6 +196,16 @@ def calc_poly(poly, x, deg = 0):
         ylist.append(y_val)
     return ylist
 
+def poly2_eq(x, x2, x1, c):
+    return (x2*(x**2)) + (x1*x) + c
+
+def poly3_eq(x, x3, x2, x1, c):
+    return (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
+
+def poly4_eq(x, x4, x3, x2, x1, c):
+    return (x4*(x**4)) + (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
+
+
 
 ######Import Data##########
 data = pd.read_csv("../data/CRat.csv")
@@ -228,22 +245,44 @@ hCQmodList = {}
 ## best q values list
 qCQmodList = {}
 
+## polynomial coefficients
+poly2coefList = {}
+poly3coefList = {}
+poly4coefList = {}
+
+#for plots
+poly2Fits = {}
+poly3Fits = {}
+poly4Fits = {}
+
 # AIC Lists
 AICCmodList = []
 AICCQmodList = {}
+AICpoly2List ={}
+AICpoly3List ={}
+AICpoly4List ={}
 
 # BIC List
 BICCmodList = []
 BICCQmodList = {}
+BICpoly2List ={}
+BICpoly3List ={}
+BICpoly4List ={}
+
 
 ##Passed ID list - list of ID which pass
 CmodPass = []
 CQmodPass = []
+poly2Pass = []
+poly3Pass = []
+poly4Pass = []
 
 ## List of ID which error out in each model
 CmodError = ["Files which gave errors in Hollings 1959"]  # list of IDs which error in Hollings 1959
 CQmodError = ["Files which gave errors in generalised Hollings"]  # list of IDs which error in generalised Hollings
-
+poly2Error = ["Files which gave errors in 2nd degree polynomial"]  
+poly3Error = ["Files which gave errors in 3rd degree polynomial"]  
+poly4Error = ["Files which gave errors in 4th degree polynomial"]
 ##for progress counter
 counter = 0
 IDlen = len(data.ID.unique())
@@ -292,10 +331,8 @@ for ID in data.ID.unique():
     aEstList.append(aEst)
 
     ### Fit Models### Using lmfit.Model()###
+
     ####### Use Hollings 1959 model#####
-
-
-    
 
     try:
         Cmod = lmfit.Model(calc_C)  # set the model and equations we want to use
@@ -348,17 +385,71 @@ for ID in data.ID.unique():
     ####### Fit 2nd degree polynomial #####
     try:
 
-        poly2 = polynomial.polyfit(x = ResDens, y = NTrait, deg = 2) # gives coefs in order x^2, x, c
+        # poly2sc[ID] = polynomial.polyfit(x = ResDens, y = NTrait, deg = 2) # gives coefs in order x^2, x, c
+        mod = lmfit.models.PolynomialModel(degree=2)
+        params = mod.guess(NTrait, x = ResDens)
+        poly2 = mod.fit(NTrait, params, x = ResDens)
 
-        # import pdb; pdb.set_trace()
+        # poly2mod = lmfit.Model(poly2_eq)
+
+        # poly2 = poly2mod.fit(NTrait, x = ResDens)
+
+        poly2coefList[ID] = poly2.best_values 
+        poly2Fits[ID] = poly2.best_fit       
+        AICpoly2List[ID] = poly2.aic
+        BICpoly2List[ID] = poly2.bic
+        poly2Pass.append(ID)
 
 
     except ValueError:
-        None
+        poly2Error.append(ID)
 
     ####### Fit 3rd degree polynomial #####
+    try:
+
+        # poly2sc[ID] = polynomial.polyfit(x = ResDens, y = NTrait, deg = 2) # gives coefs in order x^2, x, c
+        mod = lmfit.models.PolynomialModel(degree=3)
+        params = mod.guess(NTrait, x = ResDens)
+        poly3 = mod.fit(NTrait, params, x = ResDens)
+
+        # poly2mod = lmfit.Model(poly2_eq)
+
+        # poly2 = poly2mod.fit(NTrait, x = ResDens)
+
+        poly3coefList[ID] = poly3.best_values 
+        poly3Fits[ID] = poly3.best_fit 
+        # print(poly3Fits[ID])
+
+        AICpoly3List[ID] = poly3.aic
+        BICpoly3List[ID] = poly3.bic
+        poly3Pass.append(ID)
+
+
+    except ValueError:
+        poly3Error.append(ID)
+
 
     ####### Fit 4th degree polynomial #####
+    try:
+
+        mod = lmfit.models.PolynomialModel(degree=4)
+        params = mod.guess(NTrait, x = ResDens)
+        poly4 = mod.fit(NTrait, params, x = ResDens)
+
+        poly4coefList[ID] = poly4.best_values 
+        poly4Fits[ID] = poly4.best_fit 
+        # print(poly4Fits[ID])
+
+        AICpoly4List[ID] = poly4.aic
+        BICpoly4List[ID] = poly4.bic
+        poly4Pass.append(ID)
+
+
+    except ValueError:
+        poly4Error.append(str(ID, ":Value"))
+
+    except TypeError:
+        poly4Error.append(str(ID))
 
 
 
@@ -366,9 +457,7 @@ for ID in data.ID.unique():
 
 
 
-
-
-print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError, "\nPlotting graphs")
+print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError, "\n", poly2Error, "\n", poly3Error, "\n", poly4Error, "\n", "\nPlotting graphs")
 
 ###take data for output###
 import csv
@@ -377,9 +466,9 @@ w = csv.writer(open("../Results/CModResultsDict.csv", "w"))
 for key, val in CModResultsDict.items():
     w.writerow([key, val])
 
-w = csv.writer(open("../Results/CQModResultsDict.csv", "w"))
-for key, val in CQModResultsDict.items():
-    w.writerow([key, val])
+# w = csv.writer(open("../Results/CQModResultsDict.csv", "w"))
+# for key, val in CQModResultsDict.items():
+#     w.writerow([key, val])
 
 w = csv.writer(open("../Results/CQModResults.csv", "w"))
 w.writerow(["ID", "a", "h", "q", "AIC", "BIC"])  ## write headers
@@ -389,63 +478,112 @@ for ID in aCQmodList.keys():
     # w.writerow(aCQmodList, hCQmodList, AICCQmodList, BICCQmodList)
 
 #####Plotting and saving in pdf######
-print("Plotting Hollings 1959.")
-with PdfPages('../Results/FittedPlots_Hollings1959.pdf') as pdf:
-    for i in range(len(CmodPass)):  # write for loop that goes through the data and plots it
-        ### Subset data###
-        subset = data[data["ID"] == CmodPass[i]]
-        ResDens = sc.array(subset["ResDensity"])
-        NTrait = sc.array(subset["N_TraitValue"])
-        ## organise spread data to plot smooth live
-        RDensities = sc.random.uniform(min(ResDens), max(ResDens), 200)
-        RDensities.sort()
-        ##Plot##
 
-        plt.figure()
-        plt.scatter(ResDens, NTrait)
-        plt.plot(ResDens, calc_C(ResDens, a=aCmodList[i][1], h=hCmodList[i][1]), '-r')
-        plt.plot(RDensities, calc_C(RDensities, a=aCmodList[i][1], h=hCmodList[i][1]), '-g')
-        # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
-        plt.xlabel('ResourceDensity')
-        plt.ylabel('N_TraitValue')
-        plt.title(CmodPass[i])
-        pdf.savefig()  # saves the current figure into a pdf page
-        plt.close()
+if plot1959Hollings == True or plotAll == True:
 
-print("Plotting Generalied Hollings.")
-with PdfPages('../Results/FittedPlots_HollingsGeneral.pdf') as pdf:
-    for i in range(len(CQmodPass)):  # write for loop that goes through the data and plots it
-        ######### Stopgap while using dictionaries for analysis of broken plots
-        ID = CQmodPass[i]
-        #########
-        ### Subset data###
-        subset = data[data["ID"] == CQmodPass[i]]
-        ResDens = sc.array(subset["ResDensity"])
-        NTrait = sc.array(subset["N_TraitValue"])
-        ## organise spread data to plot smooth live
-        RDensities = sc.random.uniform(min(ResDens), max(ResDens), 200)
-        RDensities.sort()
-        ##Plot##
-        plt.figure()
-        plt.scatter(ResDens, NTrait)
-        plt.plot(ResDens, calc_CQ(ResDens, a=aCQmodList[ID], h=hCQmodList[ID]), '-r')
-        # plt.plot(ResDens, calc_CQ(ResDens, a = aCQmodList[i][1], h = hCQmodList[i][1]), '-r')  ## changed above and below line to acccomadate aCQmodList and hCQmodList being changed from a list to a dictionary
-        plt.plot(RDensities, calc_CQ(RDensities, a=aCQmodList[ID], h=hCQmodList[ID]), '-g')
-        # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
-        plt.xlabel('ResourceDensity')
-        plt.ylabel('N_TraitValue')
-        plt.title(CQmodPass[i])
+    print("Plotting Hollings 1959.")
+    with PdfPages('../Results/FittedPlots_Hollings1959.pdf') as pdf:
+        for i in range(len(CmodPass)):  # write for loop that goes through the data and plots it
+            ### Subset data###
+            subset = data[data["ID"] == CmodPass[i]]
+            ResDens = sc.array(subset["ResDensity"])
+            NTrait = sc.array(subset["N_TraitValue"])
+            ## organise spread data to plot smooth live
+            RDensities = sc.random.uniform(min(ResDens), max(ResDens), 200)
+            RDensities.sort()
+            ##Plot##
 
-        ## for "legend"
-        # f = plt.figure()
-        # ax = f.add_subplot(1,1,1)
+            plt.figure()
+            plt.scatter(ResDens, NTrait)
+            plt.plot(ResDens, calc_C(ResDens, a=aCmodList[i][1], h=hCmodList[i][1]), '-r')
+            plt.plot(RDensities, calc_C(RDensities, a=aCmodList[i][1], h=hCmodList[i][1]), '-g')
+            # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
+            plt.xlabel('ResourceDensity')
+            plt.ylabel('N_TraitValue')
+            plt.title(CmodPass[i])
+            pdf.savefig()  # saves the current figure into a pdf page
+            plt.close()
 
-        # # plt.text(right, top, aCQmodList[ID])
-        # ax.plot([0],[0], color = "green", label= aCQmodList[ID])
+if plotGeneralHollings == True or plotAll == True:
 
-        pdf.savefig()  # saves the current figure into a pdf page
-        plt.close()
+    print("Plotting Generalied Hollings.")
+    with PdfPages('../Results/FittedPlots_HollingsGeneral.pdf') as pdf:
+        for i in range(len(CQmodPass)):  # write for loop that goes through the data and plots it
+            ######### Stopgap while using dictionaries for analysis of broken plots
+            ID = CQmodPass[i]
+            #########
+            ### Subset data###
+            subset = data[data["ID"] == CQmodPass[i]]
+            ResDens = sc.array(subset["ResDensity"])
+            NTrait = sc.array(subset["N_TraitValue"])
+            ## organise spread data to plot smooth live
+            RDensities = sc.random.uniform(min(ResDens), max(ResDens), 200)
+            RDensities.sort()
+            ##Plot##
+            plt.figure()
+            plt.scatter(ResDens, NTrait)
+            plt.plot(ResDens, calc_CQ(ResDens, a=aCQmodList[ID], h=hCQmodList[ID]), '-r')
+            # plt.plot(ResDens, calc_CQ(ResDens, a = aCQmodList[i][1], h = hCQmodList[i][1]), '-r')  ## changed above and below line to acccomadate aCQmodList and hCQmodList being changed from a list to a dictionary
+            plt.plot(RDensities, calc_CQ(RDensities, a=aCQmodList[ID], h=hCQmodList[ID]), '-g')
+            # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
+            plt.xlabel('ResourceDensity')
+            plt.ylabel('N_TraitValue')
+            plt.title(CQmodPass[i])
 
+            ## for "legend"
+            # f = plt.figure()
+            # ax = f.add_subplot(1,1,1)
+
+            # # plt.text(right, top, aCQmodList[ID])
+            # ax.plot([0],[0], color = "green", label= aCQmodList[ID])
+
+            pdf.savefig()  # saves the current figure into a pdf page
+            plt.close()
+
+
+if plotpolys == True or plotAll == True:
+
+    print("Plotting Polynomials.")
+    with PdfPages('../Results/FittedPlots_Polynomials.pdf') as pdf:
+        for i in range(len(CQmodPass)):  # write for loop that goes through the data and plots it
+            ######### Stopgap while using dictionaries for analysis of broken plots
+            ID = poly2Pass[i]
+            #########
+            ### Subset data###
+            subset = data[data["ID"] == poly2Pass[i]]
+            ResDens = sc.array(subset["ResDensity"])
+            NTrait = sc.array(subset["N_TraitValue"])
+            ## organise spread data to plot smooth live
+            RDensities = sc.random.uniform(min(ResDens), max(ResDens), len(NTrait))
+            RDensities.sort()
+            ##Plot##
+            plt.figure()
+            plt.plot(ResDens, NTrait, "bo")
+            plt.plot(RDensities, poly2Fits[ID], "r-", label = "2nd Degree")
+            try:
+                plt.plot(RDensities, poly3Fits, '-g', label = "3rd Degree")
+            except ValueError:
+                print("Error 3rd degree: ", ID)
+
+            try:
+                plt.plot(RDensities, poly4Fits, '-b', label = "4th Degree")
+            except ValueError:
+                print("Error 4th degree: ", ID)
+            # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
+            plt.legend()
+            plt.xlabel('ResourceDensity')
+            plt.ylabel('N_TraitValue')
+            plt.title(ID)
+
+            ## for "legend"
+            # f = plt.figure()
+            # ax = f.add_subplot(1,1,1)
+
+            # # plt.text(right, top, aCQmodList[ID])
+            # ax.plot([0],[0], color = "green", label= aCQmodList[ID])
+
+            pdf.savefig()  # saves the current figure into a pdf page
+            plt.close()
 ######Notes######
 
 # import data
