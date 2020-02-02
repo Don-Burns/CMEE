@@ -49,7 +49,7 @@ def calc_Clmfit(params, Xr):  ## arbitrarily defined right now as 0.05
     return C
 
 
-def calc_CQ(Xr, a, h, q=0.8):  ## arbitrarily defined right now as 0.8
+def calc_CQ(Xr, a, h, q=0):  ## arbitrarily defined right now as 0.8
     """
     The equation for the more general Type II functional response curve.  
     Includes a dimensionless parameter `q` which is used to account for a small lag phase at the start of the curve
@@ -77,32 +77,43 @@ def calc_CQlmfit(params, Xr):  ## arbitrarily defined right now as 0.05
     C = top / bot
     return C
 
-
-def calc_RSS(data2fitx, ModelFit, Model=calc_C, mode="NLS"):  ## model var is to specify which equation should be used. Model fit is popt under sc.optimize
+def calc_RSS(residuals):  ## model var is to specify which equation should be used. Model fit is popt under sc.optimize
     """
-    Calculates the Residual Sum of Squares for a set of data given the model fit.  
-    The equation used to fit the model can also be changed using the `Model` argument, default is the `calc_C` function.
-    Can be used for both NLS and lm, specified with mode = "NLS" OR "lm".
+    Calculates the Residual Sum of Squares for an array of model residuals.
     """
-    diffList = []
-    a = ModelFit[0]  # search rate
-    h = ModelFit[1]  # handling time
 
-    if mode == "NLS":
-        for i in range(len(data2fitx)):
-            # find diff between model and observed
-            diffList.append(abs(Model(data2fitx[i], a, h) - data2fitx[i]) ** 2)
-            # sum the values
-            RSS = sum(diffList)
-
-    if mode == "lm":
-        for i in range(len(data2fitx)):
-            # find diff between model and observed
-            diffList.append(abs(Model(data2fitx[i], a, h) - data2fitx[i]) ** 2)
-            # sum the values
-            RSS = sum(diffList)
+    RSS = sum(residuals**2)
 
     return RSS
+
+# def calc_RSS(data2fitx, ModelFit, Model=calc_C, mode="lm"):  ## model var is to specify which equation should be used. Model fit is popt under sc.optimize
+#     """
+#     Calculates the Residual Sum of Squares for a set of data given the model fit.  
+#     The equation used to fit the model can also be changed using the `Model` argument, default is the `calc_C` function.
+#     Can be used for both NLS and lm, specified with mode = "NLS" OR "lm".
+
+#     Default is a linear model.
+#     """
+#     diffList = []
+#     a = ModelFit[0]  # search rate
+#     h = ModelFit[1]  # handling time
+
+
+#     if mode == "NLS":
+#         for i in range(len(data2fitx)):
+#             # find diff between model and observed
+#             diffList.append(abs(Model(data2fitx[i], a, h) - data2fitx[i]) ** 2)
+#             # sum the values
+#             RSS = sum(diffList)
+
+#     if mode == "lm":
+#         for i in range(len(data2fitx)):
+#             # find diff between model and observed
+#             diffList.append(abs(Model(data2fitx[i], a, h) - data2fitx[i]) ** 2)
+#             # sum the values
+#             RSS = sum(diffList)
+
+#     return RSS
 
 
 def pModel(coefficients):
@@ -123,7 +134,6 @@ def calc_BIC(data2fit, n, Model_RSS, pModel):
     """
     return n + 2 + n * log(2 * pi / n) + n * log(RSS) + p * log(n)
 
-
 def est_a(ResDens, NTrait, h):
     """
     Gets an estimate of `a` given the `ResDensity`, `N_TraitsValue` and `h` estimate.  Uses the arguments to progressively eliminate points to a minimum number of points to make a linear regression and takes the slope of the line as the estimate of `a`.  Minimum number of points is 3 or less than 30% of total data points.
@@ -138,25 +148,26 @@ def est_a(ResDens, NTrait, h):
             # print("less than 3 points")
             break
         # linear regression with ever shrinking data set from
-        tmpRegress = stats.linregress(ResDens[0:i], NTrait[0:i])
-        # parameters for this iteration, h is found beforehand. a is slope of the line
-        paramEst = [tmpRegress[0], h]
+        mod = lmfit.models.LinearModel()
+        params = mod.guess(NTrait[0:i], x = ResDens[0:i])
+        tmpRegress = mod.fit(NTrait[0:i], params, x = ResDens[0:i])
+        
+        residuals = tmpRegress.residual
         
         if smallest_RSS == None:  # i.e. first loop
 
-            smallest_RSS = calc_RSS(ResDens[0:i], paramEst, Model=calc_CQ)
-            smallest_a = tmpRegress[0]
-            # import pdb; pdb.set_trace()
+            smallest_RSS = calc_RSS(residuals)
+            smallest_a = tmpRegress.params["slope"].value
 
         # if RSS is smaller record
-        elif calc_RSS(ResDens[0:i], paramEst, Model=calc_CQ) < smallest_RSS:
+        elif calc_RSS(residuals) < smallest_RSS:
 
-            if sc.isnan(tmpRegress[0]):  # skip if a becomes nan
+            if sc.isnan(tmpRegress.params["slope"].value):  # skip if a becomes nan
                 break
 
             else:
-                smallest_RSS = calc_RSS(ResDens[0:i], paramEst, Model=calc_CQ)
-                smallest_a = tmpRegress[0]
+                smallest_RSS = calc_RSS(residuals)
+                smallest_a = tmpRegress.params["slope"].value
 
             #     elif: #if equal what to do?
 
@@ -166,44 +177,86 @@ def est_a(ResDens, NTrait, h):
 
     return smallest_a
 
-def calc_poly(poly, x, deg = 0):
-    """
-    To calculate the output of a polynomial of n-degree. requires a minimum degree of 1.
+# def est_a(ResDens, NTrait, h):
+#     """
+#     Gets an estimate of `a` given the `ResDensity`, `N_TraitsValue` and `h` estimate.  Uses the arguments to progressively eliminate points to a minimum number of points to make a linear regression and takes the slope of the line as the estimate of `a`.  Minimum number of points is 3 or less than 30% of total data points.
+#     """
+#     best_a = None  # for recording the value of `a` which gave the lowest RSS value.
+#     smallest_RSS = None  # for recording the lowest RSS value.
 
-    poly: the polynomial coefficients in order from highest degree to lowest, includes intercept
+#     for i in range(len(ResDens), -1, -1):  ## loop backwards from len(ResDens)
+        
 
-    x: the observed datat to be used for the x-axis in the form of a list.
+#         if len(ResDens[0:i]) < 3 or i < (0.3 * len(ResDens)):
+#             # print("less than 3 points")
+#             break
+#         # linear regression with ever shrinking data set from
+#         tmpRegress = stats.linregress(ResDens[0:i], NTrait[0:i])
+#         # parameters for this iteration, h is found beforehand. a is slope of the line
+#         paramEst = [tmpRegress[0], h]
+        
+#         if smallest_RSS == None:  # i.e. first loop
 
-    deg: degree of the polynomial
+#             smallest_RSS = calc_RSS(ResDens[0:i], paramEst, Model=calc_CQ)
+#             smallest_a = tmpRegress[0]
+#             # import pdb; pdb.set_trace()
 
-    Returns: values of y using the coefficients of poly as a list
-    """
-    if len(poly == 1) or deg == 0: # to catch missing arguments or 0 degree polynomials
-        return "Please give a polynomial of degree of 1 or greater, or specify the degree of your polynomial"
+#         # if RSS is smaller record
+#         elif calc_RSS(ResDens[0:i], paramEst, Model=calc_CQ) < smallest_RSS:
 
-    ylist = []
+#             if sc.isnan(tmpRegress[0]):  # skip if a becomes nan
+#                 break
 
-    x_coefs = np.array(poly[0 : deg-1])
-    c = poly[deg]
-    exponents = list(range(1,deg))
-    x_valexp = np.array([]) # list with values adjusted for their exponent
+#             else:
+#                 smallest_RSS = calc_RSS(ResDens[0:i], paramEst, Model=calc_CQ)
+#                 smallest_a = tmpRegress[0]
 
-    ## put x values to right exponent
-    for x_val in x:
-        for i in range(deg):
-            x_valexp.append(x_val ** exponents[i])
-        y_val = sum(x_valexp*x_coefs) + c
-        ylist.append(y_val)
-    return ylist
+#             #     elif: #if equal what to do?
 
-def poly2_eq(x, x2, x1, c):
-    return (x2*(x**2)) + (x1*x) + c
+#         else:  # if not smaller skip
+#             None
 
-def poly3_eq(x, x3, x2, x1, c):
-    return (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
 
-def poly4_eq(x, x4, x3, x2, x1, c):
-    return (x4*(x**4)) + (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
+#     return smallest_a
+
+# def calc_poly(poly, x, deg = 0):
+#     """
+#     To calculate the output of a polynomial of n-degree. requires a minimum degree of 1.
+
+#     poly: the polynomial coefficients in order from highest degree to lowest, includes intercept
+
+#     x: the observed datat to be used for the x-axis in the form of a list.
+
+#     deg: degree of the polynomial
+
+#     Returns: values of y using the coefficients of poly as a list
+#     """
+#     if len(poly == 1) or deg == 0: # to catch missing arguments or 0 degree polynomials
+#         return "Please give a polynomial of degree of 1 or greater, or specify the degree of your polynomial"
+
+#     ylist = []
+
+#     x_coefs = np.array(poly[0 : deg-1])
+#     c = poly[deg]
+#     exponents = list(range(1,deg))
+#     x_valexp = np.array([]) # list with values adjusted for their exponent
+
+#     ## put x values to right exponent
+#     for x_val in x:
+#         for i in range(deg):
+#             x_valexp.append(x_val ** exponents[i])
+#         y_val = sum(x_valexp*x_coefs) + c
+#         ylist.append(y_val)
+#     return ylist
+
+# def poly2_eq(x, x2, x1, c):
+#     return (x2*(x**2)) + (x1*x) + c
+
+# def poly3_eq(x, x3, x2, x1, c):
+#     return (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
+
+# def poly4_eq(x, x4, x3, x2, x1, c):
+#     return (x4*(x**4)) + (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
 
 
 
@@ -386,6 +439,8 @@ for ID in data.ID.unique():
     try:
 
         # poly2sc[ID] = polynomial.polyfit(x = ResDens, y = NTrait, deg = 2) # gives coefs in order x^2, x, c
+        # print(polynomial.polyfit(x = ResDens, y = NTrait, deg = 2)) # gives coefs in order x^2, x, c
+
         mod = lmfit.models.PolynomialModel(degree=2)
         params = mod.guess(NTrait, x = ResDens)
         poly2 = mod.fit(NTrait, params, x = ResDens)
@@ -395,7 +450,17 @@ for ID in data.ID.unique():
         # poly2 = poly2mod.fit(NTrait, x = ResDens)
 
         poly2coefList[ID] = poly2.best_values 
-        poly2Fits[ID] = poly2.best_fit       
+        poly2Fits[ID] = poly2.best_fit  
+          
+        # print(poly2Fits[ID])  
+        # with PdfPages('../Results/test.pdf') as pdf:
+
+        #     plt.figure()
+        #     poly2.plot()
+        #     pdf.savefig()
+        #     plt.close()
+
+        # print(poly2.fit_report()) 
         AICpoly2List[ID] = poly2.aic
         BICpoly2List[ID] = poly2.bic
         poly2Pass.append(ID)
@@ -521,11 +586,12 @@ if plotGeneralHollings == True or plotAll == True:
             RDensities.sort()
             ##Plot##
             plt.figure()
-            plt.scatter(ResDens, NTrait)
-            plt.plot(ResDens, calc_CQ(ResDens, a=aCQmodList[ID], h=hCQmodList[ID]), '-r')
+            plt.plot(ResDens, NTrait,"bo")
+            plt.plot(ResDens, calc_CQ(ResDens, a=aCQmodList[ID], h=hCQmodList[ID]), '-r', label = min(ResDens))
             # plt.plot(ResDens, calc_CQ(ResDens, a = aCQmodList[i][1], h = hCQmodList[i][1]), '-r')  ## changed above and below line to acccomadate aCQmodList and hCQmodList being changed from a list to a dictionary
-            plt.plot(RDensities, calc_CQ(RDensities, a=aCQmodList[ID], h=hCQmodList[ID]), '-g')
+            plt.plot(RDensities, calc_CQ(RDensities, a=aCQmodList[ID], h=hCQmodList[ID]), '-g', label = hCQmodList[ID])
             # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
+            plt.legend()
             plt.xlabel('ResourceDensity')
             plt.ylabel('N_TraitValue')
             plt.title(CQmodPass[i])
@@ -602,14 +668,16 @@ if plotpolys == True or plotAll == True:
 print("100% finished =)")
 
 ### things to pick up on for next time:
+
+# save model so they can be accessed or do the plotting during the fitting across all degrees of polynomial
+    # alternative is to just do separate plot files
+
+
 # 1959 fitting well enough,but generalised is a mess, despite the fact that a starting value of q means they are the same equation to start
 #   means that something is going wrong in the fit..., 
 # could try to limit q to positive? 
 # try non-zero value for q like .1?
 # check that graphs are plotting with the right equations for that dataset
-
-# finish implementing calc_poly for the graphs
-# look at est_a for RSS since using a model in calcRSS makes no sense since i am getting the starting values for the model
 
 
 
@@ -630,3 +698,9 @@ print("100% finished =)")
 
 
 # pandas==0.22.0
+
+
+##### Questions
+# consumer movement
+# resource movement
+# detection - sphere or circle i.e. 2d or 3d perception
