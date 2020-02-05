@@ -19,7 +19,7 @@ plot1959Hollings = False
 plotGeneralHollings = True
 plotpolys = False
 
-plotAll =False # will plot all models regardless of other options
+plotAll = False # will plot all models regardless of other options
 
 #######FUNCTIONS############
 def calc_C(Xr, a, h):
@@ -60,7 +60,7 @@ def calc_CQ(Xr, a, h, q=0):  ## arbitrarily defined right now as 0.8
     return C
 
 
-def calc_CQlmfit(params, Xr):  ## arbitrarily defined right now as 0.05
+def calc_CQlmfit(params, Xr, data):  ## arbitrarily defined right now as 0.05
     """
     The equation for the more general Type II functional response curve.
     Need an argument params which is a dictionary containing the parameter values.
@@ -75,7 +75,7 @@ def calc_CQlmfit(params, Xr):  ## arbitrarily defined right now as 0.05
     top = a * Xr ** (q + 1)
     bot = 1 + (h * a * Xr ** (q + 1))
     C = top / bot
-    return C
+    return C - data
 
 def calc_RSS(residuals):  ## model var is to specify which equation should be used. Model fit is popt under sc.optimize
     """
@@ -249,14 +249,14 @@ def est_a(ResDens, NTrait, h):
 #         ylist.append(y_val)
 #     return ylist
 
-# def poly2_eq(x, x2, x1, c):
-#     return (x2*(x**2)) + (x1*x) + c
+def poly2_eq(x, x2, x1, c):
+    return (x2*(x**2)) + (x1*x) + c
 
-# def poly3_eq(x, x3, x2, x1, c):
-#     return (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
+def poly3_eq(x, x3, x2, x1, c):
+    return (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
 
-# def poly4_eq(x, x4, x3, x2, x1, c):
-#     return (x4*(x**4)) + (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
+def poly4_eq(x, x4, x3, x2, x1, c):
+    return (x4*(x**4)) + (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
 
 
 
@@ -264,28 +264,6 @@ def est_a(ResDens, NTrait, h):
 data = pd.read_csv("../data/CRat.csv")
 
 ######Define some lists for data to be saved ########
-
-
-## `a` best value lists
-# aCmodList = []  ###########Look into making these dictionaries for speed
-# aCQmodList = []
-
-
-# ##`h` best value lists
-# hCmodList = []
-# hCQmodList = []
-
-# # AIC Lists
-# AICCmodList = []
-# AICCQmodList = []
-
-# # BIC List
-# BICCmodList = []
-# BICCQmodList = []
-
-# ##Passed ID list - list of ID which pass
-# CmodPass = []
-# CQmodPass = []
 
 ## `a` best value lists
 aCmodList = []  ###########Look into making these dictionaries for speed
@@ -375,7 +353,7 @@ for ID in data.ID.unique():
     
     ##Estimate `a` as the slope of the line which give the lowest RSS which is above a threshold number of points that the model is still acceptable. 
     aEst = est_a(ResDens, NTrait, hEst)
-    q = 0.2
+    q = 0
 
 
 
@@ -405,19 +383,43 @@ for ID in data.ID.unique():
 
     except ValueError:
         CmodError.append(ID)
+
+
+
     ####### Fit Generalised Hollings #####
 
     try:
-        CQmod = lmfit.Model(calc_CQ)  # set the model and equations we want to use
-        paramsCQmod = CQmod.make_params(a=aEst, h=hEst, q=q)
+        # CQmod = lmfit.Model(calc_CQ)  # set the model and equations we want to use
+        # paramsCQmod = CQmod.make_params(a=aEst, h=hEst, q=q)
         
 
-        resultsCQmod = CQmod.fit(NTrait, Xr=ResDens, a=aEst, h=hEst, q=q)
-        aCQmod = resultsCQmod.best_values["a"]
-        hCQmod = resultsCQmod.best_values["h"]
-        aCQmodList[ID] = resultsCQmod.best_values["a"]
-        hCQmodList[ID] = resultsCQmod.best_values["h"]
-        qCQmodList[ID] = resultsCQmod.best_values["q"]
+        # resultsCQmod = CQmod.fit(NTrait, Xr=ResDens, a=aEst, h=hEst, q=q)
+
+        # if ID == 2: 
+        #     print(resultsCQmod.fit_report())
+        # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
+        params = lmfit.Parameters()
+        params.add_many(("a", aEst, True, 0, None),
+         ("h", hEst, True, 0, None), 
+         ("q", q, True, 0, None))
+        
+        CQmod = lmfit.Minimizer(calc_CQlmfit, params, fcn_args=(ResDens, NTrait))
+        # resultsCQmod = lmfit.minimize(calc_CQlmfit, params, args = (NTrait,), kws={'data': NTrait})
+        # resultsCQmod = lmfit.minimize(calc_CQlmfit, params, args=(ResDens,), kws={'data': NTrait})
+        resultsCQmod = CQmod.minimize()
+
+        # if using minimise
+        paramVals = resultsCQmod.params.valuesdict()
+        aCQmod = paramVals["a"]
+        hCQmod = paramVals["h"]
+        aCQmodList[ID] = paramVals["a"]
+        hCQmodList[ID] = paramVals["h"]
+        qCQmodList[ID] = paramVals["q"]
+       
+        # hCQmod = resultsCQmod.best_values["h"]
+        # aCQmodList[ID] = resultsCQmod.best_values["a"]
+        # hCQmodList[ID] = resultsCQmod.best_values["h"]
+        # qCQmodList[ID] = resultsCQmod.best_values["q"]
         AICCQmodList[ID] = resultsCQmod.aic
         BICCQmodList[ID] = resultsCQmod.bic
 
@@ -429,7 +431,9 @@ for ID in data.ID.unique():
         CQmodPass.append(ID)
         # print(resultsCQmod.best_values["q"])
         ### Troubleshooting
-        CQModResultsDict[ID] = resultsCQmod.fit_report()
+        # CQModResultsDict[ID] = resultsCQmod.fit_report()
+        CQModResultsDict[ID] = 0
+
 
     except ValueError:
         CQmodError.append(ID)
@@ -449,7 +453,7 @@ for ID in data.ID.unique():
 
         # poly2 = poly2mod.fit(NTrait, x = ResDens)
 
-        poly2coefList[ID] = poly2.best_values 
+        poly2coefList[ID] = list(poly2.best_values.values())
         poly2Fits[ID] = poly2.best_fit  
           
         # print(poly2Fits[ID])  
@@ -484,6 +488,7 @@ for ID in data.ID.unique():
         poly3coefList[ID] = poly3.best_values 
         poly3Fits[ID] = poly3.best_fit 
         # print(poly3Fits[ID])
+        poly3coefList[ID] = list(poly3.best_values.values())
 
         AICpoly3List[ID] = poly3.aic
         BICpoly3List[ID] = poly3.bic
@@ -501,9 +506,15 @@ for ID in data.ID.unique():
         params = mod.guess(NTrait, x = ResDens)
         poly4 = mod.fit(NTrait, params, x = ResDens)
 
+        # mod = lmfit.Model(poly2_eq)
+        # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
+        # mod.Parameters.add_many(())
+        # params = mod.add
+
         poly4coefList[ID] = poly4.best_values 
         poly4Fits[ID] = poly4.best_fit 
         # print(poly4Fits[ID])
+        poly4coefList[ID] = list(poly4.best_values.values())
 
         AICpoly4List[ID] = poly4.aic
         BICpoly4List[ID] = poly4.bic
@@ -587,7 +598,7 @@ if plotGeneralHollings == True or plotAll == True:
             ##Plot##
             plt.figure()
             plt.plot(ResDens, NTrait,"bo")
-            plt.plot(ResDens, calc_CQ(ResDens, a=aCQmodList[ID], h=hCQmodList[ID]), '-r', label = min(ResDens))
+            plt.plot(ResDens, calc_CQ(ResDens, a=aCQmodList[ID], h=hCQmodList[ID]), '-r', label = aCQmodList[ID])
             # plt.plot(ResDens, calc_CQ(ResDens, a = aCQmodList[i][1], h = hCQmodList[i][1]), '-r')  ## changed above and below line to acccomadate aCQmodList and hCQmodList being changed from a list to a dictionary
             plt.plot(RDensities, calc_CQ(RDensities, a=aCQmodList[ID], h=hCQmodList[ID]), '-g', label = hCQmodList[ID])
             # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
@@ -625,16 +636,29 @@ if plotpolys == True or plotAll == True:
             ##Plot##
             plt.figure()
             plt.plot(ResDens, NTrait, "bo")
-            plt.plot(RDensities, poly2Fits[ID], "r-", label = "2nd Degree")
+            plt.plot(sc.polyval(poly2coefList[ID], RDensities), NTrait, "r-", label = "2nd Degree")
             try:
-                plt.plot(RDensities, poly3Fits, '-g', label = "3rd Degree")
+                plt.plot(sc.polyval(poly3coefList[ID], RDensities), NTrait, '-g', label = "3rd Degree")
             except ValueError:
                 print("Error 3rd degree: ", ID)
+            except KeyError:
+                print("KeyError 3rd:", ID)
+            # try:
+            #     plt.plot(RDensities, poly3Fits, '-g', label = "3rd Degree")
+            # except ValueError:
+            #     print("Error 3rd degree: ", ID)
+
 
             try:
-                plt.plot(RDensities, poly4Fits, '-b', label = "4th Degree")
+                plt.plot(sc.polyval(poly4coefList[ID], RDensities), NTrait, '-b', label = "4th Degree")
             except ValueError:
                 print("Error 4th degree: ", ID)
+            except KeyError:
+                print("KeyError 4th:", ID)
+            # try:
+            #     plt.plot(RDensities, poly4Fits, '-b', label = "4th Degree")
+            # except ValueError:
+            #     print("Error 4th degree: ", ID)
             # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
             plt.legend()
             plt.xlabel('ResourceDensity')
