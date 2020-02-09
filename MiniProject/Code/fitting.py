@@ -15,7 +15,7 @@ from matplotlib.backends.backend_pdf import PdfPages as PdfPages
 
 ######## Script options #########
 # model plots - deternmines whether or no certain models are plotted
-plot1959Hollings = False
+plot1959Hollings = True
 plotGeneralHollings = True
 plotpolys = False
 
@@ -32,7 +32,7 @@ def calc_C(Xr, a, h):
     return C
 
 
-def calc_Clmfit(params, Xr):  ## arbitrarily defined right now as 0.05
+def calc_Clmfit(params, Xr, data = 0):  ## arbitrarily defined right now as 0.05
     """
     The equation for the more general Type II functional response curve.
     Need an argument params which is a dictionary containing the parameter values.
@@ -46,7 +46,7 @@ def calc_Clmfit(params, Xr):  ## arbitrarily defined right now as 0.05
     top = a * Xr
     bot = 1 + (h * a * Xr)
     C = top / bot
-    return C
+    return C - data
 
 
 def calc_CQ(Xr, a, h, q=0):  ## arbitrarily defined right now as 0.8
@@ -60,7 +60,7 @@ def calc_CQ(Xr, a, h, q=0):  ## arbitrarily defined right now as 0.8
     return C
 
 
-def calc_CQlmfit(params, Xr, data):  ## arbitrarily defined right now as 0.05
+def calc_CQlmfit(params, Xr, data = 0):  ## arbitrarily defined right now as 0.05
     """
     The equation for the more general Type II functional response curve.
     Need an argument params which is a dictionary containing the parameter values.
@@ -249,14 +249,49 @@ def est_a(ResDens, NTrait, h):
 #         ylist.append(y_val)
 #     return ylist
 
-def poly2_eq(x, x2, x1, c):
-    return (x2*(x**2)) + (x1*x) + c
+def poly2_eq(x, c2, c1, c0):
+    """A function to calculate a quadratic equation given the x value and coefficients in the form - c2x + c1x + c0
+    
+    Arguments:
+        x {float} -- x value to be used in the equation
+        c2 {float} -- a coefficient for the equation
+        c1 {float} -- a coefficient for the equation
+        c0 {float} -- a coefficient for the equation    
+    Returns:
+        {float} -- solution to the quadratic at given x value
+    """
+    return (c2*(x**2)) + (c1*x) + c0
 
-def poly3_eq(x, x3, x2, x1, c):
-    return (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
+def poly3_eq(x, c3, c2, c1, c0):
+    """A function to calculate a cubic polynomial equation given the x value and coefficients in the form - c3x + c2x + c1x + c0
+    
+    Arguments:
+        x {float} -- x value to be used in the equation
+        c3 {float} -- a coefficient for the equation
+        c2 {float} -- a coefficient for the equation
+        c1 {float} -- a coefficient for the equation
+        c0 {float} -- a coefficient for the equation
+    
+    Returns:
+        {float} -- solution to the polynomial at given x value
+    """
+    return (c3*(x**3)) + (c2*(x**2)) + (c1*x) + c0
 
-def poly4_eq(x, x4, x3, x2, x1, c):
-    return (x4*(x**4)) + (x3*(x**3)) + (x2*(x**2)) + (x1*x) + c
+def poly4_eq(x, c4, c3, c2, c1, c0):
+    """A function to calculate a 4th degree polynomial equation given the x value and coefficients in the form - c3x + c2x + c1x + c0
+    
+    Arguments:
+        x {float} -- x value to be used in the equation
+        c4 float} -- a coefficient for the equation
+        c3 float} -- a coefficient for the equation
+        c2 float} -- a coefficient for the equation
+        c1 float} -- a coefficient for the equation
+        c0 float} -- a coefficient for the equation
+    
+    Returns:
+        {float} -- solution to the polynomial at given x value
+    """
+    return (c4*(x**4)) + (c3*(x**3)) + (c2*(x**2)) + (c1*x) + c0
 
 
 
@@ -266,11 +301,11 @@ data = pd.read_csv("../data/CRat.csv")
 ######Define some lists for data to be saved ########
 
 ## `a` best value lists
-aCmodList = []  ###########Look into making these dictionaries for speed
+aCmodList = {}  ###########Look into making these dictionaries for speed
 aCQmodList = {}
 
 ##`h` best value lists
-hCmodList = []
+hCmodList = {}
 hCQmodList = {}
 
 ## best q values list
@@ -287,14 +322,14 @@ poly3Fits = {}
 poly4Fits = {}
 
 # AIC Lists
-AICCmodList = []
+AICCmodList = {}
 AICCQmodList = {}
 AICpoly2List ={}
 AICpoly3List ={}
 AICpoly4List ={}
 
 # BIC List
-BICCmodList = []
+BICCmodList = {}
 BICCQmodList = {}
 BICpoly2List ={}
 BICpoly3List ={}
@@ -353,7 +388,7 @@ for ID in data.ID.unique():
     
     ##Estimate `a` as the slope of the line which give the lowest RSS which is above a threshold number of points that the model is still acceptable. 
     aEst = est_a(ResDens, NTrait, hEst)
-    q = 0
+    q = 0.3
 
 
 
@@ -366,21 +401,38 @@ for ID in data.ID.unique():
     ####### Use Hollings 1959 model#####
 
     try:
-        Cmod = lmfit.Model(calc_C)  # set the model and equations we want to use
-        paramsCmod = Cmod.make_params(a=aEst, h=hEst)
-        resultsCmod = Cmod.fit(NTrait, Xr=ResDens, a=aEst, h=hEst)
-        aCmod = resultsCmod.best_values["a"]
-        hCmod = resultsCmod.best_values["h"]
-        aCmodList.append((ID, resultsCmod.best_values["a"]))
-        hCmodList.append((ID, resultsCmod.best_values["h"]))
-        AICCmodList.append((ID, resultsCmod.aic))
-        BICCmodList.append((ID, resultsCmod.bic))
+        # Cmod = lmfit.Model(calc_C)  # set the model and equations we want to use
+        # paramsCmod = Cmod.make_params(a=aEst, h=hEst)
+
+        # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
+        params = lmfit.Parameters()
+        params.add_many(("a", aEst, True, 0, None),
+         ("h", hEst, True, 0, None), 
+         ("q", q, True, 0, None))
+        Cmod = lmfit.Minimizer(calc_Clmfit, params, fcn_args=(ResDens, NTrait))
+        resultsCmod = Cmod.minimize()
+
+        # if using minimise
+        CparamVals = resultsCmod.params.valuesdict()
+        aCmod = CparamVals["a"]
+        hCmod = CparamVals["h"]
+        aCmodList[ID] = CparamVals["a"]
+        hCmodList[ID] = CparamVals["h"]
+
+
+        # resultsCmod = Cmod.fit(NTrait, Xr=ResDens, a=aEst, h=hEst)
+        # aCmod = resultsCmod.best_values["a"]
+        # hCmod = resultsCmod.best_values["h"]
+        # aCmodList.append((ID, resultsCmod.best_values["a"]))
+        # hCmodList.append((ID, resultsCmod.best_values["h"]))
+        AICCmodList[ID] = resultsCmod.aic
+        BICCmodList[ID] = resultsCmod.bic
 
         CmodPass.append(ID)
 
         ### Troubleshooting
-        CModResultsDict[ID] = resultsCmod.fit_report()
-
+        # CModResultsDict[ID] = resultsCmod.fit_report()
+        CModResultsDict[ID] = 0
     except ValueError:
         CmodError.append(ID)
 
@@ -395,8 +447,7 @@ for ID in data.ID.unique():
 
         # resultsCQmod = CQmod.fit(NTrait, Xr=ResDens, a=aEst, h=hEst, q=q)
 
-        # if ID == 2: 
-        #     print(resultsCQmod.fit_report())
+        # 
         # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
         params = lmfit.Parameters()
         params.add_many(("a", aEst, True, 0, None),
@@ -409,12 +460,12 @@ for ID in data.ID.unique():
         resultsCQmod = CQmod.minimize()
 
         # if using minimise
-        paramVals = resultsCQmod.params.valuesdict()
-        aCQmod = paramVals["a"]
-        hCQmod = paramVals["h"]
-        aCQmodList[ID] = paramVals["a"]
-        hCQmodList[ID] = paramVals["h"]
-        qCQmodList[ID] = paramVals["q"]
+        CQparamVals = resultsCQmod.params.valuesdict()
+        aCQmod = CQparamVals["a"]
+        hCQmod = CQparamVals["h"]
+        aCQmodList[ID] = CQparamVals["a"]
+        hCQmodList[ID] = CQparamVals["h"]
+        qCQmodList[ID] = CQparamVals["q"]
        
         # hCQmod = resultsCQmod.best_values["h"]
         # aCQmodList[ID] = resultsCQmod.best_values["a"]
@@ -560,6 +611,7 @@ if plot1959Hollings == True or plotAll == True:
     print("Plotting Hollings 1959.")
     with PdfPages('../Results/FittedPlots_Hollings1959.pdf') as pdf:
         for i in range(len(CmodPass)):  # write for loop that goes through the data and plots it
+            ID =CmodPass[i]
             ### Subset data###
             subset = data[data["ID"] == CmodPass[i]]
             ResDens = sc.array(subset["ResDensity"])
@@ -570,9 +622,9 @@ if plot1959Hollings == True or plotAll == True:
             ##Plot##
 
             plt.figure()
-            plt.scatter(ResDens, NTrait)
-            plt.plot(ResDens, calc_C(ResDens, a=aCmodList[i][1], h=hCmodList[i][1]), '-r')
-            plt.plot(RDensities, calc_C(RDensities, a=aCmodList[i][1], h=hCmodList[i][1]), '-g')
+            plt.plot(ResDens, NTrait, "bo")
+            plt.plot(ResDens, calc_C(ResDens, a=aCmodList[ID], h=hCmodList[ID]), '-r')
+            plt.plot(RDensities, calc_C(RDensities, a=aCmodList[ID], h=hCmodList[ID]), '-g')
             # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
             plt.xlabel('ResourceDensity')
             plt.ylabel('N_TraitValue')
@@ -598,9 +650,9 @@ if plotGeneralHollings == True or plotAll == True:
             ##Plot##
             plt.figure()
             plt.plot(ResDens, NTrait,"bo")
-            plt.plot(ResDens, calc_CQ(ResDens, a=aCQmodList[ID], h=hCQmodList[ID]), '-r', label = aCQmodList[ID])
+            plt.plot(ResDens, calc_CQ(ResDens, a=aCQmodList[ID], h=hCQmodList[ID], q=qCQmodList[ID]), '-r', label = aCQmodList[ID])
             # plt.plot(ResDens, calc_CQ(ResDens, a = aCQmodList[i][1], h = hCQmodList[i][1]), '-r')  ## changed above and below line to acccomadate aCQmodList and hCQmodList being changed from a list to a dictionary
-            plt.plot(RDensities, calc_CQ(RDensities, a=aCQmodList[ID], h=hCQmodList[ID]), '-g', label = hCQmodList[ID])
+            plt.plot(RDensities, calc_CQ(RDensities, a=aCQmodList[ID], h=hCQmodList[ID], q=qCQmodList[ID]), '-g', label = hCQmodList[ID])
             # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
             plt.legend()
             plt.xlabel('ResourceDensity')
@@ -728,3 +780,16 @@ print("100% finished =)")
 # consumer movement
 # resource movement
 # detection - sphere or circle i.e. 2d or 3d perception
+
+
+# discussion with samraat
+# checking fits are significant?
+    # just use aic/bic for significance
+    # no need to quantify just rank them instead
+    # wide CIs in the parameters will have worse aic anyway
+    # can look at whether q is different from 0 by seeing if it is significant from 0
+        # determines if type 2 or 1 response
+    # even if AICs are marginally different just choose the best and maybe there will be a pattern so you can mention that it is marginal but there is a pattern
+
+    # can look at using overlapping CIs for comparing params, but should read up on what is wrong with doing so and how it might not be trust worthy
+
