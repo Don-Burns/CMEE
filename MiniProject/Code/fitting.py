@@ -23,9 +23,18 @@ plotAll = False # will plot all models regardless of other options
 
 #######FUNCTIONS############
 def calc_C(Xr, a, h):
+    """  The equation for the type II functional response from Holling, 1959
+
+    
+    Arguments:
+        Xr {float} -- [description]
+        a {float} -- [description]
+        h {float} -- [description]
+    
+    Returns:
+        {float} -- [description]
     """
-    The equation for the type II functional response from Holling, 1959
-    """
+    
     top = a * Xr
     bot = 1 + (h * a * Xr)
     C = top / bot
@@ -38,6 +47,15 @@ def calc_Clmfit(params, Xr, data = 0):  ## arbitrarily defined right now as 0.05
     Need an argument params which is a dictionary containing the parameter values.
     This dictionary is made using lmfit.parameters().
     used for minimize.
+
+    Arguments:
+        Xr {float} -- [description]
+        a {float} -- [description]
+        h {float} -- [description]
+        data {float} -- [description]
+
+    Returns:
+        {float} -- [description]
     """
     vals = params.valuesdict()
     a = vals['a']
@@ -66,6 +84,16 @@ def calc_CQlmfit(params, Xr, data = 0):  ## arbitrarily defined right now as 0.0
     Need an argument params which is a dictionary containing the parameter values.
     This dictionary is made using lmfit.parameters().
     Includes a dimensionless parameter `q` which is used to account for a small lag phase at the start of the curve.
+
+    Arguments:
+        Xr {float} -- [description]
+        a {float} -- [description]
+        h {float} -- [description]
+        data {float} -- [description]
+    
+    Returns:
+        {float} -- 
+
     """
     vals = params.valuesdict()
     a = vals['a']
@@ -86,53 +114,6 @@ def calc_RSS(residuals):  ## model var is to specify which equation should be us
 
     return RSS
 
-# def calc_RSS(data2fitx, ModelFit, Model=calc_C, mode="lm"):  ## model var is to specify which equation should be used. Model fit is popt under sc.optimize
-#     """
-#     Calculates the Residual Sum of Squares for a set of data given the model fit.  
-#     The equation used to fit the model can also be changed using the `Model` argument, default is the `calc_C` function.
-#     Can be used for both NLS and lm, specified with mode = "NLS" OR "lm".
-
-#     Default is a linear model.
-#     """
-#     diffList = []
-#     a = ModelFit[0]  # search rate
-#     h = ModelFit[1]  # handling time
-
-
-#     if mode == "NLS":
-#         for i in range(len(data2fitx)):
-#             # find diff between model and observed
-#             diffList.append(abs(Model(data2fitx[i], a, h) - data2fitx[i]) ** 2)
-#             # sum the values
-#             RSS = sum(diffList)
-
-#     if mode == "lm":
-#         for i in range(len(data2fitx)):
-#             # find diff between model and observed
-#             diffList.append(abs(Model(data2fitx[i], a, h) - data2fitx[i]) ** 2)
-#             # sum the values
-#             RSS = sum(diffList)
-
-#     return RSS
-
-
-def pModel(coefficients):
-    """Return number of parameters of a model when given a list of them."""
-    return len(coefficients)
-
-
-def calc_AIC(data2fit, n, Model_RSS, pModel):
-    """
-    Calculates the AIC value given the data (data2fit), number of samples (n), the RSS of the model (Model_RSS) and number of parameters in the model(pModel).
-    """
-    return n + 2 + n * log((2 * pi) / n) + n * log(Model_RSS) + 2 * pModel
-
-
-def calc_BIC(data2fit, n, Model_RSS, pModel):
-    """
-    Calculates the BIC value given the data (data2fit), number of samples (n), the RSS of the model (Model_RSS) and number of parameters in the model(pModel).
-    """
-    return n + 2 + n * log(2 * pi / n) + n * log(RSS) + p * log(n)
 
 def est_a(ResDens, NTrait, h):
     """
@@ -177,92 +158,24 @@ def est_a(ResDens, NTrait, h):
 
     return smallest_a
 
-# def est_a(ResDens, NTrait, h):
-#     """
-#     Gets an estimate of `a` given the `ResDensity`, `N_TraitsValue` and `h` estimate.  Uses the arguments to progressively eliminate points to a minimum number of points to make a linear regression and takes the slope of the line as the estimate of `a`.  Minimum number of points is 3 or less than 30% of total data points.
-#     """
-#     best_a = None  # for recording the value of `a` which gave the lowest RSS value.
-#     smallest_RSS = None  # for recording the lowest RSS value.
 
-#     for i in range(len(ResDens), -1, -1):  ## loop backwards from len(ResDens)
-        
-
-#         if len(ResDens[0:i]) < 3 or i < (0.3 * len(ResDens)):
-#             # print("less than 3 points")
-#             break
-#         # linear regression with ever shrinking data set from
-#         tmpRegress = stats.linregress(ResDens[0:i], NTrait[0:i])
-#         # parameters for this iteration, h is found beforehand. a is slope of the line
-#         paramEst = [tmpRegress[0], h]
-        
-#         if smallest_RSS == None:  # i.e. first loop
-
-#             smallest_RSS = calc_RSS(ResDens[0:i], paramEst, Model=calc_CQ)
-#             smallest_a = tmpRegress[0]
-#             # import pdb; pdb.set_trace()
-
-#         # if RSS is smaller record
-#         elif calc_RSS(ResDens[0:i], paramEst, Model=calc_CQ) < smallest_RSS:
-
-#             if sc.isnan(tmpRegress[0]):  # skip if a becomes nan
-#                 break
-
-#             else:
-#                 smallest_RSS = calc_RSS(ResDens[0:i], paramEst, Model=calc_CQ)
-#                 smallest_a = tmpRegress[0]
-
-#             #     elif: #if equal what to do?
-
-#         else:  # if not smaller skip
-#             None
-
-
-#     return smallest_a
-
-# def calc_poly(poly, x, deg = 0):
-#     """
-#     To calculate the output of a polynomial of n-degree. requires a minimum degree of 1.
-
-#     poly: the polynomial coefficients in order from highest degree to lowest, includes intercept
-
-#     x: the observed datat to be used for the x-axis in the form of a list.
-
-#     deg: degree of the polynomial
-
-#     Returns: values of y using the coefficients of poly as a list
-#     """
-#     if len(poly == 1) or deg == 0: # to catch missing arguments or 0 degree polynomials
-#         return "Please give a polynomial of degree of 1 or greater, or specify the degree of your polynomial"
-
-#     ylist = []
-
-#     x_coefs = np.array(poly[0 : deg-1])
-#     c = poly[deg]
-#     exponents = list(range(1,deg))
-#     x_valexp = np.array([]) # list with values adjusted for their exponent
-
-#     ## put x values to right exponent
-#     for x_val in x:
-#         for i in range(deg):
-#             x_valexp.append(x_val ** exponents[i])
-#         y_val = sum(x_valexp*x_coefs) + c
-#         ylist.append(y_val)
-#     return ylist
-
-def poly2_eq(x, c2, c1, c0):
+def poly2_eq(x, c2, c1, c0, data=0):
     """A function to calculate a quadratic equation given the x value and coefficients in the form - c2x + c1x + c0
     
     Arguments:
         x {float} -- x value to be used in the equation
         c2 {float} -- a coefficient for the equation
         c1 {float} -- a coefficient for the equation
-        c0 {float} -- a coefficient for the equation    
+        c0 {float} -- a coefficient for the equation  
+        data {float} -- If using for lmfit.minimizer() then this is the data the result is to be compared against  
+
     Returns:
         {float} -- solution to the quadratic at given x value
     """
-    return (c2*(x**2)) + (c1*x) + c0
+    return ((c2*(x**2)) + (c1*x) + c0) - data
 
-def poly3_eq(x, c3, c2, c1, c0):
+
+def poly3_eq(x, c3, c2, c1, c0, data=0):
     """A function to calculate a cubic polynomial equation given the x value and coefficients in the form - c3x + c2x + c1x + c0
     
     Arguments:
@@ -271,27 +184,31 @@ def poly3_eq(x, c3, c2, c1, c0):
         c2 {float} -- a coefficient for the equation
         c1 {float} -- a coefficient for the equation
         c0 {float} -- a coefficient for the equation
-    
+        data {float} -- If using for lmfit.minimizer() then this is the data the result is to be compared against  
+
     Returns:
         {float} -- solution to the polynomial at given x value
     """
-    return (c3*(x**3)) + (c2*(x**2)) + (c1*x) + c0
+    return ((c3*(x**3)) + (c2*(x**2)) + (c1*x) + c0
+) - data
 
-def poly4_eq(x, c4, c3, c2, c1, c0):
+
+def poly4_eq(x, c4, c3, c2, c1, c0, data=0):
     """A function to calculate a 4th degree polynomial equation given the x value and coefficients in the form - c3x + c2x + c1x + c0
     
     Arguments:
         x {float} -- x value to be used in the equation
-        c4 float} -- a coefficient for the equation
-        c3 float} -- a coefficient for the equation
-        c2 float} -- a coefficient for the equation
-        c1 float} -- a coefficient for the equation
-        c0 float} -- a coefficient for the equation
-    
+        c4 {float} -- a coefficient for the equation
+        c3 {float} -- a coefficient for the equation
+        c2 {float} -- a coefficient for the equation
+        c1 {float} -- a coefficient for the equation
+        c0 {float} -- a coefficient for the equation
+        data {float} -- If using for lmfit.minimizer() then this is the data the result is to be compared against  
+
     Returns:
         {float} -- solution to the polynomial at given x value
     """
-    return (c4*(x**4)) + (c3*(x**3)) + (c2*(x**2)) + (c1*x) + c0
+    return ((c4*(x**4)) + (c3*(x**3)) + (c2*(x**2)) + (c1*x) + c0) - data
 
 
 
@@ -334,6 +251,10 @@ BICCQmodList = {}
 BICpoly2List ={}
 BICpoly3List ={}
 BICpoly4List ={}
+
+# Initial values for models
+initCmod = {}
+initCQmod = {}
 
 
 ##Passed ID list - list of ID which pass
@@ -401,33 +322,24 @@ for ID in data.ID.unique():
     ####### Use Hollings 1959 model#####
 
     try:
-        # Cmod = lmfit.Model(calc_C)  # set the model and equations we want to use
-        # paramsCmod = Cmod.make_params(a=aEst, h=hEst)
 
         # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
         params = lmfit.Parameters()
         params.add_many(("a", aEst, True, 0, None),
-         ("h", hEst, True, 0, None), 
-         ("q", q, True, 0, None))
+         ("h", hEst, True, 0, None))
         Cmod = lmfit.Minimizer(calc_Clmfit, params, fcn_args=(ResDens, NTrait))
         resultsCmod = Cmod.minimize()
 
-        # if using minimise
+        # record results of model
         CparamVals = resultsCmod.params.valuesdict()
         aCmod = CparamVals["a"]
         hCmod = CparamVals["h"]
         aCmodList[ID] = CparamVals["a"]
         hCmodList[ID] = CparamVals["h"]
-
-
-        # resultsCmod = Cmod.fit(NTrait, Xr=ResDens, a=aEst, h=hEst)
-        # aCmod = resultsCmod.best_values["a"]
-        # hCmod = resultsCmod.best_values["h"]
-        # aCmodList.append((ID, resultsCmod.best_values["a"]))
-        # hCmodList.append((ID, resultsCmod.best_values["h"]))
         AICCmodList[ID] = resultsCmod.aic
         BICCmodList[ID] = resultsCmod.bic
 
+        # record passing ID
         CmodPass.append(ID)
 
         ### Troubleshooting
@@ -441,13 +353,6 @@ for ID in data.ID.unique():
     ####### Fit Generalised Hollings #####
 
     try:
-        # CQmod = lmfit.Model(calc_CQ)  # set the model and equations we want to use
-        # paramsCQmod = CQmod.make_params(a=aEst, h=hEst, q=q)
-        
-
-        # resultsCQmod = CQmod.fit(NTrait, Xr=ResDens, a=aEst, h=hEst, q=q)
-
-        # 
         # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
         params = lmfit.Parameters()
         params.add_many(("a", aEst, True, 0, None),
@@ -455,8 +360,6 @@ for ID in data.ID.unique():
          ("q", q, True, 0, None))
         
         CQmod = lmfit.Minimizer(calc_CQlmfit, params, fcn_args=(ResDens, NTrait))
-        # resultsCQmod = lmfit.minimize(calc_CQlmfit, params, args = (NTrait,), kws={'data': NTrait})
-        # resultsCQmod = lmfit.minimize(calc_CQlmfit, params, args=(ResDens,), kws={'data': NTrait})
         resultsCQmod = CQmod.minimize()
 
         # if using minimise
@@ -466,21 +369,12 @@ for ID in data.ID.unique():
         aCQmodList[ID] = CQparamVals["a"]
         hCQmodList[ID] = CQparamVals["h"]
         qCQmodList[ID] = CQparamVals["q"]
-       
-        # hCQmod = resultsCQmod.best_values["h"]
-        # aCQmodList[ID] = resultsCQmod.best_values["a"]
-        # hCQmodList[ID] = resultsCQmod.best_values["h"]
-        # qCQmodList[ID] = resultsCQmod.best_values["q"]
         AICCQmodList[ID] = resultsCQmod.aic
         BICCQmodList[ID] = resultsCQmod.bic
 
-        # aCQmodList.append((ID, resultsCQmod.best_values["a"]))
-        # hCQmodList.append((ID, resultsCQmod.best_values["h"]))
-        # AICCQmodList.append((ID,resultsCQmod.aic))
-        # BICCQmodList.append((ID,resultsCQmod.bic))
+        initCQmod[ID] = resultsCQmod.init_vals
 
         CQmodPass.append(ID)
-        # print(resultsCQmod.best_values["q"])
         ### Troubleshooting
         # CQModResultsDict[ID] = resultsCQmod.fit_report()
         CQModResultsDict[ID] = 0
@@ -593,9 +487,6 @@ w = csv.writer(open("../Results/CModResultsDict.csv", "w"))
 for key, val in CModResultsDict.items():
     w.writerow([key, val])
 
-# w = csv.writer(open("../Results/CQModResultsDict.csv", "w"))
-# for key, val in CQModResultsDict.items():
-#     w.writerow([key, val])
 
 w = csv.writer(open("../Results/CQModResults.csv", "w"))
 w.writerow(["ID", "a", "h", "q", "AIC", "BIC"])  ## write headers
