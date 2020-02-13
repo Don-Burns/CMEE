@@ -15,9 +15,9 @@ from matplotlib.backends.backend_pdf import PdfPages as PdfPages
 
 ######## Script options #########
 # model plots - deternmines whether or no certain models are plotted
-plot1959Hollings = True
-plotGeneralHollings = True
-plotpolys = False
+plot1959Hollings = False
+plotGeneralHollings = False
+plotpolys = True
 
 plotAll = False # will plot all models regardless of other options
 
@@ -86,9 +86,11 @@ def calc_CQlmfit(params, Xr, data = 0):  ## arbitrarily defined right now as 0.0
     Includes a dimensionless parameter `q` which is used to account for a small lag phase at the start of the curve.
 
     Arguments:
+        params {dict} -- a dictionary containing the parameter values for the model
+            Parameters:
+                a {float} -- [description]
+                h {float} -- [description]
         Xr {float} -- [description]
-        a {float} -- [description]
-        h {float} -- [description]
         data {float} -- [description]
     
     Returns:
@@ -159,19 +161,26 @@ def est_a(ResDens, NTrait, h):
     return smallest_a
 
 
-def poly2_eq(x, c2, c1, c0, data=0):
+def poly2_eq(params, x, data=0):
     """A function to calculate a quadratic equation given the x value and coefficients in the form - c2x + c1x + c0
     
     Arguments:
+        params {dict} -- a dictionary containing the parameter values for the model
+            Parameters:
+                c2 {float} -- a coefficient for the equation
+                c1 {float} -- a coefficient for the equation
+                c0 {float} -- a coefficient for the equation  
         x {float} -- x value to be used in the equation
-        c2 {float} -- a coefficient for the equation
-        c1 {float} -- a coefficient for the equation
-        c0 {float} -- a coefficient for the equation  
         data {float} -- If using for lmfit.minimizer() then this is the data the result is to be compared against  
 
     Returns:
         {float} -- solution to the quadratic at given x value
     """
+    vals = params.valuesdict()
+    c0 = vals["c0"]
+    c1 = vals["c1"]
+    c2 = vals["c2"]
+
     return ((c2*(x**2)) + (c1*x) + c0) - data
 
 
@@ -179,11 +188,11 @@ def poly3_eq(x, c3, c2, c1, c0, data=0):
     """A function to calculate a cubic polynomial equation given the x value and coefficients in the form - c3x + c2x + c1x + c0
     
     Arguments:
-        x {float} -- x value to be used in the equation
         c3 {float} -- a coefficient for the equation
         c2 {float} -- a coefficient for the equation
         c1 {float} -- a coefficient for the equation
         c0 {float} -- a coefficient for the equation
+        x {float} -- x value to be used in the equation
         data {float} -- If using for lmfit.minimizer() then this is the data the result is to be compared against  
 
     Returns:
@@ -232,6 +241,9 @@ qCQmodList = {}
 poly2coefList = {}
 poly3coefList = {}
 poly4coefList = {}
+
+# Reversed list for use with polyval
+poly3coefListRev = {}
 
 #for plots
 poly2Fits = {}
@@ -323,7 +335,7 @@ for ID in data.ID.unique():
 
     try:
 
-        # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
+        # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
         params = lmfit.Parameters()
         params.add_many(("a", aEst, True, 0, None),
          ("h", hEst, True, 0, None))
@@ -344,7 +356,7 @@ for ID in data.ID.unique():
 
         ### Troubleshooting
         # CModResultsDict[ID] = resultsCmod.fit_report()
-        CModResultsDict[ID] = 0
+        CModResultsDict[ID] = resultsCmod
     except ValueError:
         CmodError.append(ID)
 
@@ -377,7 +389,7 @@ for ID in data.ID.unique():
         CQmodPass.append(ID)
         ### Troubleshooting
         # CQModResultsDict[ID] = resultsCQmod.fit_report()
-        CQModResultsDict[ID] = 0
+        CQModResultsDict[ID] = resultsCQmod
 
 
     except ValueError:
@@ -386,30 +398,38 @@ for ID in data.ID.unique():
     
     ####### Fit 2nd degree polynomial #####
     try:
+        
+        
 
-        # poly2sc[ID] = polynomial.polyfit(x = ResDens, y = NTrait, deg = 2) # gives coefs in order x^2, x, c
+
+
+        # poly2coefList[ID] = polynomial.polyfit(x = ResDens, y = NTrait, deg = 2) # gives coefs in order x^2, x, c
         # print(polynomial.polyfit(x = ResDens, y = NTrait, deg = 2)) # gives coefs in order x^2, x, c
+       
+       
+       
+        # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
+
+        # params = lmfit.Parameters()
+        # params.add_many(("c0", None, True, None, None),
+        #  ("c1", None, True, None, None),
+        #  ("c2", None, True, None, None))
+        # mod = lmfit.Minimizer(poly2_eq, params, fcn_args=(ResDens, NTrait))
+        # poly2 = mod.minimize()
+
+        # paramVals = poly2.params.valuesdict()
+
+        # poly2coefList[ID] = {"c0":paramVals["c0"], "c1":paramVals["c1"], "c2":paramVals["c2"]}
+        # poly2Fits[ID] = poly2.best_fit  
+
 
         mod = lmfit.models.PolynomialModel(degree=2)
         params = mod.guess(NTrait, x = ResDens)
         poly2 = mod.fit(NTrait, params, x = ResDens)
 
-        # poly2mod = lmfit.Model(poly2_eq)
-
-        # poly2 = poly2mod.fit(NTrait, x = ResDens)
-
-        poly2coefList[ID] = list(poly2.best_values.values())
-        poly2Fits[ID] = poly2.best_fit  
-          
-        # print(poly2Fits[ID])  
-        # with PdfPages('../Results/test.pdf') as pdf:
-
-        #     plt.figure()
-        #     poly2.plot()
-        #     pdf.savefig()
-        #     plt.close()
-
-        # print(poly2.fit_report()) 
+        poly2coefList[ID] = poly2.best_values 
+        poly2Fits[ID] = poly2.best_fit 
+        poly2coefList[ID] = poly2.best_values
         AICpoly2List[ID] = poly2.aic
         BICpoly2List[ID] = poly2.bic
         poly2Pass.append(ID)
@@ -421,6 +441,7 @@ for ID in data.ID.unique():
     ####### Fit 3rd degree polynomial #####
     try:
 
+        scmod = sc.polyfit(ResDens, NTrait, deg = 3)
         # poly2sc[ID] = polynomial.polyfit(x = ResDens, y = NTrait, deg = 2) # gives coefs in order x^2, x, c
         mod = lmfit.models.PolynomialModel(degree=3)
         params = mod.guess(NTrait, x = ResDens)
@@ -430,10 +451,10 @@ for ID in data.ID.unique():
 
         # poly2 = poly2mod.fit(NTrait, x = ResDens)
 
-        poly3coefList[ID] = poly3.best_values 
+        poly3coefList[ID] = poly3.best_values
+        poly3coefListRev[ID] = list(poly3coefList[ID].values()).reverse() #reverse list for using with polyval
         poly3Fits[ID] = poly3.best_fit 
         # print(poly3Fits[ID])
-        poly3coefList[ID] = list(poly3.best_values.values())
 
         AICpoly3List[ID] = poly3.aic
         BICpoly3List[ID] = poly3.bic
@@ -459,7 +480,7 @@ for ID in data.ID.unique():
         poly4coefList[ID] = poly4.best_values 
         poly4Fits[ID] = poly4.best_fit 
         # print(poly4Fits[ID])
-        poly4coefList[ID] = list(poly4.best_values.values())
+        poly4coefList[ID] = poly4.best_values
 
         AICpoly4List[ID] = poly4.aic
         BICpoly4List[ID] = poly4.bic
@@ -485,8 +506,7 @@ import csv
 
 w = csv.writer(open("../Results/CModResultsDict.csv", "w"))
 for key, val in CModResultsDict.items():
-    w.writerow([key, val])
-
+    w.writerow([ID, aCmodList[ID], hCmodList[ID], AICCQmodList[ID], BICCQmodList[ID]])
 
 w = csv.writer(open("../Results/CQModResults.csv", "w"))
 w.writerow(["ID", "a", "h", "q", "AIC", "BIC"])  ## write headers
@@ -565,7 +585,7 @@ if plotpolys == True or plotAll == True:
 
     print("Plotting Polynomials.")
     with PdfPages('../Results/FittedPlots_Polynomials.pdf') as pdf:
-        for i in range(len(CQmodPass)):  # write for loop that goes through the data and plots it
+        for i in range(len(poly3Pass)):  # write for loop that goes through the data and plots it
             ######### Stopgap while using dictionaries for analysis of broken plots
             ID = poly2Pass[i]
             #########
@@ -578,10 +598,24 @@ if plotpolys == True or plotAll == True:
             RDensities.sort()
             ##Plot##
             plt.figure()
+
             plt.plot(ResDens, NTrait, "bo")
-            plt.plot(sc.polyval(poly2coefList[ID], RDensities), NTrait, "r-", label = "2nd Degree")
             try:
-                plt.plot(sc.polyval(poly3coefList[ID], RDensities), NTrait, '-g', label = "3rd Degree")
+                #need to reverse the coefficient list for use with polyval
+                RevCoefList = list(poly2coefList[ID].values())
+                RevCoefList.reverse()
+
+                plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), "r-", label = "2nd Degree")
+            except ValueError:
+                print("Error 2nd degree: ", ID)
+            except KeyError:
+                print("KeyError 2nd degree:", ID)                
+
+            try:
+                #need to reverse the coefficient list for use with polyval
+                RevCoefList = list(poly3coefList[ID].values())
+                RevCoefList.reverse()
+                plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-g', label = "3rd Degree")
             except ValueError:
                 print("Error 3rd degree: ", ID)
             except KeyError:
@@ -593,7 +627,11 @@ if plotpolys == True or plotAll == True:
 
 
             try:
-                plt.plot(sc.polyval(poly4coefList[ID], RDensities), NTrait, '-b', label = "4th Degree")
+
+                RevCoefList = list(poly4coefList[ID].values())
+                RevCoefList.reverse()
+
+                plt.plot(RDensities, sc.polyval(RevCoefList, ResDens), '-b', label = "4th Degree")
             except ValueError:
                 print("Error 4th degree: ", ID)
             except KeyError:
