@@ -1,11 +1,14 @@
-## Desc: Script for fitting models to functional response data.
-# Date: 21/11/2019
+"""
+Desc: Script for fitting models to functional response data.
+Date: 21/11/2019
+"""
 
 ######Import Packages#######
 import scipy as sc
 import pandas as pd
 import matplotlib.pyplot as plt
 import lmfit
+import csv
 from scipy.optimize import curve_fit
 from scipy import stats as stats
 from math import log as log
@@ -13,11 +16,12 @@ from math import pi as pi
 from numpy.polynomial import polynomial as polynomial
 from matplotlib.backends.backend_pdf import PdfPages as PdfPages
 
+
 ######## Script options #########
 # model plots - deternmines whether or no certain models are plotted
 plot1959Hollings = False
 plotGeneralHollings = False
-plotpolys = True
+plotpolys = False
 
 plotAll = False # will plot all models regardless of other options
 
@@ -355,7 +359,6 @@ for ID in data.ID.unique():
         CmodPass.append(ID)
 
         ### Troubleshooting
-        # CModResultsDict[ID] = resultsCmod.fit_report()
         CModResultsDict[ID] = resultsCmod
     except ValueError:
         CmodError.append(ID)
@@ -495,27 +498,47 @@ for ID in data.ID.unique():
 
 
 
+print(resultsCQmod.fit_report)
 
 
-
-
-print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError, "\n", poly2Error, "\n", poly3Error, "\n", poly4Error, "\n", "\nPlotting graphs")
-
-###take data for output###
-import csv
-
-w = csv.writer(open("../Results/CModResultsDict.csv", "w"))
-for key, val in CModResultsDict.items():
-    w.writerow([ID, aCmodList[ID], hCmodList[ID], AICCQmodList[ID], BICCQmodList[ID]])
-
+###save data output###
+# Save results for Hollings 1959
+w = csv.writer(open("../Results/CModResults.csv", "w"))
+w.writerow(["ID", "a", "h", "AIC", "BIC"])  ## write headers
+for ID in CmodPass:
+    w.writerow([ID, aCmodList[ID], hCmodList[ID], AICCmodList[ID], BICCmodList[ID]])
+# Save results for Generalised Hollings
 w = csv.writer(open("../Results/CQModResults.csv", "w"))
 w.writerow(["ID", "a", "h", "q", "AIC", "BIC"])  ## write headers
 for ID in aCQmodList.keys():
     w.writerow([ID, aCQmodList[ID], hCQmodList[ID], qCQmodList[ID], AICCQmodList[ID], BICCQmodList[ID]])
 
-    # w.writerow(aCQmodList, hCQmodList, AICCQmodList, BICCQmodList)
+# Save results for 2nd degree polynomial
+w = csv.writer(open("../Results/poly2ModResults.csv", "w"))
+w.writerow(["ID", "x^2", "x", "c", "AIC", "BIC"])  ## write headers
+for ID in poly2Pass:
+    w.writerow([ID, poly2coefList[ID]["c0"], poly2coefList[ID]["c1"], poly2coefList[ID]["c2"], AICpoly2List[ID], BICpoly2List[ID]])
 
-#####Plotting and saving in pdf######
+
+# Save results for 3rd degree polynomial
+w = csv.writer(open("../Results/poly3ModResults.csv", "w"))
+w.writerow(["ID", "x^3","x^2", "x", "c", "AIC", "BIC"])  ## write headers
+for ID in poly3coefList.keys():
+    w.writerow([ID, poly3coefList[ID]["c0"], poly3coefList[ID]["c1"], poly3coefList[ID]["c2"], poly3coefList[ID]["c3"], AICpoly3List[ID], BICpoly3List[ID]])
+
+# Save results for 4th degree polynomial
+w = csv.writer(open("../Results/poly4ModResults.csv", "w"))
+w.writerow(["ID", "x^4", "x^3","x^2", "x", "c", "AIC", "BIC"])  ## write headers
+for ID in poly4coefList.keys():
+    w.writerow([ID, poly4coefList[ID]["c0"], poly4coefList[ID]["c1"], poly4coefList[ID]["c2"], poly4coefList[ID]["c3"], poly4coefList[ID]["c4"],AICpoly4List[ID], BICpoly4List[ID]])
+    
+
+print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError, "\n", poly2Error, "\n", poly3Error, "\n", poly4Error, "\n")
+
+
+#####Plotting and saving in pdf######   
+if plot1959Hollings == True or plotGeneralHollings == True or plotpolys == True or plotAll == True:
+    print("\nPlotting graphs\n")
 
 if plot1959Hollings == True or plotAll == True:
 
