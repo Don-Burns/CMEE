@@ -4,6 +4,7 @@ Date: 21/11/2019
 """
 
 ######Import Packages#######
+import sys
 import scipy as sc
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -18,6 +19,16 @@ from matplotlib.backends.backend_pdf import PdfPages as PdfPages
 
 
 ######## Script options #########
+# file to run fitting on
+#default option for running
+if len(sys.argv) == 1: 
+    file = "../data/CRat.csv"
+
+if len(sys.argv) != 1: # to take file argument from the terminal
+    file = sys.argv[1]
+
+if len(sys.argv) > 2: # error message if more than one argument given
+    sys.exit("too many arguments given")
 # model plots - deternmines whether or no certain models are plotted
 plot1959Hollings = False
 plotGeneralHollings = False
@@ -226,7 +237,7 @@ def poly4_eq(x, c4, c3, c2, c1, c0, data=0):
 
 
 ######Import Data##########
-data = pd.read_csv("../data/CRat.csv")
+data = pd.read_csv(file)
 
 ######Define some lists for data to be saved ########
 
@@ -298,9 +309,9 @@ aEstList = []  # for a Estimates
 CModResultsDict = {}
 CQModResultsDict = {}
 ######Main########
+IDList = data.ID.unique()
 
-
-for ID in data.ID.unique():
+for ID in IDList:
     ## Code Progress##
 
     counter += 1
@@ -320,7 +331,7 @@ for ID in data.ID.unique():
 
     ### Estimate starting values ###
     ##Estimate `h` as highest observed value of `N_TraitValue`for the give `ID`####
-    hEst = max(NTrait)
+    hEst = 1/max(NTrait)
 
     
     ##Estimate `a` as the slope of the line which give the lowest RSS which is above a threshold number of points that the model is still acceptable. 
@@ -361,6 +372,14 @@ for ID in data.ID.unique():
         ### Troubleshooting
         CModResultsDict[ID] = resultsCmod
     except ValueError:
+
+        aCQmod = "NA"
+        hCmod = "NA"
+        aCmodList[ID] = "NA"
+        hCmodList[ID] = "NA"
+        qCmodList[ID] = "NA"
+        AICCmodList[ID] = "NA"
+        BICCmodList[ID] = "NA"
         CmodError.append(ID)
 
 
@@ -396,49 +415,43 @@ for ID in data.ID.unique():
 
 
     except ValueError:
+
+        aCQmod = "NA"
+        hCQmod = "NA"
+        aCQmodList[ID] = "NA"
+        hCQmodList[ID] = "NA"
+        qCQmodList[ID] = "NA"
+        AICCQmodList[ID] = "NA"
+        BICCQmodList[ID] = "NA"
+
+        initCQmod[ID] = resultsCQmod.init_vals
+
+
         CQmodError.append(ID)
 
     
     ####### Fit 2nd degree polynomial #####
     try:
         
-        
-
-
-
-        # poly2coefList[ID] = polynomial.polyfit(x = ResDens, y = NTrait, deg = 2) # gives coefs in order x^2, x, c
-        # print(polynomial.polyfit(x = ResDens, y = NTrait, deg = 2)) # gives coefs in order x^2, x, c
-       
-       
-       
-        # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
-
-        # params = lmfit.Parameters()
-        # params.add_many(("c0", None, True, None, None),
-        #  ("c1", None, True, None, None),
-        #  ("c2", None, True, None, None))
-        # mod = lmfit.Minimizer(poly2_eq, params, fcn_args=(ResDens, NTrait))
-        # poly2 = mod.minimize()
-
-        # paramVals = poly2.params.valuesdict()
-
-        # poly2coefList[ID] = {"c0":paramVals["c0"], "c1":paramVals["c1"], "c2":paramVals["c2"]}
-        # poly2Fits[ID] = poly2.best_fit  
-
-
         mod = lmfit.models.PolynomialModel(degree=2)
         params = mod.guess(NTrait, x = ResDens)
         poly2 = mod.fit(NTrait, params, x = ResDens)
 
         poly2coefList[ID] = poly2.best_values 
         poly2Fits[ID] = poly2.best_fit 
-        poly2coefList[ID] = poly2.best_values
         AICpoly2List[ID] = poly2.aic
         BICpoly2List[ID] = poly2.bic
         poly2Pass.append(ID)
 
 
     except ValueError:
+
+        poly2coefList[ID] = {"c0":"NA", "c1":"NA", "c2":"NA", "c3":"NA", "c4":"NA"} 
+        poly2Fits[ID] = "NA"
+        poly2coefList[ID] = "NA"
+        AICpoly2List[ID] = "NA"
+        BICpoly2List[ID] = "NA"
+
         poly2Error.append(ID)
 
     ####### Fit 3rd degree polynomial #####
@@ -450,21 +463,20 @@ for ID in data.ID.unique():
         params = mod.guess(NTrait, x = ResDens)
         poly3 = mod.fit(NTrait, params, x = ResDens)
 
-        # poly2mod = lmfit.Model(poly2_eq)
-
-        # poly2 = poly2mod.fit(NTrait, x = ResDens)
 
         poly3coefList[ID] = poly3.best_values
-        poly3coefListRev[ID] = list(poly3coefList[ID].values()).reverse() #reverse list for using with polyval
         poly3Fits[ID] = poly3.best_fit 
-        # print(poly3Fits[ID])
-
         AICpoly3List[ID] = poly3.aic
         BICpoly3List[ID] = poly3.bic
         poly3Pass.append(ID)
 
 
     except ValueError:
+
+        poly3coefList[ID] = {"c0":"NA", "c1":"NA", "c2":"NA", "c3":"NA", "c4":"NA"} 
+        poly3Fits[ID] = "NA"
+        AICpoly3List[ID] = "NA"
+        BICpoly3List[ID] = "NA"
         poly3Error.append(ID)
 
 
@@ -482,8 +494,6 @@ for ID in data.ID.unique():
 
         poly4coefList[ID] = poly4.best_values 
         poly4Fits[ID] = poly4.best_fit 
-        # print(poly4Fits[ID])
-        poly4coefList[ID] = poly4.best_values
 
         AICpoly4List[ID] = poly4.aic
         BICpoly4List[ID] = poly4.bic
@@ -491,45 +501,55 @@ for ID in data.ID.unique():
 
 
     except ValueError:
+
+        poly4coefList[ID] = {"c0":"NA", "c1":"NA", "c2":"NA", "c3":"NA", "c4":"NA"}
+        poly4Fits[ID] = "NA"
+        AICpoly4List[ID] = "NA"
+        BICpoly4List[ID] = "NA"
         poly4Error.append(str(ID, ":Value"))
 
     except TypeError:
+        poly4coefList[ID] = {"c0":"NA", "c1":"NA", "c2":"NA", "c3":"NA", "c4":"NA"} 
+        poly4Fits[ID] = "NA"
+        AICpoly4List[ID] = "NA"
+        BICpoly4List[ID] = "NA"
         poly4Error.append(str(ID))
 
 
 
-print(resultsCQmod.fit_report)
+# print(resultsCQmod.params)
 
 
 ###save data output###
+print("Saving Results")
 # Save results for Hollings 1959
 w = csv.writer(open("../Results/CModResults.csv", "w"))
 w.writerow(["ID", "a", "h", "AIC", "BIC"])  ## write headers
-for ID in CmodPass:
+for ID in IDList:
     w.writerow([ID, aCmodList[ID], hCmodList[ID], AICCmodList[ID], BICCmodList[ID]])
 # Save results for Generalised Hollings
 w = csv.writer(open("../Results/CQModResults.csv", "w"))
 w.writerow(["ID", "a", "h", "q", "AIC", "BIC"])  ## write headers
-for ID in aCQmodList.keys():
+for ID in IDList:
     w.writerow([ID, aCQmodList[ID], hCQmodList[ID], qCQmodList[ID], AICCQmodList[ID], BICCQmodList[ID]])
 
 # Save results for 2nd degree polynomial
 w = csv.writer(open("../Results/poly2ModResults.csv", "w"))
 w.writerow(["ID", "x^2", "x", "c", "AIC", "BIC"])  ## write headers
-for ID in poly2Pass:
+for ID in IDList:
     w.writerow([ID, poly2coefList[ID]["c0"], poly2coefList[ID]["c1"], poly2coefList[ID]["c2"], AICpoly2List[ID], BICpoly2List[ID]])
 
 
 # Save results for 3rd degree polynomial
 w = csv.writer(open("../Results/poly3ModResults.csv", "w"))
 w.writerow(["ID", "x^3","x^2", "x", "c", "AIC", "BIC"])  ## write headers
-for ID in poly3coefList.keys():
+for ID in IDList:
     w.writerow([ID, poly3coefList[ID]["c0"], poly3coefList[ID]["c1"], poly3coefList[ID]["c2"], poly3coefList[ID]["c3"], AICpoly3List[ID], BICpoly3List[ID]])
 
 # Save results for 4th degree polynomial
 w = csv.writer(open("../Results/poly4ModResults.csv", "w"))
 w.writerow(["ID", "x^4", "x^3","x^2", "x", "c", "AIC", "BIC"])  ## write headers
-for ID in poly4coefList.keys():
+for ID in IDList:
     w.writerow([ID, poly4coefList[ID]["c0"], poly4coefList[ID]["c1"], poly4coefList[ID]["c2"], poly4coefList[ID]["c3"], poly4coefList[ID]["c4"],AICpoly4List[ID], BICpoly4List[ID]])
     
 

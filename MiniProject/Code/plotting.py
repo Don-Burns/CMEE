@@ -1,5 +1,8 @@
 """
 Desc: A script for reading the results of 'fitting.py' from the csv files generated and to plot and save the results as a pdf
+
+Author: Donal Burns
+Date: 10/02/2020
 """
 
 ######Import Packages#######
