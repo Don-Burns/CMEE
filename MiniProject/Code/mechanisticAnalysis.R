@@ -1,21 +1,14 @@
-## Desc: A script for analysing the output of fitting.py
-
-## Script goals
-# - combine the output scripts from fitting   
-# - find best model for each ID -DONE
-# - find overall best model - DONE
-# - compile the results into a separate summary csvlll
-# - create new csv with IDs and which models fit best 
+# only mechanistic models
 
 ######## House Keeping ########
 rm(list = ls())
 
 
 ######## script options ########
-numMods <- 4
+numMods <- 2
 # the column of the data that you wish to separate the fits by
-column_names <- c("ID", "CMod", "CQMod", "poly2", "poly3")#, "poly4")
-mod_names <-c("CMod", "CQMod", "poly2", "poly3")
+column_names <- c("ID", "CMod", "CQMod")
+mod_names <-c("CMod", "CQMod")
 ######## Packages #############
 library(dplyr)
 
@@ -29,9 +22,7 @@ cats <- unique(OrigData$Habitat)
 
 CMod <- read.csv("../Results/CModResults.csv", header = T, stringsAsFactors = F)
 CQMod <- read.csv("../Results/CQModResults.csv", header = T, stringsAsFactors = F)
-poly2 <- read.csv("../Results/poly2ModResults.csv", header = T, stringsAsFactors = F)
-poly3 <- read.csv("../Results/poly3ModResults.csv", header = T, stringsAsFactors = F)
-# poly4 <- read.csv("../Results/poly4ModResults.csv", header = T, stringsAsFactors = F)
+
 
 ######## Refine IDlist ############
 # remove ID for which a = 0 or h=0 is produced in holling models as its not biologically viable
@@ -42,12 +33,11 @@ invalid <- c(invalid, c(which(IDList %in% IDList[CQMod[,"h"] <= 0])))
 invalid <- unique(invalid)
 IDList <- IDList[-invalid]
 OrigData <- OrigData[-invalid,]
-
+CQMod <- CQMod[-invalid,]
 
 NACMod <- sum(is.na(CMod$AIC))
 NACQMod <- sum(is.na(CQMod$AIC))
-NAPoly2 <- sum(is.na(poly2$AIC))
-NAPoly3 <- sum(is.na(poly3$AIC))
+
 # NAPoly4 <- sum(is.na(poly4$AIC))
 
 ## remove na values
@@ -71,9 +61,7 @@ for(ID in IDList){
     
     AIC$CMod[i] <- CMod$AIC[CMod$ID == ID]
     AIC$CQMod[i] <- CQMod$AIC[CQMod$ID == ID]
-    AIC$poly2[i] <- poly2$AIC[poly2$ID == ID]
-    AIC$poly3[i] <- poly3$AIC[poly3$ID == ID]
-    # AIC$poly4[i] <- poly4$AIC[poly4$ID == ID]
+    
     row <- AIC[i,-1]
     row <- row - min(row)
     if(sum(row <= 2) == 1) bestMod[i,] <- c(ID, row <= 2)
@@ -88,10 +76,6 @@ for(ID in IDList){
     #     bestMod[i, index] <- 1
     # }
 }
-
-# add a column for the category 
-# bestMod$Habitat <- OrigData$Habitat
-
 
 
 # sum each column in bestMod to find number of IDs each model fit best for overall
@@ -133,9 +117,81 @@ numMarineData <- sum(OrigData$Habitat == "Marine")
 numTerrestrialData <- sum(OrigData$Habitat == "Terrestrial")
 numFreshwaterData <- sum(OrigData$Habitat == "Freshwater")
 
-##############################################################################################################
-##############################################################################################################
-##############################################################################################################
-##############################################################################################################
-##############################################################################################################
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cat("mean of q is:")
+mean(na.omit(CQMod$q))
+cat("min of q is:")
+min(na.omit(CQMod$q))
+cat("max of q is:")
+max(na.omit(CQMod$q))
+cat("variance of q is:")
+var(na.omit(CQMod$q))
+
+length(na.omit(CQMod$q))# number of q values
+sum(na.omit(CQMod$q)<=1)#  number q values <=1
+
+
+hist(na.omit(CQMod$q), breaks = 1000, xlim = c(0,3),ylim = c(0,100), col = "gray", xlab = "q Values")
+
+
+
+
+
+
+
+# not random Q
+#q=0
+# CMod     CQMod     poly2     poly3     poly4 
+# 11.363636 55.844156 17.207792  7.792208  7.792208
+# q=.3
+# CMod    CQMod    poly2    poly3    poly4 
+# 18.18182 33.76623 23.37662 12.66234 12.01299 
+# q sampled between -2,2 and left with no bounds, much more non-fits here
+# CMod    CQMod    poly2    poly3    poly4 
+# 23.37662 24.35065 25.97403 13.63636 12.66234 
+# Random Q
+# CMod    CQMod    poly2    poly3    poly4 
+# 18.18182 34.41558 23.05195 12.66234 11.68831
+
+
+
+## Mean dif between poly2 and Cmod
+dif <- AIC$CMod - AIC$poly2
+dif <- AIC$CMod - AIC$CQMod
+dif <- AIC$CQMod - AIC$poly2
+mean(dif)
+
+
+
+
+
+
+#### investigating the data ###
+# with h = fmax a=0 ; 18 instances
+# no change with h = 1/fmax
+zeros <- CQMod$a == 0
+sum(zeros)
+# show IDS where CQ is the best mod
+bestMod[,"ID"][bestMod[,"CQMod"] == 1]
+
+
+# BIC
+# CMod     CQMod     poly2     poly3     poly4 
+# 11.363636 55.844156 17.207792  7.792208  7.792208
+# AIC
+# CMod     CQMod     poly2     poly3     poly4 
+# 11.363636 55.844156 17.207792  7.792208  7.792208
