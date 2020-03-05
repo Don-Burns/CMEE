@@ -5,6 +5,7 @@ Date: 21/11/2019
 
 ######Import Packages#######
 import sys
+import os
 import scipy as sc
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,6 +20,10 @@ from matplotlib.backends.backend_pdf import PdfPages as PdfPages
 
 
 ######## Script options #########
+
+# Category of interest for comparing fits later
+interest  = "Habitat"
+
 # file to run fitting on
 #default option for running
 if len(sys.argv) == 1: 
@@ -132,7 +137,7 @@ def calc_RSS(residuals):  ## model var is to specify which equation should be us
     return RSS
 
 
-def est_a(ResDens, NTrait, h):
+def est_a(ResDens, NTrait):
     """
     Gets an estimate of `a` given the `ResDensity`, `N_TraitsValue` and `h` estimate.  Uses the arguments to progressively eliminate points to a minimum number of points to make a linear regression and takes the slope of the line as the estimate of `a`.  Minimum number of points is 3 or less than 30% of total data points.
     """
@@ -239,7 +244,10 @@ def poly4_eq(x, c4, c3, c2, c1, c0, data=0):
 ######Import Data##########
 data = pd.read_csv(file)
 
-######Define some lists for data to be saved ########
+######Define some dictionaries for data to be saved ########
+
+# category of interest for comparing the models after fitting
+cat = {}
 
 ## `a` best value lists
 aCmodList = {}  ###########Look into making these dictionaries for speed
@@ -310,7 +318,7 @@ CModResultsDict = {}
 CQModResultsDict = {}
 ######Main########
 IDList = data.ID.unique()
-
+reps = 100 # number of time that q will be fit using random numbers from a uniform distribution
 for ID in IDList:
     ## Code Progress##
 
@@ -325,6 +333,9 @@ for ID in IDList:
     ResDens = sc.array(subset["ResDensity"])
     NTrait = sc.array(subset["N_TraitValue"])
 
+    #record the category of interest for this ID
+    cat[ID] = subset[interest].unique()
+    cat[ID] = str(cat[ID]).strip("[']")
     ###Organise data###
     RDensities = sc.random.uniform(min(ResDens), max(ResDens), 200)
     RDensities.sort()
@@ -335,8 +346,8 @@ for ID in IDList:
 
     
     ##Estimate `a` as the slope of the line which give the lowest RSS which is above a threshold number of points that the model is still acceptable. 
-    aEst = est_a(ResDens, NTrait, hEst)
-    q = 0.3
+    aEst = est_a(ResDens, NTrait)
+    q = 0
 
 
 
@@ -347,89 +358,107 @@ for ID in IDList:
     ### Fit Models### Using lmfit.Model()###
 
     ####### Use Hollings 1959 model#####
+    for i in range(reps):
+        if i != 1: # try once with estimated values
+            a = sc.random.uniform(size = 1, low = aEst*0.5, high = aEst*1.5)
+            h = sc.random.uniform(size = 1, low = hEst*0.5, high = hEst*1.5)
+        else:
+            a = aEst
+            h = hEst
+        try:
 
-    try:
+            # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
+            params = lmfit.Parameters()
+            params.add_many(("a", a, True, 0, None),
+            ("h", h, True, 0, None))
+            Cmod = lmfit.Minimizer(calc_Clmfit, params, fcn_args=(ResDens, NTrait))
+            resultsCmod = Cmod.minimize()
 
-        # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
-        params = lmfit.Parameters()
-        params.add_many(("a", aEst, True, 0, None),
-         ("h", hEst, True, 0, None))
-        Cmod = lmfit.Minimizer(calc_Clmfit, params, fcn_args=(ResDens, NTrait))
-        resultsCmod = Cmod.minimize()
+            # record results of model
+            CparamVals = resultsCmod.params.valuesdict()
+            aCmod = CparamVals["a"]
+            hCmod = CparamVals["h"]
+            aCmodList[ID] = CparamVals["a"]
+            hCmodList[ID] = CparamVals["h"]
+            AICCmodList[ID] = resultsCmod.aic
+            BICCmodList[ID] = resultsCmod.bic
 
-        # record results of model
-        CparamVals = resultsCmod.params.valuesdict()
-        aCmod = CparamVals["a"]
-        hCmod = CparamVals["h"]
-        aCmodList[ID] = CparamVals["a"]
-        hCmodList[ID] = CparamVals["h"]
-        AICCmodList[ID] = resultsCmod.aic
-        BICCmodList[ID] = resultsCmod.bic
+            # record passing ID
+            CmodPass.append(ID)
 
-        # record passing ID
-        CmodPass.append(ID)
+            ### Troubleshooting
+            CModResultsDict[ID] = resultsCmod
+        except ValueError:
 
-        ### Troubleshooting
-        CModResultsDict[ID] = resultsCmod
-    except ValueError:
-
-        aCQmod = "NA"
-        hCmod = "NA"
-        aCmodList[ID] = "NA"
-        hCmodList[ID] = "NA"
-        qCmodList[ID] = "NA"
-        AICCmodList[ID] = "NA"
-        BICCmodList[ID] = "NA"
+            aCQmod = "NA"
+            hCmod = "NA"
+            aCmodList[ID] = "NA"
+            hCmodList[ID] = "NA"
+            qCmodList[ID] = "NA"
+            AICCmodList[ID] = "NA"
+            BICCmodList[ID] = "NA"
+    if ID not in CmodPass:
         CmodError.append(ID)
 
 
 
     ####### Fit Generalised Hollings #####
-
-    try:
-        # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
-        params = lmfit.Parameters()
-        params.add_many(("a", aEst, True, 0, None),
-         ("h", hEst, True, 0, None), 
-         ("q", q, True, 0, None))
-        
-        CQmod = lmfit.Minimizer(calc_CQlmfit, params, fcn_args=(ResDens, NTrait))
-        resultsCQmod = CQmod.minimize()
-
-        # if using minimise
-        CQparamVals = resultsCQmod.params.valuesdict()
-        aCQmod = CQparamVals["a"]
-        hCQmod = CQparamVals["h"]
-        aCQmodList[ID] = CQparamVals["a"]
-        hCQmodList[ID] = CQparamVals["h"]
-        qCQmodList[ID] = CQparamVals["q"]
-        AICCQmodList[ID] = resultsCQmod.aic
-        BICCQmodList[ID] = resultsCQmod.bic
-
-        initCQmod[ID] = resultsCQmod.init_vals
-
-        CQmodPass.append(ID)
-        ### Troubleshooting
-        # CQModResultsDict[ID] = resultsCQmod.fit_report()
-        CQModResultsDict[ID] = resultsCQmod
-
-
-    except ValueError:
-
-        aCQmod = "NA"
-        hCQmod = "NA"
-        aCQmodList[ID] = "NA"
-        hCQmodList[ID] = "NA"
-        qCQmodList[ID] = "NA"
-        AICCQmodList[ID] = "NA"
-        BICCQmodList[ID] = "NA"
-
-        initCQmod[ID] = resultsCQmod.init_vals
-
-
-        CQmodError.append(ID)
+    bestAIC = -1e20 # assign an arbitrarily negative number that should always be lower than an actual AIC result
+    for i in range(reps):
+        if i != 1: # try once with estimated values
+            q = sc.random.uniform(size = 1, low = 0.0, high = 1.0)
+            a = sc.random.uniform(size = 1, low = aEst*0.5, high = aEst*1.5)
+            h = sc.random.uniform(size = 1, low = hEst*0.5, high = hEst*1.5)
 
     
+        try:
+            # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
+            params = lmfit.Parameters()
+            params.add_many(("a", aEst, True, 0, None),
+            ("h", hEst, True, 0, None), 
+            ("q", q, True, 0, None))
+            
+            CQmod = lmfit.Minimizer(calc_CQlmfit, params, fcn_args=(ResDens, NTrait))
+            resultsCQmod = CQmod.minimize()
+            thisAIC = resultsCQmod.aic # the current iterations AIC
+            if thisAIC > bestAIC: # only assign new values if the current iterations AIC is greater than the previous best
+                CQparamVals = resultsCQmod.params.valuesdict()
+                aCQmod = CQparamVals["a"]
+                hCQmod = CQparamVals["h"]
+                aCQmodList[ID] = CQparamVals["a"]
+                hCQmodList[ID] = CQparamVals["h"]
+                qCQmodList[ID] = CQparamVals["q"]
+                AICCQmodList[ID] = resultsCQmod.aic
+                BICCQmodList[ID] = resultsCQmod.bic
+
+                initCQmod[ID] = resultsCQmod.init_vals
+
+            if ID in CQmodPass: #  to make sure the same ID is not appended more than once
+                None
+            else:
+                CQmodPass.append(ID)
+            ### Troubleshooting
+            # CQModResultsDict[ID] = resultsCQmod.fit_report()
+            CQModResultsDict[ID] = resultsCQmod
+
+
+        except ValueError:
+
+            aCQmod = "NA"
+            hCQmod = "NA"
+            aCQmodList[ID] = "NA"
+            hCQmodList[ID] = "NA"
+            qCQmodList[ID] = "NA"
+            AICCQmodList[ID] = "NA"
+            BICCQmodList[ID] = "NA"
+
+            initCQmod[ID] = resultsCQmod.init_vals
+
+    if ID not in CQmodPass:
+        CQmodError.append(ID)
+
+
+
     ####### Fit 2nd degree polynomial #####
     try:
         
@@ -521,36 +550,39 @@ for ID in IDList:
 
 
 ###save data output###
+# file = os.path.basename(file).split(".")[0] +"_" # remove file extension from file name for saving
+file = ""
+
 print("Saving Results")
 # Save results for Hollings 1959
-w = csv.writer(open("../Results/CModResults.csv", "w"))
-w.writerow(["ID", "a", "h", "AIC", "BIC"])  ## write headers
+w = csv.writer(open("../Results/"+file+"CModResults.csv", "w"))
+w.writerow(["ID", "a", "h", "AIC", "BIC", "CatOfInterest"])  ## write headers
 for ID in IDList:
-    w.writerow([ID, aCmodList[ID], hCmodList[ID], AICCmodList[ID], BICCmodList[ID]])
+    w.writerow([ID, aCmodList[ID], hCmodList[ID], AICCmodList[ID], BICCmodList[ID], cat[ID]])
 # Save results for Generalised Hollings
-w = csv.writer(open("../Results/CQModResults.csv", "w"))
-w.writerow(["ID", "a", "h", "q", "AIC", "BIC"])  ## write headers
+w = csv.writer(open("../Results/"+file+"CQModResults.csv", "w"))
+w.writerow(["ID", "a", "h", "q", "AIC", "BIC", "CatOfInterest"])  ## write headers
 for ID in IDList:
-    w.writerow([ID, aCQmodList[ID], hCQmodList[ID], qCQmodList[ID], AICCQmodList[ID], BICCQmodList[ID]])
+    w.writerow([ID, aCQmodList[ID], hCQmodList[ID], qCQmodList[ID], AICCQmodList[ID], BICCQmodList[ID], cat[ID]])
 
 # Save results for 2nd degree polynomial
-w = csv.writer(open("../Results/poly2ModResults.csv", "w"))
-w.writerow(["ID", "x^2", "x", "c", "AIC", "BIC"])  ## write headers
+w = csv.writer(open("../Results/"+file+"poly2ModResults.csv", "w"))
+w.writerow(["ID", "x^2", "x", "c", "AIC", "BIC", "CatOfInterest"])  ## write headers
 for ID in IDList:
-    w.writerow([ID, poly2coefList[ID]["c0"], poly2coefList[ID]["c1"], poly2coefList[ID]["c2"], AICpoly2List[ID], BICpoly2List[ID]])
+    w.writerow([ID, poly2coefList[ID]["c0"], poly2coefList[ID]["c1"], poly2coefList[ID]["c2"], AICpoly2List[ID], BICpoly2List[ID], cat[ID]])
 
 
 # Save results for 3rd degree polynomial
-w = csv.writer(open("../Results/poly3ModResults.csv", "w"))
-w.writerow(["ID", "x^3","x^2", "x", "c", "AIC", "BIC"])  ## write headers
+w = csv.writer(open("../Results/"+file+"poly3ModResults.csv", "w"))
+w.writerow(["ID", "x^3","x^2", "x", "c", "AIC", "BIC", "CatOfInterest"])  ## write headers
 for ID in IDList:
-    w.writerow([ID, poly3coefList[ID]["c0"], poly3coefList[ID]["c1"], poly3coefList[ID]["c2"], poly3coefList[ID]["c3"], AICpoly3List[ID], BICpoly3List[ID]])
+    w.writerow([ID, poly3coefList[ID]["c0"], poly3coefList[ID]["c1"], poly3coefList[ID]["c2"], poly3coefList[ID]["c3"], AICpoly3List[ID], BICpoly3List[ID], cat[ID]])
 
 # Save results for 4th degree polynomial
-w = csv.writer(open("../Results/poly4ModResults.csv", "w"))
-w.writerow(["ID", "x^4", "x^3","x^2", "x", "c", "AIC", "BIC"])  ## write headers
+w = csv.writer(open("../Results/"+file+"poly4ModResults.csv", "w"))
+w.writerow(["ID", "x^4", "x^3","x^2", "x", "c", "AIC", "BIC", "CatOfInterest"])  ## write headers
 for ID in IDList:
-    w.writerow([ID, poly4coefList[ID]["c0"], poly4coefList[ID]["c1"], poly4coefList[ID]["c2"], poly4coefList[ID]["c3"], poly4coefList[ID]["c4"],AICpoly4List[ID], BICpoly4List[ID]])
+    w.writerow([ID, poly4coefList[ID]["c0"], poly4coefList[ID]["c1"], poly4coefList[ID]["c2"], poly4coefList[ID]["c3"], poly4coefList[ID]["c4"],AICpoly4List[ID], BICpoly4List[ID], cat[ID]])
     
 
 print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError, "\n", poly2Error, "\n", poly3Error, "\n", poly4Error, "\n")

@@ -20,19 +20,22 @@ poly2 = {}
 poly3 = {}
 poly4 = {}
 
+cat = {}#to add category of interest to the title of each graph
 
 
 
-# with open("../Results/CModResults.csv") as file:
 data = pd.read_csv("../Results/CModResults.csv")
 IDList = data.ID.unique()
+# get what category each ID is part of
+for ID in IDList:
+    row = data[data["ID"] == ID]
+    cat[ID] = row["CatOfInterest"].unique()
+    cat[ID] = str(cat[ID]).strip("[']")
 
 for ID in IDList:
     row = data[data["ID"] == ID]
     Cmod[ID] = {"a":float(row["a"]), "h":float(row["h"]), "AIC":float(row["AIC"]), "BIC":float(row["BIC"])}
-    # for var in row.columns[1:]: # start from element 1 so as to skip ID
-    #     # Cmod[ID] = {}
-    #     Cmod[ID][var] = float(row[var])
+
 
 data = pd.read_csv("../Results/CQModResults.csv")
 IDList = data.ID.unique()
@@ -68,7 +71,7 @@ with PdfPages('../Results/FittedPlots.pdf') as pdf:
         ResDens = sc.array(subset["ResDensity"])
         NTrait = sc.array(subset["N_TraitValue"])
     ## organise spread data to plot smooth live
-        RDensities = sc.random.uniform(min(ResDens), max(ResDens), 200)
+        RDensities = sc.random.uniform(min(ResDens)*0.1, max(ResDens), 200)
         RDensities.sort()
 
     # Start Plotting
@@ -114,11 +117,62 @@ with PdfPages('../Results/FittedPlots.pdf') as pdf:
         plt.legend()
         plt.xlabel('ResourceDensity')
         plt.ylabel('N_TraitValue')
-        plt.title(ID)
+        title = str(ID) + " " + cat[ID]
+        plt.title(title)
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
 
+with PdfPages('../Results/reportPlot.pdf') as pdf:
+    data = pd.read_csv("../data/CRat.csv")
 
-a = 0
+    ID = 39936
+## Import data for original data points
+    subset = data[data["ID"] == ID]
+    ResDens = sc.array(subset["ResDensity"])
+    NTrait = sc.array(subset["N_TraitValue"])
+## organise spread data to plot smooth live
+    RDensities = sc.random.uniform(min(ResDens)*0.1, max(ResDens), 200)
+    RDensities.sort()
+
+# Start Plotting
+    plt.figure()
+    plt.plot(ResDens, NTrait, "bo")
+    try:
+        plt.plot(RDensities, calc_C(RDensities, a=Cmod[ID]["a"], h=Cmod[ID]["h"]), '-g', label = "Hollings 1959")
+    except KeyError:
+        pass
+
+    try:
+        plt.plot(RDensities, calc_CQ(RDensities, a=CQmod[ID]["a"], h=CQmod[ID]["h"], q=CQmod[ID]["q"]), '-r', label = "Generalised Hollings")
+
+    except KeyError:
+        pass
+
+    try:
+        RevCoefList = list(poly2[ID]["coefs"].values())
+        RevCoefList.reverse()
+        plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-b', label = "2nd Degree")
+
+    except KeyError:
+        pass
+
+    try:
+        RevCoefList = list(poly3[ID]["coefs"].values())
+        RevCoefList.reverse()
+        plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-y', label = "3rd Degree")
+
+    except KeyError:
+        pass
+
+
+    plt.legend()
+    plt.xlabel('ResourceDensity')
+    plt.ylabel('N_TraitValue')
+    title = str(ID) + " " + cat[ID]
+    plt.title(title)
+    pdf.savefig()  # saves the current figure into a pdf page
+    plt.close()
+
+
 
 

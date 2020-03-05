@@ -30,7 +30,7 @@ def subset(column = "Habitat", file = "../data/CRat.csv", directory = "../data/"
 
     for i in catList:
         datasubset = data[data[datacolumn] == i]
-        filepath = directory + i + ".csv"
+        filepath = directory + i + "_Subset.csv"
         datasubset.to_csv(filepath, header = True, index = None)
 
 ####### Main #######
