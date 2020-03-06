@@ -12,7 +12,7 @@ import scipy as sc
 import pandas as pd 
 from ast import literal_eval
 from functions import calc_C, calc_CQ as calc_C, calc_CQ
-from functions import calc_type1 as calc_type1
+
 
 
 ### Storage variables - variable where the data needed to plot will be held###

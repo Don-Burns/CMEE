@@ -16,6 +16,7 @@ Rscript analysis.R
 Rscript mechanisticAnalysis.R
 # compile the report
 texcount -1 -sum Report.tex > ./report/Report.sum
+sleep 2s
 pdflatex Report.tex
 pdflatex Report.tex
 bibtex Report
