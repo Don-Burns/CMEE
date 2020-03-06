@@ -1,0 +1,343 @@
+%&latexf
+\documentclass[a4paper]{article}
+\usepackage{color}
+\setlength{\hoffset}{-0.5in}\hoffset-0.5in
+\setlength{\textwidth}{15cm}
+\usepackage{hyperref}
+
+\usepackage{verbatim}
+\usepackage{stmaryrd}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage[dvips]{graphicx}
+\usepackage{subfigure}
+\usepackage{epstopdf}
+
+%my packages
+\usepackage{amsmath, amsfonts, amsthm, amssymb}
+\usepackage{csvsimple, longtable, booktabs}
+\usepackage{filecontents}
+\usepackage[mathlines]{lineno}
+\usepackage[comma]{natbib}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hhline}
+
+
+
+\linespread{1.5}
+%\font\twelvemsb=msbm10 at 12pt
+\newfam\msbfam
+%\textfont\msbfam=\twelvemsb
+\def\Bbb#1{\fam\msbfam\relax#1}
+
+\topmargin = 20pt
+\voffset = -20pt
+\addtolength{\textheight}{2cm}
+
+
+
+
+%% word count command
+\newcommand\wordcount{\input{./report/Report.sum}}
+
+%biblio
+
+
+
+
+
+
+
+\def\equalDistrib{\,{\buildrel \Delta \over =}\,}
+\numberwithin{equation}{section}
+\def\blue#1{\textcolor{blue}{#1}}
+\def\red#1{\textcolor{red}{#1}}
+
+
+\begin{document}
+	\begin{titlepage}
+		\thispagestyle{empty}
+		\null\vskip0.2in
+		\begin{center}
+		\LARGE{{\bf 
+		Mini Project}}
+		\end{center}
+
+		\vspace{0.5cm}
+
+		\begin{center}
+		{\Large {\bf by}}\\
+		\mbox{} \\
+		{\Large {\bf D\'onal Burns (CID: 01749638)}}
+		\end{center}
+
+		\vspace{1cm}
+
+		\begin{center}
+		\large{\bf{Department of Life Sciences \\ Imperial College London \\
+		London SW7 2AZ \\ United Kingdom}}
+		\end{center}
+
+
+		\vspace{1.5cm}
+
+		\begin{figure}[H]
+		%\includegraphics[width = \textwidth, height=\textheight, keepaspectratio]{./report/IC_Crest.eps}
+		\end{figure}
+
+		\vspace{1.5cm}
+
+		\begin{center}
+		\large{\bf{Report submitted as part of the MSc in Computation Methods in Ecology and Evolution, Imperial College London, 2019-2020}}
+		\end{center}
+
+		\vspace{2cm}
+		
+		\begin{center}
+		\large{Word Count: \wordcount}
+		\end{center}
+
+
+\end{titlepage}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\text{}\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setcounter{tocdepth}{4}
+\tableofcontents
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fancyhead{}
+\fancyfoot{}
+\pagestyle{fancy} 
+%\fancyhead{\sffamily\small \thepage}
+%\fancyhead{\sffamily\small \nouppercase{\rightmark}}
+\fancyhead[RO,LE]{\sffamily\small \thepage}
+\fancyhead[LO,RE]{\sffamily\small \nouppercase{\rightmark}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.0pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\linenumbers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Abstract}
+The relationship between consumers and resources can be divided into three categories called functional responses.  Each of these responses can be described mathematically through models which can be fit to observational data to determine the response which best describes the consumer-resource relationship.  
+Additionally, models can be described as either mechanistic or phenomenological, whereas phenomenological models parameters are freely adjusted to best fit the observed data, mechanistic models parameters are derived from biological origins.  As a result, parameter estimates for mechanistic models provide insight as to what is driving the patterns observed, while little can be drawn from phenomenological model parameters.
+\newline
+This study will explore, in relation to habitat type, whether phenomenological or mechanistic models best describe consumer-resource relationships and why phenomenological models should be avoided.
+
+
+
+\section{Introduction}
+
+A functional response is the manner in which a consumer's rate of consumption changes with resource density \citep{Dunn2020}.   The concept was mathematically described by Holling in 1959 \citep{Holling1959, Holling1959a} .  Holling separated functional responses into three broad categories; type I, type II and type III \citep{Holling1959, Holling1959a}.  Holling's original model was later built upon by Real to be able to describe all three type of functional response \citep{Real1977, Real1979}.  All three functional response types can be described by equation \ref{general} which is know as the generalised Holling model.
+\newline
+Where $N_e$ is consumption rate, $N_0$ is resource density, $a$ is the attack rate or how fast the consumer comes in contact with resources, $h$ is handling time or how long the consumer spends with a “piece” of resource before being able to continue searching and $q$ is a dimensionless parameter which attempts to capture a 'lag phase' at low resource densities.
+
+Generalised Model
+\begin{equation} 
+	N_e = \frac{aN_0^{q+1}}{1+ahN0^{q+1}}
+	\label{general}
+\end{equation}
+
+Type I Response
+\begin{equation}
+	N_e = aN_0 
+	\label{typeI}
+\end{equation}
+
+Type II Response
+\begin{equation}
+	N_e = \frac{aN_0}{1+ahN0}
+	\label{typeII}
+\end{equation}
+
+Type III Response
+\begin{equation} 
+	N_e = \frac{aN_0^2}{1+ahN_0^2}
+	\label{typeIII}
+\end{equation}
+\begin{figure}[H]
+	\label{functionalResp}
+	\begin{center}
+		\includegraphics[width=\textwidth]{../Results/functionResponses.pdf}
+	\end{center}
+	\caption{An example of the three functional responses. With a type I response shown in blue, type II response in green and type III response in red.}
+	\label{func_resp}	
+\end{figure}
+
+Type I responses have are only been observed in filter feeders\citep{Jeschke2004}.  The response is characterised by a linear increase up to a threshold, at which the rate of consumption remains constant Fig.\ref{functionalResp}.  In a type I response handling time is thought to be nearly instantaneous (i.e. $h = 0$).  This results in eq. \ref{general} becoming;
+ $N_e = aN_0$ \citep{Dunn2020}.  
+Meaning that attack rate and resource density are the only factors which affect consumption rate.  In other words, the consumer is essentially able to acquire resources and handle resources simultaneously.  The reason why this pattern is only observed in some filter feeders is because only filter feeders are capable of both having a negligibly small handling time and able to search for resources while handling other food \citep{Jeschke2004}.
+\newline
+Type II functional responses are described as having a steep increase at low resource densities as handling time is not a limiting factor.  Consumption rate steadily levels out as resource density increases and handling time becomes more and more of a limiting factor to consumption, eventually reaching a maximum value that is dependant on handling time Fig.\ref{functionalResp}.  Under this response maximum consumption rate can be descibed as:
+$N_{e \ max} = \frac{1}{h}$ \citep{Rosenbaum2018}.
+\newline
+In a type II response $q = 0$ as there is no “lag phase” in consumption rate.  This results in equation \ref{general} becoming:
+ $N_e = aN_0  / 1+ahN_0$  \citep{Rosenbaum2018, Dunn2020}.
+\newline
+The theory behind a type III response follows mostly the same as type II.  Type III responses will also increase until reaching a maximum rate of consumption which is limited by handling time.  However, type III responses have a 'lag phase' at low resource densities.  It is $q$ which allows equation \ref{general} to capture this to varying extents under the generalised model.  In a strict type III functional response $q = 1$ \citep{Rosenbaum2018}, resulting in equation \ref{typeIII}
+\newline
+Since type II responses have a relatively high consumption rate at low desities, they tend to result in 'boom-bust' consumer-resource relationships \citep{Dunn2020, Rosenbaum2018, Real1979, Holling1959a, Vucic-Pestic2010}.  This is because what little there is of the resource is consumed at a relatively rapid rate by the consumer. .
+\newline
+In order to investigate how recorded data fits into the above, it is necessary to fit the respective models to the data and determine which best describes the data.  The above models can be described as mechanistic models.  Meaning that the parameters are based on biological factors or mechanisms.  An alternative approach is to derive an equation which describes the observed data without the need to be based on biological mechanisms.  These are called phenomenological models.
+  Which of these approaches is best is a topic of debate and can depend on the data being used or question being asked \cite{Geritz2012, Gustafson2013}.  
+\newline
+This study will look at, on a very general level, whether a type II or type III functional response best fits consumers in different habitats.  Consumer data marine, freshwater and terrestrial will be examined and any differences found discussed.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\section{Methods}
+\subsection{Model Fitting}
+The data consisted of data on resource density and consumption rate from the literature.  The data was stored in both the original units of the study in question and standardised units, so as to be comparable to other data points collected in the database.  Fits were performed using this standardised data.  Each study was given a unique ID number so as to identify data points which come from the same study (totalling 308 unique ID numbers).  Additionally, information was stored about many other factors such as resource mass, resource type and, of interest for this study, consumer habitat. 
+\newline 
+For this study, so as to compare mechanistic and phenomenological models, Holling's equations were used as mechanistic models while polynomials were used as phenomenological models.  This was done to analyse how the Holling models will fit in comparison to models which produce similar shapes.  Quadratic and cubic polynomials were fitted.  A quadratic polynomial produces a shape similar to that of a type II functional response.  Likewise, a cubic polynomial follows a similar shape to that of a Type III functional response.  It is worth noting that due to the properties of polynomials, they cannot form a straight line at a maximum in the same way as the Holling models and must either continue to increase or decrease at a point of inflection Fig \ref{dataSample}.  As such, polynomials were expected to best fit data which either does not have enough data points to show the theoretical maximum consumption rate expected under the Holling models or contains some decline in consumption rate once this maximum is reached, possible due to the consumer slowing down due to consuming too much in a short time during the experiments the data was derived from \citep{Jeschke2002a}.
+\newline
+In order to fit the data, each dataset was run through the fitting process.  This process involves grouping the data points from each unique ID number and running the data through a fitting function, using a least-squares algorithm.  For the “Holling models” starting values were estimated before fitting. 
+\newline 
+Attack rate was estimated by fitting a line to the steepest section of the data and taking the slope of the line.  The logic behind this was that under a type I response attack rate is the only factor which influences consumption rate and the line drawn until the threshold is reached is defined as a straight line with a slope equal to attack rate.  With this logic, the same can be said for type II and type III responses where the steepest portion of the functional response is the section at which a’s influence is maximised and the influence of both q and handling time is at a minimum.  This value was obtained by fitting a straight line to the data and calculating the slope of the line and the residual sum of squares (RSS) between the line and the data.  The same process was then re-run, but with the data point at the highest resource density removed.  RSS was then calculated again and compared to the previous result.  If the RSS was lower than the previous result then the slope of the new line is stored instead and the process was repeated, this time with the two highest resource density data points removed and so on.  This was repeated until only three or 30\% of the data points from the original data remained.  Three data points was chosen as the threshold, as any less was nearly guaranteed to be the line with the lowest RSS as the line generated is a line between those final two points.  30\% was also used as some data sets contained data which was recorded many times at fixed resource densities.  Under the above method with three data points as the threshold, this vastly overestimated attack rate.  30\% was found to be a value where the fitting process was still able to calculate parameter estimates from these data sets.
+\newline
+H was estimated as the inverse of the maximum observed rate of consumption, i.e. $h = 1/N_{e \ max}$ \citep{Rosenbaum2018}.
+\newline
+When fitting using $q$, a starting value of zero was used. 
+\newline 
+The models were fit to the data using $lmfit.minimize$ in $python$ \citep{newville_matthew_2014_11813}.  This uses a least-squares method to find the parameter values that best fit the observed data.  So as to ensure that the fitting algorithm did not “get stuck” in local minima when fitting, the fitting process was repeated with varying starting parameters 100 times.  During each of these repeats attack rate and handling were set as random numbers chosen from a random uniform distribution ranging from 50\% to 150\% of the initial parameter estimate.  The starting $q$ value was set to a random number chosen from a uniform distribution ranging from zero to one.  The parameter set which yielded the best Akaike information criterion (AIC) value was taken to contain the parameters which best captured the data.  
+\newline
+In order to fit polynomials to the data $PolynomialModel$ from $lmfit$ was used \citep{newville_matthew_2014_11813}.  This is a wrapper around $numpy.polyval$ which uses Horner’s scheme as a means of estimating the polynomial coefficients \citep{2020SciPy-NMeth}.  Since this is a deterministic process the fits were not repeated for polynomial models.
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=\textwidth]{../Results/dataSample.pdf}
+	\end{center}
+	\label{dataSample}
+	\caption{Each model fitted to a dataset. Type II response in green, Generalised Holling in red, quadratic polynomial in blue and cubic polynomial in yellow.}
+\end{figure}
+
+
+
+
+\subsection{Analysis}
+After fitting any values which were not biologically viable for the two hollings models were removed (i.e. value of attack rate or handling time $\leq$ 0).
+The results were analysed by calculating which models best fit each dataset using AIC values.  The best model for each dataset was determined by selecting the model with the lowest AIC.  Following the rule of thumb, best model was only determined if the lowest AIC value was two less than all other AIC values for the given dataset \citep{Burnham2004, Johnson2004}
+
+
+\subsection{Computing tools}
+All model fitting and plotting was carried out using the $lmift$ (version 0.9.14) \citep{newville_matthew_2014_11813} and $matplotlib$ (version 3.1.1) \citep{Hunter:2007} packages respectively  alongside $scipy$ (0.19.1) \citep{2020SciPy-NMeth} and $pandas$ (0.25.3) \citep{jeff_reback_2020_3630805} for data manipulation in $Python$ (version 3.6.9).  
+\newline
+R (version 3.6.3) \citep{R} was used to carry out the analysis with dplyr (version 0.8.3) \citep{dplyr} for data manipulation. 
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Results}
+\subsection{Model Fits}
+The results of the model fitting found that in the majority of cases a third-degree polynomial best fit the data Table \ref{fit table}.  The generalised Holling model fit second most followed by a type II response and finally a second-degree polynomial was found to fit none of the data best.  However, if the cubic model is removed from the data set the then the quadratic model is found to fit best in the majority of cases. 
+
+If the phenomenological models are removed entirely from the analysis, it can be seen that a type II functional response best fits more data.  However, this difference is shown to be non-significant for all habitats ($\chi ^2$ = 0.25, df = 2, $p$ = 0.88) Table \ref{mechanistic table}.
+
+\begin{center}
+	\begin{table}[h]
+				\caption{Number of times each model was chosen as the best model out of 290 models.  Percent of total shown in brackets.  Percentages do not sum to one as it was not possible to choose the best model in all cases due to similar AIC values.}
+				\label{fit table}
+				\vspace{2mm}
+		\begin{tabular}{|| p{1.8cm} |p{1.8cm} | p{1.8cm} | p{1.8cm} | p{1.8cm}||} 
+			\hline
+			Habitat & Type II & Generalised & Quadratic & Cubic \\  
+			\hline\hline
+			Overall & 12(4.14\%) & 21(7.24\%) & 0(0\%) & 73(25.17\%) \\ 
+			
+			Freshwater & 9(5.45\%) & 15(9.09\%) & 0(0\%) & 37(22.42\%) \\
+		
+			Marine & 1(1.79\%) & 3(5.36\%) & 0(0\%) & 15(26.79\%) \\
+		
+			Terrestrial & 2(2.90\%) & 3(4.35\%) & 0(0\%) & 21(30.43\%) \\
+			\hline
+		\end{tabular}
+	\end{table}	
+\end{center}
+
+Out of the 308 datasets that were present in the data eighteen were removed due to the generalised model not converging during the fitting process, leaving 290 datasets to be used for the analysis.  Of these, the best model was able to be determined using AIC values for 214 datasets.  
+
+\begin{center}
+	\begin{table}[!h]
+		\caption{Number of times each mechanistic model was chosen as the best model out of 290 models.  Percent of total shown in brackets.  Percentages do not sum to one as it was not possible to choose the best model in all cases due to similar AIC values.}
+		\label{mechanistic table}
+		\vspace{2mm}
+		\begin{tabular}{|| p{1.8cm} |p{1.8cm} | p{1.8cm}||} 
+			\hline
+			Habitat & Type II & Generalised \\  
+			\hline\hline
+			Overall & 81(27.93\%) & 62(4.14\%)\\ 
+			
+			Freshwater & 43(26.06\%) & 33(20.00\%)\\
+			
+			Marine & 14(25.00\%) & 9(16.07\%)\\
+			
+			Terrestrial & 24(34.78\%) & 20(29.00\%)\\
+			\hline
+		\end{tabular}
+	\end{table}	
+\end{center}
+
+\subsection{$q$ Values}
+$q$ values for the generalised model had a mean of 0.87 (minimum: $<$0.001, maximum: 30.81, variance: 5.90).  While values did exceed $q=1$, i.e. a strict type III functional response \citep{Rosenbaum2018}, q values mostly lay between zero and one (221 of 279 values, with biologically unviable and non-convergent datasets removed).
+\begin{center}
+	\begin{figure}[H]
+		\caption{Histogram showing the spread of fitted q parameters.  Limited for values up to three as there were very few values beyond this point, 19 of 280 values greater than three.}
+		\vspace{1cm}
+		\includegraphics[width=\textwidth]{../Results/qHist.pdf}
+	\end{figure}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Discussion}
+Cubic polynomials performing the best overall is not unexpected.  A polynomial will always fit the data as best as possible within the constraints of its degree.  This includes not obeying biological constraints or rules where more mechanistic models must Fig.\ref{cubic}. Another possible aspect to this result is that in some studies there may be a decline in consumption rate due to prolonged observation.  This decline can be caused by factors such as resources not being replenished during the course of observation \citep{Rosenbaum2018} or the consumers "hunger" decreasing over time due to repeated or prolonged experiments \citep{Holling1966}.
+\newline
+Type II functional responses providing the best fit is not unfounded \citep{Dunn2020}.  However, type II functional responses result in "boom burst"  de-stabilising consumer-resource dynamics due to the manner in which they behave at low resource densities \citep{Dunn2020, Rosenbaum2018, Real1979, Holling1959a, Vucic-Pestic2010}.
+This instability is removed when the functional response start to shift from a type II response to a type III.  In other words as $q$ becomes greater than zero, the relationship stabilises.  Of note is that there is no need for a full shift of $q$ from zero to one or greater, even slight changes in $q$ introduce this stability \citep{Dunn2020, Rosenbaum2018, Real1979}. The reason why type II is found to best describe the data here may be due to the conditions under which the data was gathered.  In many lab settings there will be a singular resource and consumer.  However, it has been shown that in habitats where there are alternative resources, it is more likely for the functional response to depart from a strict type II response \citep{Holling1959a}.
+Additionally, refuge-rich habitats in aquatic environments have been shown to shift interactions towards that of a type III response \citep{Dunn2020}
+\newline
+Note it can be argued that the Holling models are themselves not mechanistic, rather that  while the models are based in biology the description of 'handling time' is too vague as it contains both active, resource capture and acquisition, and passive actions, digestion, and as such cannot be mechanistic \citep{Jeschke2002a}.  Since Holling developed his original model in 1959 \citep{Holling1959} and its generalisation by Real in 1977\citep{Real1977}, other 'more mechanistic' models have been developed  \citep{Jeschke2002a} (several mentioned in \citep{Rosenbaum2018}) which could provide better fits than the Holling models, while providing more information about the underlying biology.  
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=\textwidth]{../Results/misbehaving_cubic.pdf}
+	\end{center}
+	\caption{insert graph of cubic going mental but fitting data points well}
+	\label{cubic}
+\end{figure}
+
+
+\section{Conclusion}
+In conclusion, while phenomenological models can fit most nearly any data, they do little to provide information about the underlying biology.  With this in mind the way forward is the use and development of mechanistic models which can inform about consumer biology and drive deeper understanding.
+Overall this study only scratches the surface and there is much more work that is and can be done.
+
+
+
+\newpage
+\appendix{}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{agsm}
+\bibliography{./report/MiniProject.bib}
+
+\end{document}

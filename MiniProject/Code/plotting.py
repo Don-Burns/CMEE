@@ -12,13 +12,16 @@ import scipy as sc
 import pandas as pd 
 from ast import literal_eval
 from functions import calc_C, calc_CQ as calc_C, calc_CQ
+from functions import calc_type1 as calc_type1
+
+
 ### Storage variables - variable where the data needed to plot will be held###
 
 Cmod = {}
 CQmod = {}
 poly2 = {}
 poly3 = {}
-poly4 = {}
+
 
 cat = {}#to add category of interest to the title of each graph
 
@@ -56,12 +59,10 @@ for ID in IDList:
     row = data[data["ID"] == ID]
     poly3[ID] = {"coefs" : {"c0":float(row["x^3"]),"c1":float(row["x^2"]), "c2":float(row["x"]), "c3":float(row["c"])}, "AIC":float(row["AIC"]), "BIC":float(row["BIC"])}
 
-data = pd.read_csv("../Results/poly4ModResults.csv")
-IDList = data.ID.unique()
-for ID in IDList:
-    row = data[data["ID"] == ID]
-    poly4[ID] = {"coefs" : {"c0":float(row["x^4"]),"c1":float(row["x^3"]),"c2":float(row["x^2"]), "c3":float(row["x"]), "c4":float(row["c"])}, "AIC":float(row["AIC"]), "BIC":float(row["BIC"])}
 
+###################################################################
+################ All plots fitted #################################
+###################################################################
 with PdfPages('../Results/FittedPlots.pdf') as pdf:
     data = pd.read_csv("../data/CRat.csv")
 
@@ -78,12 +79,12 @@ with PdfPages('../Results/FittedPlots.pdf') as pdf:
         plt.figure()
         plt.plot(ResDens, NTrait, "bo")
         try:
-            plt.plot(RDensities, calc_C(RDensities, a=Cmod[ID]["a"], h=Cmod[ID]["h"]), '-g', label = "Hollings 1959")
+            plt.plot(RDensities, calc_C(RDensities, a=Cmod[ID]["a"], h=Cmod[ID]["h"]), '-g', label = "Type II")
         except KeyError:
             pass
 
         try:
-            plt.plot(RDensities, calc_CQ(RDensities, a=CQmod[ID]["a"], h=CQmod[ID]["h"], q=CQmod[ID]["q"]), '-r', label = "Generalised Hollings")
+            plt.plot(RDensities, calc_CQ(RDensities, a=CQmod[ID]["a"], h=CQmod[ID]["h"], q=CQmod[ID]["q"]), '-r', label = "Generalised Holling")
 
         except KeyError:
             pass
@@ -91,7 +92,7 @@ with PdfPages('../Results/FittedPlots.pdf') as pdf:
         try:
             RevCoefList = list(poly2[ID]["coefs"].values())
             RevCoefList.reverse()
-            plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-b', label = "2nd Degree")
+            plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-b', label = "Quadratic")
 
         except KeyError:
             pass
@@ -99,33 +100,29 @@ with PdfPages('../Results/FittedPlots.pdf') as pdf:
         try:
             RevCoefList = list(poly3[ID]["coefs"].values())
             RevCoefList.reverse()
-            plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-y', label = "3rd Degree")
+            plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-y', label = "Cubic")
 
         except KeyError:
             pass
-
-        try:
-            RevCoefList = list(poly4[ID]["coefs"].values())
-            RevCoefList.reverse()
-            plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-m', label = "4th Degree")
-
-        except KeyError:
-            pass
-
 
 
         plt.legend()
         plt.xlabel('ResourceDensity')
-        plt.ylabel('N_TraitValue')
+        plt.ylabel('Consumption Rate')
         title = str(ID) + " " + cat[ID]
         plt.title(title)
         pdf.savefig()  # saves the current figure into a pdf page
         plt.close()
 
-with PdfPages('../Results/reportPlot.pdf') as pdf:
+
+###################################################################
+############ Sample plot showing all models once###################
+###################################################################
+
+with PdfPages('../Results/dataSample.pdf') as pdf:
     data = pd.read_csv("../data/CRat.csv")
 
-    ID = 39936
+    ID = 39956
 ## Import data for original data points
     subset = data[data["ID"] == ID]
     ResDens = sc.array(subset["ResDensity"])
@@ -138,12 +135,12 @@ with PdfPages('../Results/reportPlot.pdf') as pdf:
     plt.figure()
     plt.plot(ResDens, NTrait, "bo")
     try:
-        plt.plot(RDensities, calc_C(RDensities, a=Cmod[ID]["a"], h=Cmod[ID]["h"]), '-g', label = "Hollings 1959")
+        plt.plot(RDensities, calc_C(RDensities, a=Cmod[ID]["a"], h=Cmod[ID]["h"]), '-g', label = "Type II")
     except KeyError:
         pass
 
     try:
-        plt.plot(RDensities, calc_CQ(RDensities, a=CQmod[ID]["a"], h=CQmod[ID]["h"], q=CQmod[ID]["q"]), '-r', label = "Generalised Hollings")
+        plt.plot(RDensities, calc_CQ(RDensities, a=CQmod[ID]["a"], h=CQmod[ID]["h"], q=CQmod[ID]["q"]), '-r', label = "Generalised Holling")
 
     except KeyError:
         pass
@@ -151,7 +148,7 @@ with PdfPages('../Results/reportPlot.pdf') as pdf:
     try:
         RevCoefList = list(poly2[ID]["coefs"].values())
         RevCoefList.reverse()
-        plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-b', label = "2nd Degree")
+        plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-b', label = "Quadratic")
 
     except KeyError:
         pass
@@ -159,7 +156,7 @@ with PdfPages('../Results/reportPlot.pdf') as pdf:
     try:
         RevCoefList = list(poly3[ID]["coefs"].values())
         RevCoefList.reverse()
-        plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-y', label = "3rd Degree")
+        plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-y', label = "Cubic")
 
     except KeyError:
         pass
@@ -167,12 +164,105 @@ with PdfPages('../Results/reportPlot.pdf') as pdf:
 
     plt.legend()
     plt.xlabel('ResourceDensity')
-    plt.ylabel('N_TraitValue')
-    title = str(ID) + " " + cat[ID]
-    plt.title(title)
+    plt.ylabel('Consumption Rate')
+
+    pdf.savefig()  # saves the current figure into a pdf page
+    plt.close()
+###################################################################
+################ graph of functional responses ####################
+###################################################################
+
+with PdfPages('../Results/functionResponses.pdf') as pdf:
+    data = pd.read_csv("../data/CRat.csv")
+
+
+## organise spread data to plot smooth live
+    RDensities = sc.random.uniform(0,10, 200)
+    RDensities.sort()
+
+# Start Plotting
+    plt.figure()
+    peak = 5
+    a = 2
+    h = 1/peak
+    q = 1
+    type1 = calc_CQ(RDensities,a=a, h=0, q=0)
+    for i in range(len(type1)):
+        if type1[i] > peak:
+            type1[i] = peak
+    try:
+        plt.plot(RDensities, type1, '-b', label = "Type I")
+
+    except KeyError:
+        pass
+    try:
+        plt.plot(RDensities, calc_CQ(RDensities, a=a, h=h, q=0), '-g', label = "Type II")
+
+    except KeyError:
+        pass
+    try:
+        plt.plot(RDensities, calc_CQ(RDensities, a=a, h=h, q=q), '-r', label = "Type III")
+
+    except KeyError:
+        pass
+
+
+    plt.legend()
+    plt.xlabel('Resource Density')
+    plt.ylabel('Consumption Rate')
+
     pdf.savefig()  # saves the current figure into a pdf page
     plt.close()
 
+###################################################################
+################ bad cubic with good fit ##########################
+###################################################################
+
+with PdfPages('../Results/misbehaving_cubic.pdf') as pdf:
+    data = pd.read_csv("../data/CRat.csv")
+
+    ID = 39969
+## Import data for original data points
+    subset = data[data["ID"] == ID]
+    ResDens = sc.array(subset["ResDensity"])
+    NTrait = sc.array(subset["N_TraitValue"])
+## organise spread data to plot smooth live
+    RDensities = sc.random.uniform(min(ResDens)*0.1, max(ResDens), 200)
+    RDensities.sort()
+
+# Start Plotting
+    plt.figure()
+    plt.plot(ResDens, NTrait, "bo")
+    try:
+        plt.plot(RDensities, calc_C(RDensities, a=Cmod[ID]["a"], h=Cmod[ID]["h"]), '-g', label = "Type II")
+    except KeyError:
+        pass
+
+    try:
+        plt.plot(RDensities, calc_CQ(RDensities, a=CQmod[ID]["a"], h=CQmod[ID]["h"], q=CQmod[ID]["q"]), '-r', label = "Generalised Holling")
+
+    except KeyError:
+        pass
+
+    try:
+        RevCoefList = list(poly2[ID]["coefs"].values())
+        RevCoefList.reverse()
+        plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-b', label = "Quadratic")
+
+    except KeyError:
+        pass
+
+    try:
+        RevCoefList = list(poly3[ID]["coefs"].values())
+        RevCoefList.reverse()
+        plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-y', label = "Cubic")
+
+    except KeyError:
+        pass
 
 
-
+    plt.legend()
+    plt.xlabel('Resource Density')
+    plt.ylabel('Consumption Rate')
+    pdf.savefig()  # saves the current figure into a pdf page
+    plt.close()

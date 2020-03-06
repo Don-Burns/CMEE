@@ -3,6 +3,20 @@ Script containing functions needed for the mini project
 """
 
 #######FUNCTIONS############
+def calc_type1(Xr, a, max, h=0):
+    """[summary]
+    
+    Arguments:
+        Xr {[type]} -- [description]
+        a {[type]} -- [description]
+    """
+
+    if a*Xr < max:
+        return a*Xr
+    else:
+        return max
+
+
 def calc_C(Xr, a, h):
     """  The equation for the type II functional response from Holling, 1959
 

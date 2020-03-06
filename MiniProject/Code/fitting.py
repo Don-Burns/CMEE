@@ -20,6 +20,8 @@ from matplotlib.backends.backend_pdf import PdfPages as PdfPages
 
 
 ######## Script options #########
+## number if time to repeat the holling model fit
+reps = 100
 
 # Category of interest for comparing fits later
 interest  = "Habitat"
@@ -263,7 +265,7 @@ qCQmodList = {}
 ## polynomial coefficients
 poly2coefList = {}
 poly3coefList = {}
-poly4coefList = {}
+
 
 # Reversed list for use with polyval
 poly3coefListRev = {}
@@ -271,21 +273,21 @@ poly3coefListRev = {}
 #for plots
 poly2Fits = {}
 poly3Fits = {}
-poly4Fits = {}
+
 
 # AIC Lists
 AICCmodList = {}
 AICCQmodList = {}
 AICpoly2List ={}
 AICpoly3List ={}
-AICpoly4List ={}
+
 
 # BIC List
 BICCmodList = {}
 BICCQmodList = {}
 BICpoly2List ={}
 BICpoly3List ={}
-BICpoly4List ={}
+
 
 # Initial values for models
 initCmod = {}
@@ -297,14 +299,14 @@ CmodPass = []
 CQmodPass = []
 poly2Pass = []
 poly3Pass = []
-poly4Pass = []
+
 
 ## List of ID which error out in each model
 CmodError = ["Files which gave errors in Hollings 1959"]  # list of IDs which error in Hollings 1959
 CQmodError = ["Files which gave errors in generalised Hollings"]  # list of IDs which error in generalised Hollings
 poly2Error = ["Files which gave errors in 2nd degree polynomial"]  
 poly3Error = ["Files which gave errors in 3rd degree polynomial"]  
-poly4Error = ["Files which gave errors in 4th degree polynomial"]
+
 ##for progress counter
 counter = 0
 IDlen = len(data.ID.unique())
@@ -318,7 +320,6 @@ CModResultsDict = {}
 CQModResultsDict = {}
 ######Main########
 IDList = data.ID.unique()
-reps = 100 # number of time that q will be fit using random numbers from a uniform distribution
 for ID in IDList:
     ## Code Progress##
 
@@ -356,7 +357,7 @@ for ID in IDList:
     aEstList.append(aEst)
 
     ### Fit Models### Using lmfit.Model()###
-
+    bestAIC = 1e20 # assign an arbitrarily large number that should always be lower than an actual AIC result
     ####### Use Hollings 1959 model#####
     for i in range(reps):
         if i != 1: # try once with estimated values
@@ -373,21 +374,28 @@ for ID in IDList:
             ("h", h, True, 0, None))
             Cmod = lmfit.Minimizer(calc_Clmfit, params, fcn_args=(ResDens, NTrait))
             resultsCmod = Cmod.minimize()
+            thisAIC = resultsCmod.aic # the current iterations AIC
+            if thisAIC < bestAIC: # only assign new values if the current iterations AIC is greater than the previous best
 
             # record results of model
-            CparamVals = resultsCmod.params.valuesdict()
-            aCmod = CparamVals["a"]
-            hCmod = CparamVals["h"]
-            aCmodList[ID] = CparamVals["a"]
-            hCmodList[ID] = CparamVals["h"]
-            AICCmodList[ID] = resultsCmod.aic
-            BICCmodList[ID] = resultsCmod.bic
+                CparamVals = resultsCmod.params.valuesdict()
+                aCmod = CparamVals["a"]
+                hCmod = CparamVals["h"]
+                aCmodList[ID] = CparamVals["a"]
+                hCmodList[ID] = CparamVals["h"]
+                AICCmodList[ID] = resultsCmod.aic
+                BICCmodList[ID] = resultsCmod.bic
 
             # record passing ID
-            CmodPass.append(ID)
+
+            if ID in CmodPass: #  to make sure the same ID is not appended more than once
+                None
+            else:
+                CmodPass.append(ID)
 
             ### Troubleshooting
             CModResultsDict[ID] = resultsCmod
+
         except ValueError:
 
             aCQmod = "NA"
@@ -403,7 +411,7 @@ for ID in IDList:
 
 
     ####### Fit Generalised Hollings #####
-    bestAIC = -1e20 # assign an arbitrarily negative number that should always be lower than an actual AIC result
+    bestAIC = 1e20 # assign an arbitrarily large number that should always be lower than an actual AIC result
     for i in range(reps):
         if i != 1: # try once with estimated values
             q = sc.random.uniform(size = 1, low = 0.0, high = 1.0)
@@ -421,7 +429,7 @@ for ID in IDList:
             CQmod = lmfit.Minimizer(calc_CQlmfit, params, fcn_args=(ResDens, NTrait))
             resultsCQmod = CQmod.minimize()
             thisAIC = resultsCQmod.aic # the current iterations AIC
-            if thisAIC > bestAIC: # only assign new values if the current iterations AIC is greater than the previous best
+            if thisAIC < bestAIC: # only assign new values if the current iterations AIC is greater than the previous best
                 CQparamVals = resultsCQmod.params.valuesdict()
                 aCQmod = CQparamVals["a"]
                 hCQmod = CQparamVals["h"]
@@ -509,291 +517,38 @@ for ID in IDList:
         poly3Error.append(ID)
 
 
-    ####### Fit 4th degree polynomial #####
-    try:
-
-        mod = lmfit.models.PolynomialModel(degree=4)
-        params = mod.guess(NTrait, x = ResDens)
-        poly4 = mod.fit(NTrait, params, x = ResDens)
-
-        # mod = lmfit.Model(poly2_eq)
-        # # add with tuples: (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
-        # mod.Parameters.add_many(())
-        # params = mod.add
-
-        poly4coefList[ID] = poly4.best_values 
-        poly4Fits[ID] = poly4.best_fit 
-
-        AICpoly4List[ID] = poly4.aic
-        BICpoly4List[ID] = poly4.bic
-        poly4Pass.append(ID)
-
-
-    except ValueError:
-
-        poly4coefList[ID] = {"c0":"NA", "c1":"NA", "c2":"NA", "c3":"NA", "c4":"NA"}
-        poly4Fits[ID] = "NA"
-        AICpoly4List[ID] = "NA"
-        BICpoly4List[ID] = "NA"
-        poly4Error.append(str(ID, ":Value"))
-
-    except TypeError:
-        poly4coefList[ID] = {"c0":"NA", "c1":"NA", "c2":"NA", "c3":"NA", "c4":"NA"} 
-        poly4Fits[ID] = "NA"
-        AICpoly4List[ID] = "NA"
-        BICpoly4List[ID] = "NA"
-        poly4Error.append(str(ID))
-
 
 
 # print(resultsCQmod.params)
 
 
 ###save data output###
-# file = os.path.basename(file).split(".")[0] +"_" # remove file extension from file name for saving
-file = ""
 
 print("Saving Results")
 # Save results for Hollings 1959
-w = csv.writer(open("../Results/"+file+"CModResults.csv", "w"))
+w = csv.writer(open("../Results/CModResults.csv", "w"))
 w.writerow(["ID", "a", "h", "AIC", "BIC", "CatOfInterest"])  ## write headers
 for ID in IDList:
     w.writerow([ID, aCmodList[ID], hCmodList[ID], AICCmodList[ID], BICCmodList[ID], cat[ID]])
 # Save results for Generalised Hollings
-w = csv.writer(open("../Results/"+file+"CQModResults.csv", "w"))
+w = csv.writer(open("../Results/CQModResults.csv", "w"))
 w.writerow(["ID", "a", "h", "q", "AIC", "BIC", "CatOfInterest"])  ## write headers
 for ID in IDList:
     w.writerow([ID, aCQmodList[ID], hCQmodList[ID], qCQmodList[ID], AICCQmodList[ID], BICCQmodList[ID], cat[ID]])
 
 # Save results for 2nd degree polynomial
-w = csv.writer(open("../Results/"+file+"poly2ModResults.csv", "w"))
+w = csv.writer(open("../Results/poly2ModResults.csv", "w"))
 w.writerow(["ID", "x^2", "x", "c", "AIC", "BIC", "CatOfInterest"])  ## write headers
 for ID in IDList:
     w.writerow([ID, poly2coefList[ID]["c0"], poly2coefList[ID]["c1"], poly2coefList[ID]["c2"], AICpoly2List[ID], BICpoly2List[ID], cat[ID]])
 
 
 # Save results for 3rd degree polynomial
-w = csv.writer(open("../Results/"+file+"poly3ModResults.csv", "w"))
+w = csv.writer(open("../Results/poly3ModResults.csv", "w"))
 w.writerow(["ID", "x^3","x^2", "x", "c", "AIC", "BIC", "CatOfInterest"])  ## write headers
 for ID in IDList:
     w.writerow([ID, poly3coefList[ID]["c0"], poly3coefList[ID]["c1"], poly3coefList[ID]["c2"], poly3coefList[ID]["c3"], AICpoly3List[ID], BICpoly3List[ID], cat[ID]])
 
-# Save results for 4th degree polynomial
-w = csv.writer(open("../Results/"+file+"poly4ModResults.csv", "w"))
-w.writerow(["ID", "x^4", "x^3","x^2", "x", "c", "AIC", "BIC", "CatOfInterest"])  ## write headers
-for ID in IDList:
-    w.writerow([ID, poly4coefList[ID]["c0"], poly4coefList[ID]["c1"], poly4coefList[ID]["c2"], poly4coefList[ID]["c3"], poly4coefList[ID]["c4"],AICpoly4List[ID], BICpoly4List[ID], cat[ID]])
     
 
-print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError, "\n", poly2Error, "\n", poly3Error, "\n", poly4Error, "\n")
-
-
-#####Plotting and saving in pdf######   
-if plot1959Hollings == True or plotGeneralHollings == True or plotpolys == True or plotAll == True:
-    print("\nPlotting graphs\n")
-
-if plot1959Hollings == True or plotAll == True:
-
-    print("Plotting Hollings 1959.")
-    with PdfPages('../Results/FittedPlots_Hollings1959.pdf') as pdf:
-        for i in range(len(CmodPass)):  # write for loop that goes through the data and plots it
-            ID =CmodPass[i]
-            ### Subset data###
-            subset = data[data["ID"] == CmodPass[i]]
-            ResDens = sc.array(subset["ResDensity"])
-            NTrait = sc.array(subset["N_TraitValue"])
-            ## organise spread data to plot smooth live
-            RDensities = sc.random.uniform(min(ResDens), max(ResDens), 200)
-            RDensities.sort()
-            ##Plot##
-
-            plt.figure()
-            plt.plot(ResDens, NTrait, "bo")
-            plt.plot(ResDens, calc_C(ResDens, a=aCmodList[ID], h=hCmodList[ID]), '-r')
-            plt.plot(RDensities, calc_C(RDensities, a=aCmodList[ID], h=hCmodList[ID]), '-g')
-            # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
-            plt.xlabel('ResourceDensity')
-            plt.ylabel('N_TraitValue')
-            plt.title(CmodPass[i])
-            pdf.savefig()  # saves the current figure into a pdf page
-            plt.close()
-
-if plotGeneralHollings == True or plotAll == True:
-
-    print("Plotting Generalied Hollings.")
-    with PdfPages('../Results/FittedPlots_HollingsGeneral.pdf') as pdf:
-        for i in range(len(CQmodPass)):  # write for loop that goes through the data and plots it
-            ######### Stopgap while using dictionaries for analysis of broken plots
-            ID = CQmodPass[i]
-            #########
-            ### Subset data###
-            subset = data[data["ID"] == CQmodPass[i]]
-            ResDens = sc.array(subset["ResDensity"])
-            NTrait = sc.array(subset["N_TraitValue"])
-            ## organise spread data to plot smooth live
-            RDensities = sc.random.uniform(min(ResDens), max(ResDens), 200)
-            RDensities.sort()
-            ##Plot##
-            plt.figure()
-            plt.plot(ResDens, NTrait,"bo")
-            plt.plot(ResDens, calc_CQ(ResDens, a=aCQmodList[ID], h=hCQmodList[ID], q=qCQmodList[ID]), '-r', label = aCQmodList[ID])
-            # plt.plot(ResDens, calc_CQ(ResDens, a = aCQmodList[i][1], h = hCQmodList[i][1]), '-r')  ## changed above and below line to acccomadate aCQmodList and hCQmodList being changed from a list to a dictionary
-            plt.plot(RDensities, calc_CQ(RDensities, a=aCQmodList[ID], h=hCQmodList[ID], q=qCQmodList[ID]), '-g', label = hCQmodList[ID])
-            # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
-            plt.legend()
-            plt.xlabel('ResourceDensity')
-            plt.ylabel('N_TraitValue')
-            plt.title(CQmodPass[i])
-
-            ## for "legend"
-            # f = plt.figure()
-            # ax = f.add_subplot(1,1,1)
-
-            # # plt.text(right, top, aCQmodList[ID])
-            # ax.plot([0],[0], color = "green", label= aCQmodList[ID])
-
-            pdf.savefig()  # saves the current figure into a pdf page
-            plt.close()
-
-
-if plotpolys == True or plotAll == True:
-
-    print("Plotting Polynomials.")
-    with PdfPages('../Results/FittedPlots_Polynomials.pdf') as pdf:
-        for i in range(len(poly3Pass)):  # write for loop that goes through the data and plots it
-            ######### Stopgap while using dictionaries for analysis of broken plots
-            ID = poly2Pass[i]
-            #########
-            ### Subset data###
-            subset = data[data["ID"] == poly2Pass[i]]
-            ResDens = sc.array(subset["ResDensity"])
-            NTrait = sc.array(subset["N_TraitValue"])
-            ## organise spread data to plot smooth live
-            RDensities = sc.random.uniform(min(ResDens), max(ResDens), len(NTrait))
-            RDensities.sort()
-            ##Plot##
-            plt.figure()
-
-            plt.plot(ResDens, NTrait, "bo")
-            try:
-                #need to reverse the coefficient list for use with polyval
-                RevCoefList = list(poly2coefList[ID].values())
-                RevCoefList.reverse()
-
-                plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), "r-", label = "2nd Degree")
-            except ValueError:
-                print("Error 2nd degree: ", ID)
-            except KeyError:
-                print("KeyError 2nd degree:", ID)                
-
-            try:
-                #need to reverse the coefficient list for use with polyval
-                RevCoefList = list(poly3coefList[ID].values())
-                RevCoefList.reverse()
-                plt.plot(RDensities, sc.polyval(RevCoefList, RDensities), '-g', label = "3rd Degree")
-            except ValueError:
-                print("Error 3rd degree: ", ID)
-            except KeyError:
-                print("KeyError 3rd:", ID)
-            # try:
-            #     plt.plot(RDensities, poly3Fits, '-g', label = "3rd Degree")
-            # except ValueError:
-            #     print("Error 3rd degree: ", ID)
-
-
-            try:
-
-                RevCoefList = list(poly4coefList[ID].values())
-                RevCoefList.reverse()
-
-                plt.plot(RDensities, sc.polyval(RevCoefList, ResDens), '-b', label = "4th Degree")
-            except ValueError:
-                print("Error 4th degree: ", ID)
-            except KeyError:
-                print("KeyError 4th:", ID)
-            # try:
-            #     plt.plot(RDensities, poly4Fits, '-b', label = "4th Degree")
-            # except ValueError:
-            #     print("Error 4th degree: ", ID)
-            # plt.ylim(bottom = 0, top = max(NTrait)*1.5)
-            plt.legend()
-            plt.xlabel('ResourceDensity')
-            plt.ylabel('N_TraitValue')
-            plt.title(ID)
-
-            ## for "legend"
-            # f = plt.figure()
-            # ax = f.add_subplot(1,1,1)
-
-            # # plt.text(right, top, aCQmodList[ID])
-            # ax.plot([0],[0], color = "green", label= aCQmodList[ID])
-
-            pdf.savefig()  # saves the current figure into a pdf page
-            plt.close()
-######Notes######
-
-# import data
-# subset data
-# starting values 
-# feed to model calcs 
-# record final values of a, h, q(if present) i.e.parameter vals
-# get AIC and BIC
-# plot and save to pdf
-
-
-####questions 
-# with fluct for starting values, can we fluctuate all params at once or should we go one by one to try get fits.
-
-
-print("100% finished =)")
-
-### things to pick up on for next time:
-
-# save model so they can be accessed or do the plotting during the fitting across all degrees of polynomial
-    # alternative is to just do separate plot files
-
-
-# 1959 fitting well enough,but generalised is a mess, despite the fact that a starting value of q means they are the same equation to start
-#   means that something is going wrong in the fit..., 
-# could try to limit q to positive? 
-# try non-zero value for q like .1?
-# check that graphs are plotting with the right equations for that dataset
-
-
-
-# look into the errors that are shown when the script is run in scipy - seem to be from when i get NAN values but seems to be accounted for in the loop
-
-
-
-# least squares solution ?
-# # Load the data
-# x_data, y_data = load_data()
-
-# # Model the data with specified values for parameters a0, a1
-# y_model = model(x_data, a0=150, a1=25)
-
-# # Compute the RSS value for this parameterization of the model
-# rss = np.sum(np.square(y_data - y_model))
-# print("RSS = {}".format(rss))
-
-
-# pandas==0.22.0
-
-
-##### Questions
-# consumer movement
-# resource movement
-# detection - sphere or circle i.e. 2d or 3d perception
-
-
-# discussion with samraat
-# checking fits are significant?
-    # just use aic/bic for significance
-    # no need to quantify just rank them instead
-    # wide CIs in the parameters will have worse aic anyway
-    # can look at whether q is different from 0 by seeing if it is significant from 0
-        # determines if type 2 or 1 response
-    # even if AICs are marginally different just choose the best and maybe there will be a pattern so you can mention that it is marginal but there is a pattern
-
-    # can look at using overlapping CIs for comparing params, but should read up on what is wrong with doing so and how it might not be trust worthy
-
+print("finished data \nFiles which gave errors:\n", CmodError, "\n", CQmodError, "\n", poly2Error, "\n", poly3Error, "\n")

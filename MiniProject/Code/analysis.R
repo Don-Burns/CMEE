@@ -1,12 +1,6 @@
 ## Desc: A script for analysing the output of fitting.py
-
-## Script goals
-# - combine the output scripts from fitting   
-# - find best model for each ID -DONE
-# - find overall best model - DONE
-# - compile the results into a separate summary csvlll
-# - create new csv with IDs and which models fit best 
-
+# author: Donal Burns
+# Date: 06/03/2020
 ######## House Keeping ########
 rm(list = ls())
 
@@ -14,7 +8,7 @@ rm(list = ls())
 ######## script options ########
 numMods <- 4
 # the column of the data that you wish to separate the fits by
-column_names <- c("ID", "CMod", "CQMod", "poly2", "poly3")#, "poly4")
+column_names <- c("ID", "CMod", "CQMod", "poly2", "poly3")
 mod_names <-c("CMod", "CQMod", "poly2", "poly3")
 ######## Packages #############
 library(dplyr)
@@ -31,7 +25,6 @@ CMod <- read.csv("../Results/CModResults.csv", header = T, stringsAsFactors = F)
 CQMod <- read.csv("../Results/CQModResults.csv", header = T, stringsAsFactors = F)
 poly2 <- read.csv("../Results/poly2ModResults.csv", header = T, stringsAsFactors = F)
 poly3 <- read.csv("../Results/poly3ModResults.csv", header = T, stringsAsFactors = F)
-# poly4 <- read.csv("../Results/poly4ModResults.csv", header = T, stringsAsFactors = F)
 
 ######## Refine IDlist ############
 # remove ID for which a = 0 or h=0 is produced in holling models as its not biologically viable
@@ -48,9 +41,9 @@ NACMod <- sum(is.na(CMod$AIC))
 NACQMod <- sum(is.na(CQMod$AIC))
 NAPoly2 <- sum(is.na(poly2$AIC))
 NAPoly3 <- sum(is.na(poly3$AIC))
-# NAPoly4 <- sum(is.na(poly4$AIC))
 
 ## remove na values
+CMod$AIC[is.na(CQMod$AIC)] <- 9e12
 CQMod$AIC[is.na(CQMod$AIC)] <- 9e12
 ######## Main #########
 bestMod <- data.frame(matrix(0, nrow = length(IDList), ncol = numMods+1)) # matrix to store which model fit best in boolean form
@@ -73,24 +66,12 @@ for(ID in IDList){
     AIC$CQMod[i] <- CQMod$AIC[CQMod$ID == ID]
     AIC$poly2[i] <- poly2$AIC[poly2$ID == ID]
     AIC$poly3[i] <- poly3$AIC[poly3$ID == ID]
-    # AIC$poly4[i] <- poly4$AIC[poly4$ID == ID]
+    
     row <- AIC[i,-1]
     row <- row - min(row)
-    if(sum(row <= 2) == 1) bestMod[i,] <- c(ID, row <= 2)
-    # if(sum(is.na(AIC[i,])) == 0){
-    #     index <- which(AIC[i,-1] %in% min(AIC[i,-1])) + 1 # index which contains the best model +1 to account for ID column
-    #     bestMod[i, index] <- 1
-    # }
-    # else {# to account for NA values
-    #     NAindex <- which(is.na(AIC[i, ]) %in% T) # determine the index of the NA value
-    #     AIC[i, NAindex] <- 9e12 # replace NAs with a very large number so it is not chosen as best value
-    #     index <- which(AIC[i,-1] %in% min(AIC[i,-1])) + 1 # index which contains the best model +1 to account for ID column
-    #     bestMod[i, index] <- 1
-    # }
-}
+    if(sum(row <= 2) == 1) bestMod[i,] <- c(ID, row <= 2) # only take row if there is exactly one best model
 
-# add a column for the category 
-# bestMod$Habitat <- OrigData$Habitat
+}
 
 
 
@@ -133,9 +114,10 @@ numMarineData <- sum(OrigData$Habitat == "Marine")
 numTerrestrialData <- sum(OrigData$Habitat == "Terrestrial")
 numFreshwaterData <- sum(OrigData$Habitat == "Freshwater")
 
-##############################################################################################################
-##############################################################################################################
-##############################################################################################################
+### output results
+write.csv(combinedBestMod, "../Results/ResultsRaw.csv")
+write.csv(combinedPercentBestMod, "../Results/ResultsPercent.csv")
+
 ##############################################################################################################
 ##############################################################################################################
 

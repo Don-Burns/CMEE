@@ -1,5 +1,7 @@
-# only mechanistic models
 
+## Desc: A script for analysing the output of only mechanistic models of fitting.py
+# author: Donal Burns
+# Date: 06/03/2020
 ######## House Keeping ########
 rm(list = ls())
 
@@ -65,16 +67,6 @@ for(ID in IDList){
     row <- AIC[i,-1]
     row <- row - min(row)
     if(sum(row <= 2) == 1) bestMod[i,] <- c(ID, row <= 2)
-    # if(sum(is.na(AIC[i,])) == 0){
-    #     index <- which(AIC[i,-1] %in% min(AIC[i,-1])) + 1 # index which contains the best model +1 to account for ID column
-    #     bestMod[i, index] <- 1
-    # }
-    # else {# to account for NA values
-    #     NAindex <- which(is.na(AIC[i, ]) %in% T) # determine the index of the NA value
-    #     AIC[i, NAindex] <- 9e12 # replace NAs with a very large number so it is not chosen as best value
-    #     index <- which(AIC[i,-1] %in% min(AIC[i,-1])) + 1 # index which contains the best model +1 to account for ID column
-    #     bestMod[i, index] <- 1
-    # }
 }
 
 
@@ -116,82 +108,27 @@ TotalModelFit <- 0 # the total number of times the models converged
 numMarineData <- sum(OrigData$Habitat == "Marine")
 numTerrestrialData <- sum(OrigData$Habitat == "Terrestrial")
 numFreshwaterData <- sum(OrigData$Habitat == "Freshwater")
+write.csv(combinedBestMod, "../Results/MechanisticResultsRaw.csv")
+write.csv(combinedPercentBestMod, "../Results/MechanisticResultsPercent.csv")
+
+
+q <- rep(NA, 5)
+names(q) <- c("mean", "min", "max", "variance", "Number of values")
+q[1] <- mean(na.omit(CQMod$q))
+q[2] <- min(na.omit(CQMod$q))
+q[3] <- max(na.omit(CQMod$q))
+q[4] <- var(na.omit(CQMod$q))
+q[5] <- sum(na.omit(CQMod$q)<=3)#  number q values <=1
+
+
+# output results
+write.csv(combinedBestMod, "../Results/MechanisticResultsRaw.csv")
+write.csv(combinedPercentBestMod, "../Results/MechanisticResultsPercent.csv")
+write.csv(q, "../Results/qResults.csv")
+pdf(file = "../Results/qHist.pdf")
+hist(na.omit(CQMod$q), breaks = 1000, xlim = c(0,3),ylim = c(0,100), col = "gray", xlab = "q Values", main ="")
+dev.off()
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-cat("mean of q is:")
-mean(na.omit(CQMod$q))
-cat("min of q is:")
-min(na.omit(CQMod$q))
-cat("max of q is:")
-max(na.omit(CQMod$q))
-cat("variance of q is:")
-var(na.omit(CQMod$q))
-
-length(na.omit(CQMod$q))# number of q values
-sum(na.omit(CQMod$q)<=1)#  number q values <=1
-
-
-hist(na.omit(CQMod$q), breaks = 1000, xlim = c(0,3),ylim = c(0,100), col = "gray", xlab = "q Values")
-
-
-
-
-
-
-
-# not random Q
-#q=0
-# CMod     CQMod     poly2     poly3     poly4 
-# 11.363636 55.844156 17.207792  7.792208  7.792208
-# q=.3
-# CMod    CQMod    poly2    poly3    poly4 
-# 18.18182 33.76623 23.37662 12.66234 12.01299 
-# q sampled between -2,2 and left with no bounds, much more non-fits here
-# CMod    CQMod    poly2    poly3    poly4 
-# 23.37662 24.35065 25.97403 13.63636 12.66234 
-# Random Q
-# CMod    CQMod    poly2    poly3    poly4 
-# 18.18182 34.41558 23.05195 12.66234 11.68831
-
-
-
-## Mean dif between poly2 and Cmod
-dif <- AIC$CMod - AIC$poly2
-dif <- AIC$CMod - AIC$CQMod
-dif <- AIC$CQMod - AIC$poly2
-mean(dif)
-
-
-
-
-
-
-#### investigating the data ###
-# with h = fmax a=0 ; 18 instances
-# no change with h = 1/fmax
-zeros <- CQMod$a == 0
-sum(zeros)
-# show IDS where CQ is the best mod
-bestMod[,"ID"][bestMod[,"CQMod"] == 1]
-
-
-# BIC
-# CMod     CQMod     poly2     poly3     poly4 
-# 11.363636 55.844156 17.207792  7.792208  7.792208
-# AIC
-# CMod     CQMod     poly2     poly3     poly4 
-# 11.363636 55.844156 17.207792  7.792208  7.792208
