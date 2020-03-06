@@ -1,33 +1,32 @@
 """
 Script containing functions needed for the mini project
+Author: Donal Burns
+Date: 10/02/2020
 """
 
+import scipy as sc
+import pandas as pd
+import matplotlib.pyplot as plt
+import lmfit
+import csv
+from scipy.optimize import curve_fit
+from scipy import stats as stats
+from math import log as log
+from math import pi as pi
+from numpy.polynomial import polynomial as polynomial
 #######FUNCTIONS############
-def calc_type1(Xr, a, max, h=0):
-    """[summary]
-    
-    Arguments:
-        Xr {[type]} -- [description]
-        a {[type]} -- [description]
-    """
-
-    if a*Xr < max:
-        return a*Xr
-    else:
-        return max
-
 
 def calc_C(Xr, a, h):
     """  The equation for the type II functional response from Holling, 1959
 
     
     Arguments:
-        Xr {float} -- [description]
-        a {float} -- [description]
-        h {float} -- [description]
+        Xr {float} -- Resource Density
+        a {float} -- attack rate
+        h {float} -- handling time
     
     Returns:
-        {float} -- [description]
+        {float} -- consumption rate
     """
     
     top = a * Xr
@@ -44,13 +43,15 @@ def calc_Clmfit(params, Xr, data = 0):  ## arbitrarily defined right now as 0.05
     used for minimize.
 
     Arguments:
-        Xr {float} -- [description]
-        a {float} -- [description]
-        h {float} -- [description]
-        data {float} -- [description]
+        Xr {float} -- Resource Density
+        params {dict} -- a dictionary containing the parameter values for the model
+            Parameters:
+                a {float} -- Attack rate
+                h {float} -- handling time
+        data {float} -- the data that Xr is compared against if minimising the difference using lmfit.minimize()
 
     Returns:
-        {float} -- [description]
+        {float} -- difference in consumption rate between estimate and the data
     """
     vals = params.valuesdict()
     a = vals['a']
@@ -66,7 +67,12 @@ def calc_CQ(Xr, a, h, q=0):  ## arbitrarily defined right now as 0.8
     """
     The equation for the more general Type II functional response curve.  
     Includes a dimensionless parameter `q` which is used to account for a small lag phase at the start of the curve
+    
+
+    Returns:
+        [type] -- Consumption rate
     """
+
     top = a * (Xr ** (q + 1))
     bot = 1 + (h * a * (Xr ** (q + 1)))
     C = top / bot
@@ -83,13 +89,14 @@ def calc_CQlmfit(params, Xr, data = 0):  ## arbitrarily defined right now as 0.0
     Arguments:
         params {dict} -- a dictionary containing the parameter values for the model
             Parameters:
-                a {float} -- [description]
-                h {float} -- [description]
-        Xr {float} -- [description]
-        data {float} -- [description]
+                a {float} -- Attack rate
+                h {float} -- handling time
+                q {float} -- dimensionless exponent
+        Xr {float} -- Resource Density
+        data {float} -- the data that Xr is compared against if minimising the difference using lmfit.minimize()
     
     Returns:
-        {float} -- 
+        {float} -- difference in consumption rate between estimate and the data
 
     """
     vals = params.valuesdict()
@@ -103,8 +110,11 @@ def calc_CQlmfit(params, Xr, data = 0):  ## arbitrarily defined right now as 0.0
     return C - data
 
 def calc_RSS(residuals):  ## model var is to specify which equation should be used. Model fit is popt under sc.optimize
-    """
-    Calculates the Residual Sum of Squares for an array of model residuals.
+    """    Calculates the Residual Sum of Squares for an array of model residuals.
+
+    
+    Returns:
+        {float} -- Residual sum of squares
     """
 
     RSS = sum(residuals**2)
@@ -112,9 +122,16 @@ def calc_RSS(residuals):  ## model var is to specify which equation should be us
     return RSS
 
 
-def est_a(ResDens, NTrait, h):
-    """
-    Gets an estimate of `a` given the `ResDensity`, `N_TraitsValue` and `h` estimate.  Uses the arguments to progressively eliminate points to a minimum number of points to make a linear regression and takes the slope of the line as the estimate of `a`.  Minimum number of points is 3 or less than 30% of total data points.
+def est_a(ResDens, NTrait):
+    """    Gets an estimate of `a` given the `ResDensity`, `N_TraitsValue` and `h` estimate.  Uses the arguments to progressively eliminate points to a minimum number of points to make a linear regression and takes the slope of the line as the estimate of `a`.  Minimum number of points is 3 or less than 30% of total data points.
+
+    
+    Arguments:
+        ResDens {float} -- Resource density
+        NTrait {float} -- Consumption rate
+    
+    Returns:
+        {float} -- attack rate estimate for data
     """
     best_a = None  # for recording the value of `a` which gave the lowest RSS value.
     smallest_RSS = None  # for recording the lowest RSS value.
