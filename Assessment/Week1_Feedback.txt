@@ -9,11 +9,11 @@ Note that:
 
 ======================================================================
 ======================================================================
-Your Git repo size this week is about 2.19 MiB on disk 
+Your Git repo size this week is about 127.83 MiB on disk 
 
 PART 1: Checking project workflow...
 
-Found the following directories in parent directory: Week1, Assessment, Week2, .git
+Found the following directories in parent directory: Week6, Week1, Week7, Assessment, Stats2, HPC, Week5, Week2, Week4, .git, C_Week, Week3, MiniProject
 
 Found the following files in parent directory: .gitignore, README.md
 
@@ -26,8 +26,14 @@ Printing contents of .gitignore:
 *~ 
 *.tmp
 __pycache__
-
-**********************************************************************
+*.pyc
+./Week4/notes # dont need the notes from Week4 on git
+*.shp
+.Rhistory
+*.ppt*
+*.odp
+.idea/
+.vscode**********************************************************************
 
 Found README in parent directory, named: README.md
 
@@ -44,17 +50,47 @@ The course is broken into weeks with each week covering different material.  Thi
 
 ## **Table of Contents**
 [**Week 1**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1)
-    Unix Terminal
+
+    Unix Terminal 
     Shell Scripting (Bash)
     Latex Document creation
 
 [**Week 2**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week2)
-    Python Week**********************************************************************
+
+    Python I Week
+
+[**Week 3**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week3)
+
+    R Week
+
+[**Week 4**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week4)
+
+    Statistics Week
+
+[**Week 5**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week5)
+
+    GIS Week
+
+[**Week 6**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week6)
+
+    Bioinformatics Week
+
+[**Week 7**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week7)
+
+    Python II Week
+
+[**Week 8**](https://github.com/Don-Burns/CMEECourseWork/tree/master/MiniProject)
+
+    Mini Project Week
+
+[**Week 7**](https://github.com/Don-Burns/CMEECourseWork/tree/master/HPC)
+
+    HPC Week**********************************************************************
 
 ======================================================================
 Looking for the weekly directories...
 
-Found 2 weekly directories: Week1, Week2
+Found 8 weekly directories: C_Week, Week1, Week2, Week3, Week4, Week5, Week6, Week7
 
 The Week1 directory will be assessed 
 
@@ -75,8 +111,8 @@ Found README in parent directory, named: README.md
 
 Printing contents of README.md:
 **********************************************************************
-# Week 1 CMEE Course Repositoty
-## **Description**
+# Week 1 CMEE Course Repository
+# Week 1 CMEE Course Repository
 This week covered using the Unix Terminal, shell scripting using bash and how to use Latex to typeset and create a document.  All Code is written to be run from the [`Code`](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1/Code) folder.
 
 ## Structure
@@ -140,11 +176,6 @@ ideally, Results directory should be empty other than, perhaps, a readme.
 
 Found 12 code files: CompileLatex.sh, CountLines.sh, variables.sh, tiff2png.sh, ConcatonateTwoFiles.sh, csvtospace.sh, FirstExample.tex, MyExampleScript.sh, FirstBiblio.bib, UnixPrac1.txt, tabtocsv.sh, boilerplate.sh
 
-Found the following extra files: README.md
-0.5 pt deducted per extra file
-
-Current Points = 99.5
-
 ======================================================================
 Testing script/code files...
 
@@ -154,6 +185,24 @@ Inspecting script file CompileLatex.sh...
 File contents are:
 **********************************************************************
 #!/bin/bash
+# Author: Donal Burns db319@imperial.ac.uk
+# Script: CompileLatex.sh
+# Desc: Used to compile a pdf using a .tex input.  Call the input file without any file extension.  Any bibliography needs to be in .bib format and should be name the same as the input .tex file.
+# Arguments: .tex file name, name before extension should match. E.g. FirstExample, will compile document using FirstExample.tex
+
+
+# Date: Oct 2019
+
+# give a default file to work with if no file is given.
+
+if [ -z "$1"]
+    then
+        echo "No file given.  Default will be used."
+        set -- "FirstExample"
+fi 
+
+
+
 pdflatex $1.tex
 pdflatex $1.tex
 bibtex $1
@@ -161,7 +210,7 @@ pdflatex $1.tex
 pdflatex $1.tex
 mv $1.pdf ../Results ## move file to results folder in week 1
 filename=$(basename $1)
-echo ..Results/$filename
+echo ../Results/$filename
 evince ../Results/$filename.pdf &   ## opens file from ../Results
 
 ## Cleanup
@@ -169,6 +218,7 @@ rm *~
 rm *.aux
 rm *.dvi
 rm *.log
+rm .log
 rm *.nav
 rm *.out
 rm *.snm
@@ -191,65 +241,32 @@ Testing CompileLatex.sh...
 Output (only first 500 characters): 
 
 **********************************************************************
+No file given.  Default will be used.
 This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex)
  restricted \write18 enabled.
 entering extended mode
-(/usr/share/texlive/texmf-dist/tex/latex/tools/.tex
+(./FirstExample.tex
 LaTeX2e <2016/02/01>
 Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
-File ignored)
-*
-! Emergency stop.
-<*> .tex
-        
-!  ==> Fatal error occurred, no output PDF file produced!
-Transcript written on .log.
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (pre
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size12.clo))
+No file FirstExamp
 **********************************************************************
 
 Encountered error (or warning):
-bibtex: Need exactly one file argument.
-Try `bibtex --help' for more information.
-mv: cannot stat '.pdf': No such file or directory
-basename: missing operand
-Try 'basename --help' for more information.
 rm: cannot remove '*~': No such file or directory
-rm: cannot remove '*.aux': No such file or directory
 rm: cannot remove '*.dvi': No such file or directory
-rm: cannot remove '*.log': No such file or directory
+rm: cannot remove '.log': No such file or directory
 rm: cannot remove '*.nav': No such file or directory
 rm: cannot remove '*.out': No such file or directory
 rm: cannot remove '*.snm': No such file or directory
 rm: cannot remove '*.toc': No such file or directory
-rm: cannot remove '*.bbl': No such file or directory
-rm: cannot remove '*.blg': No such file or directory
 rm: cannot remove '*.fdb*': No such file or directory
 rm: cannot remove '*.fls': No such file or directory
 rm: cannot remove '*.synctex.gz': No such file or directory
 
-** (evince:9605): WARNING **: Error when getting information for file '/home/mhasoba/Documents/Teaching/IC_CMEE/2019-20/Coursework/StudentRepos/DonalBurns_DB319/Week1/Results/.pdf': No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
-
-** (evince:9605): WARNING **: Error setting file metadata: No such file or directory
+(evince:12841): Gtk-WARNING **: gtk_widget_size_allocate(): attempt to allocate widget with width -81 and height 20
 
 ======================================================================
 Inspecting script file CountLines.sh...
@@ -258,10 +275,16 @@ File contents are:
 **********************************************************************
 #!/bin/bash
 # Author: Donal Burns db319@ic.ac.uk 
-#Script CountLines.sh
+# Script CountLines.sh
 # Desc: Determines how many lines are in a file.
-# Arguments: none
+# Arguments: any file, otherwise deafult is used
 # Date: Oct 2019
+
+if [ -z "$1"]
+    then
+        echo "No arguments given.  Default used" 
+        set -- "../SandBox/test.txt"
+fi 
 
 NumLines=`wc -l < $1`
 echo "The File $1 has $NumLines lines"
@@ -275,13 +298,15 @@ Testing CountLines.sh...
 Output (only first 500 characters): 
 
 **********************************************************************
-The File  has  lines
+No arguments given.  Default used
+The File ../SandBox/test.txt has 3 lines
 
 
 **********************************************************************
 
-Encountered error (or warning):
-CountLines.sh: line 8: $1: ambiguous redirect
+Code ran without errors
+
+Time consumed = 0.00940s
 
 ======================================================================
 Inspecting script file variables.sh...
@@ -300,7 +325,7 @@ File contents are:
 #Shows the use of variables
 
 MyVar="some string"
-echo "the current value of the variable is" $MyVar
+echo "the current value of the variable is " $MyVar
 echo "Please enter a new string"
 read MyVar
 echo " the current value of the varriable is"$MyVar
@@ -324,7 +349,7 @@ Testing variables.sh...
 Output (only first 500 characters): 
 
 **********************************************************************
-the current value of the variable is some string
+the current value of the variable is  some string
 Please enter a new string
  the current value of the varriable is
  Enter two numbers separated by space(s)
@@ -343,11 +368,11 @@ File contents are:
 **********************************************************************
 #!/bin/bash
 # Author: Donal Burns db319@ic.ac.uk 
-# Author: Donal Burns db319@ic.ac.uk 
 # Script tiff2png.sh
 # Desc: Takes a .tiff image and converts it to a .png
 # Arguments: none
 # Date: Oct 2019
+
 
 for f in ../Data/*.tiff;
     do
@@ -370,7 +395,7 @@ Converting ../Data/file_example_TIFF_1MB.tiff
 
 Code ran without errors
 
-Time consumed = 0.24490s
+Time consumed = 0.25990s
 
 ======================================================================
 Inspecting script file ConcatonateTwoFiles.sh...
@@ -384,16 +409,42 @@ File contents are:
 # Arguments: none
 # Date: Oct 2019
 
-cat $1 > $3
-cat $2 >> $3
+if [ -z "$1"]
+    then
+        echo "No arguments given.  Default used" 
+        file1=../Data/concatfile.txt
+        file2=../Data/concatfile.txt
+        file3=../Data/concatedfile.txt
+
+    else
+        file1=$1
+        file2=$2
+        file3=$3
+        
+fi 
+
+
+cat $file1 > $file3
+cat $file2 >> $file3
 
 echo "Merged File is"
 
-cat $3
+cat $file3
 
-mv $3 ../Results 
+mv $file3 ../Results/ 
 
 echo "Saved in ../Results."
+
+# cat $1 > $3
+# cat $2 >> $3
+
+# echo "Merged File is"
+
+# cat $3
+
+# mv $3 ../Results/ 
+
+# echo "Saved in ../Results."
 **********************************************************************
 
 Testing ConcatonateTwoFiles.sh...
@@ -401,16 +452,17 @@ Testing ConcatonateTwoFiles.sh...
 Output (only first 500 characters): 
 
 **********************************************************************
+No arguments given.  Default used
 Merged File is
-Saved in ../Results.
+this is a file to be used with `ConcatonateTwoFiles.sh` when no arguments are given.  
+If you are seeing this in your results and it is not the desired output please given 2 file names as arguments.this is a file to be used with `ConcatonateTwoFiles.sh` when no arguments are given.  
+If you are seeing this in your results and it is not the desired output please given 2 file names as arguments.Saved in ../Results.
 
 **********************************************************************
 
-Encountered error (or warning):
-ConcatonateTwoFiles.sh: line 8: $3: ambiguous redirect
-ConcatonateTwoFiles.sh: line 9: $3: ambiguous redirect
-mv: missing destination file operand after '../Results'
-Try 'mv --help' for more information.
+Code ran without errors
+
+Time consumed = 0.00946s
 
 ======================================================================
 Inspecting script file csvtospace.sh...
@@ -423,12 +475,15 @@ File contents are:
 # Desc: marges two files into one using concatonate function.
 # Arguments: Name of Folder containing files to be coverted.
 # Date: Oct 2019
-
+if [ -z "$1"]
+    then
+        echo "No arguments given.  Default used" 
+        set -- "../Data/spawannxs.txt"
+fi 
 
 
 echo "Creating a space separated version of $1"
 cat $1 | tr -s "," " " >> "$1_spaced".csv
-
 newfile=$"$1_spaced".csv
 mv $newfile ../Results
 echo "DONE!"
@@ -443,47 +498,54 @@ Testing csvtospace.sh...
 Output (only first 500 characters): 
 
 **********************************************************************
-Creating a space separated version of 
+No arguments given.  Default used
+Creating a space separated version of ../Data/spawannxs.txt
 DONE!
 
 **********************************************************************
 
 Code ran without errors
 
-Time consumed = 0.00921s
+Time consumed = 0.01358s
 
 ======================================================================
 Inspecting script file FirstExample.tex...
 
 File contents are:
 **********************************************************************
-%%Desc: A first of typesetting a dcoument using latex.
 
 \documentclass[12pt]{article}
+
 \title{A Simple Document}
+
 \author{Donal Burns}
-\date{02/10/2019}
+
+\date{}
+
 \begin{document}
   \maketitle
-
+  
   \begin{abstract}
     This paper must be cool!
   \end{abstract}
-
+  
   \section{Introduction}
     Blah Blah!
-
+  
   \section{Materials \& Methods}
-  One of teh most famous equations is:
+  One of the most famous equations is:
   \begin{equation}
     E = mc^2
   \end{equation}
-  This equation was first proposed by Einstein in 1905
+  This equation was first proposed by Einstein in 1905 
   \cite{einstein1905does}.
-
+  
   \bibliographystyle{plain}
   \bibliography{FirstBiblio}
-\end{document}**********************************************************************
+\end{document}
+
+
+**********************************************************************
 
 Testing FirstExample.tex...
 
@@ -494,7 +556,7 @@ File contents are:
 **********************************************************************
 #!/bin/bash
 # Author: Donal Burns db319@ic.ac.uk 
-#Script MyExampleScript.sh
+# Script MyExampleScript.sh
 # Desc: greets the user twice and starts a new line.
 # Arguments: none
 # Date: Oct 2019
@@ -527,7 +589,7 @@ Hello mhasoba
 
 Code ran without errors
 
-Time consumed = 0.00319s
+Time consumed = 0.00256s
 
 ======================================================================
 Inspecting script file FirstBiblio.bib...
@@ -576,15 +638,21 @@ File contents are:
 #!/bin/bash
 # Author: Donal Burns db319@ic.ac.uk 
 # Script tabtocsv.sh
-# Desc: substitute the tabs in the files with commas
+# Desc: Substitute the tabs in the files with commas
 # Saves the output into a .csv file
 # Arguments: 1 -> tab delimited file 
 # Date: Oct 2019
 
-echo " creating a comma delimited version of $1 ..."
+if [ -z "$1"]
+    then
+        echo "No arguments given.  Default used" 
+        set -- "../SandBox/test.txt"
+fi 
+
+echo "Creating a comma delimited version of $1 ..."
 cat $1 | tr -s "\t" "," >> $1.csv
 
-echo "Done!  Output saved in $1"
+echo "Done!  Output saved in $1.csv"
 
 exit**********************************************************************
 
@@ -593,14 +661,15 @@ Testing tabtocsv.sh...
 Output (only first 500 characters): 
 
 **********************************************************************
- creating a comma delimited version of  ...
-Done!  Output saved in 
+No arguments given.  Default used
+Creating a comma delimited version of ../SandBox/test.txt ...
+Done!  Output saved in ../SandBox/test.txt.csv
 
 **********************************************************************
 
 Code ran without errors
 
-Time consumed = 0.00379s
+Time consumed = 0.00797s
 
 ======================================================================
 Inspecting script file boilerplate.sh...
@@ -609,7 +678,7 @@ File contents are:
 **********************************************************************
 #!/bin/bash
 # Author: Donal Burns db319@imperial.ac.uk
-# Script; boilerplate.sh
+# Script: boilerplate.sh
 # Desc: simple boilerplate for shell scripts
 # Arguments: none 
 # Date: Oct 2019
@@ -632,19 +701,19 @@ This is a shell script!
 
 Code ran without errors
 
-Time consumed = 0.00468s
+Time consumed = 0.00332s
 
 ======================================================================
 ======================================================================
 Finished running scripts
 
-Ran into 4 errors
+Ran into 2 errors
 
 ======================================================================
 ======================================================================
 
 FINISHED WEEKLY ASSESSMENT
 
-Current Points for the Week = 99.5
+Current Points for the Week = 100
 
 NOTE THAT THESE ARE POINTS, NOT MARKS FOR THE WEEK!

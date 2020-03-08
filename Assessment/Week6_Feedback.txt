@@ -1,0 +1,744 @@
+Starting weekly assessment for Donal, Week6
+
+Current Points = 100
+
+Note that: 
+(1) Major sections begin with a double "====" line 
+(2) Subsections begin with a single "====" line 
+(3) Code output or text file content are printed within single "*****" lines 
+
+======================================================================
+======================================================================
+Your Git repo size this week is about 127.83 MiB on disk 
+
+PART 1: Checking project workflow...
+
+Found the following directories in parent directory: Week6, Week1, Week7, Assessment, Stats2, HPC, Week5, Week2, Week4, .git, C_Week, Week3, MiniProject
+
+Found the following files in parent directory: .gitignore, README.md
+
+Checking for key files in parent directory...
+
+Found .gitignore in parent directory, great! 
+
+Printing contents of .gitignore:
+**********************************************************************
+*~ 
+*.tmp
+__pycache__
+*.pyc
+./Week4/notes # dont need the notes from Week4 on git
+*.shp
+.Rhistory
+*.ppt*
+*.odp
+.idea/
+.vscode**********************************************************************
+
+Found README in parent directory, named: README.md
+
+Printing contents of README.md:
+**********************************************************************
+# My CMEE Course Repository
+## **Description**
+A depository for following the CMEE course at Imperial College London. 
+The depositoryis meant as a mean of practicing various tools useful in computational ecology such as R, python and more.
+As such the material found in [The Multilingual Quantitative Biologist](https://mhasoba.github.io/TheMulQuaBio/) is the material that will be followed to get a basic grasp of how to use these tools.
+
+## **Structure**
+The course is broken into weeks with each week covering different material.  This is reflected in the folder structure of this depository. Each week's folder will contain a data, results and code folder relating to that week's topics.
+
+## **Table of Contents**
+[**Week 1**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week1)
+
+    Unix Terminal 
+    Shell Scripting (Bash)
+    Latex Document creation
+
+[**Week 2**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week2)
+
+    Python I Week
+
+[**Week 3**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week3)
+
+    R Week
+
+[**Week 4**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week4)
+
+    Statistics Week
+
+[**Week 5**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week5)
+
+    GIS Week
+
+[**Week 6**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week6)
+
+    Bioinformatics Week
+
+[**Week 7**](https://github.com/Don-Burns/CMEECourseWork/tree/master/Week7)
+
+    Python II Week
+
+[**Week 8**](https://github.com/Don-Burns/CMEECourseWork/tree/master/MiniProject)
+
+    Mini Project Week
+
+[**Week 7**](https://github.com/Don-Burns/CMEECourseWork/tree/master/HPC)
+
+    HPC Week**********************************************************************
+
+======================================================================
+Looking for the weekly directories...
+
+Found 8 weekly directories: C_Week, Week1, Week2, Week3, Week4, Week5, Week6, Week7
+
+The Week6 directory will be assessed 
+
+======================================================================
+======================================================================
+PART 2: Checking weekly code and workflow...
+
+======================================================================
+Assessing WEEK6...
+
+Found the following directories: Code, data
+
+Found the following files: .gitignore
+
+Checking for readme file in weekly directory...
+
+README file missing, 1 pt deducted
+
+Current Points = 99
+
+Results directory missing!
+
+Creating Results directory...
+
+Found 4 code files: alleles.R, demography.R, drift_mutation_divergence.R, coalescence.R
+
+======================================================================
+Testing script/code files...
+
+======================================================================
+Inspecting script file alleles.R...
+
+File contents are:
+**********************************************************************
+# Desc: A script to look at the alleles, genotype, heterozygosity and homozygosity of a data set.  Input: `../data/bears.csv`.
+
+############HOUSEKEEPING#############
+rm(list = ls())
+
+############DATA#################
+bears <- read.csv("../data/bears.csv", colClasses = "character", stringsAsFactors = F, header = F)
+
+############### FUNCTIONS ##################
+Find_SNPs <- function(d){ #finds columns with more than 1 unique value and retruns them. 
+    #VARS: d = data
+    loci <- NULL
+    for(i in 1:ncol(d)){
+        if(length(unique(d[,i])) >1){ # find column with more than 1 unique value and record it
+            loci <- c(loci, i) 
+        }
+    
+    }
+    return(loci)
+}
+
+Allele_Freq <- function(d, positions){ #finds frequecy of alleles when given an integer vector of positions 
+    #VARS: d = data, positions = positions of alleles
+    
+    
+    #define vars for building the dataframe at end.
+    freqs <- rep(0, length(positions)) # allele frequencies
+    allele1 <- rep(NA, length(positions)) # base allele
+    allele2 <- rep(NA, length(positions)) # 1st allele that differs from baseline
+    ##include allele 3 and 4 for non-diallelic data
+    allele3 <- rep(NA, length(positions))
+    allele4 <- rep(NA, length(positions))
+    
+    
+    for(i in 1:length(positions)){
+
+        for(s in 1:nrow(d)){
+            
+            if(d[s,positions[i]] != d[1,positions[i]]){
+                freqs[i] <- freqs[i] + 1 # tick up the frequency for that row
+                
+            }
+            if (length(unique(d[,positions[i]])) >= 2){
+                allele1[i] <- unique(d[,positions[i]])[1]
+                allele2[i] <- unique(d[,positions[i]])[2]
+            }
+            if (length(unique(d[,positions[i]])) >= 3){ # accounting for non-di-allelic data
+                allele3[i] <- unique(d[,positions[i]])[3]
+            }
+            if (length(unique(d[,positions[i]])) >= 4){ # accounting for non-di-allelic data
+                allele4[i] <- unique(d[,positions[i]])[4]    
+                
+            }
+            
+            
+            
+        }
+        
+    }
+    freqDF <- rbind(positions, allele1)
+    freqDF <- rbind(freqDF, allele2)
+    if(all(is.na(allele3)) == F){  ## check if there is any data in allele 3 and 4, if so bind them
+        freqDF <- rbind(freqDF, allele3)
+    }
+    if(all(is.na(allele4)) == F){
+        freqDF <- rbind(freqDF, allele4)
+    }
+    
+    freqDF <- rbind(freqDF, freqs) # bind the frequencies
+    return(freqDF)
+    
+}
+
+
+
+Geno_Freq <- function(d, position){#finds frequecy of genotypes when given an integer vector of positions.
+    #assumes data is di-allelic
+    #VARS: d = data, positions = positions of alleles
+    
+    label <- c("AA", "TT", "CC", "GG", "HZ")
+    GenoDF <- matrix(0, ncol = 5, nrow = nrow(d)/2)
+    for(i in position){# look at allele locus in chromosome 1 of ind
+        ind <- ind + 1 # tick for next ind
+        for(s in (1:nrow(d))){
+            if(s %% 2 != 0){ # have loop only occur with odd numbers ie first chromosome of ind
+                tmp <- s+1 #the pair chromosome row
+                if(d[s,i] == d[tmp,i]){
+                    pos <- match(paste(d[s,i], d[tmp,i], sep = ""), label) #find which col to place the value
+                    print(pos)
+
+                    GenoDF[ind, pos] <- GenoDF[ind, pos] + 1
+
+                   # match(1, 2)
+                }
+                else{
+                    GenoDF[ind, 5] <- GenoDF[ind, 5] + 1
+                #currently making more entries than there are ind
+                }
+                ind <- ind + 1 # tick for next ind
+                
+            }
+            
+        }
+    }
+    colnames(GenoDF) <- label # add colnames
+    rownames(GenoDF) <- position
+}
+###############MAIN###############
+
+
+##Q1
+SNPpos <- Find_SNPs(bears)
+##Q2
+freqs <- Allele_Freq(bears, SNPpos)
+print(freqs) ##silly but asked to print it
+barplot(as.numeric(freqs[4,]), xlab = "Loci", ylab = "Frequency")
+##Q3
+
+
+
+
+####### debugging #####
+position <- SNPpos
+d <- bears
+
+**********************************************************************
+
+Testing alleles.R...
+
+Output (only first 500 characters): 
+
+**********************************************************************
+          [,1] [,2] [,3]  [,4]  [,5]  [,6]  [,7]  [,8]  [,9]  [,10] [,11]
+positions "30" "40" "262" "284" "290" "306" "460" "655" "727" "822" "899"
+allele1   "A"  "C"  "A"   "T"   "A"   "G"   "G"   "C"   "G"   "C"   "G"  
+allele2   "C"  "G"  "C"   "A"   "T"   "C"   "A"   "A"   "T"   "A"   "T"  
+freqs     "18" "1"  "15"  "1"   "1"   "18"  "1"   "13"  "4"   "1"   "1"  
+          [,12]  [,13]  [,14]  [,15]  [,16]  [,17]  [,18]  [,19]  [,20]  [,21] 
+positions "1020" "1027" "1084" "1142" "1198" "1267"
+**********************************************************************
+
+Code ran without errors
+
+Time consumed = 1.87395s
+
+======================================================================
+Inspecting script file demography.R...
+
+File contents are:
+**********************************************************************
+## Desc: A script working on `04_Demograpy.md`: Practical on population subdivision and demographic inferences. \nInput: 2 `csv` files.  `turtles.csv` has the alleles.  `turtle.genotypes.csv` has the genotype data for the population.  Both data sets contain data for 4 populations, each has 10 individuals and is listed in the order shown in Matteo's repository.
+
+###HOUSE KEEPING######
+rm(list = ls())
+
+###IMPORTING DATA#####
+d_allele <- read.csv("../data/turtle.csv", header = F)
+d_geno <- read.csv("../data/turtle.genotypes.csv", header = F)
+
+#### Predefined vars #####
+origin_dist <- c(5, 10, 12, 50)
+
+####Functions######
+Find_SNPs <- function(d){ #finds columns with more than 1 unique value and retruns them. 
+    #VARS: d = data
+    loci <- NULL
+    for(i in 1:ncol(d)){
+        if(length(unique(d[,i])) > 1){ # find column with more than 1 unique value and record it
+            loci <- c(loci, i) 
+        }
+        
+    }
+    return(loci)
+}
+
+
+only_loci <- function(data){##finds and make a matrix with only the SNP sites, given allele data
+    SNPloci <- Find_SNPs(data)
+    lociDF <- matrix(NA, nrow = nrow(data), ncol = length(SNPloci))
+    ticker <- 1
+    for(i in SNPloci){
+        lociDF[,ticker] <- data[,i]
+        ticker <- ticker + 1
+    }
+    
+    return(lociDF)
+    
+}
+
+calc_fA <- function(loci_data){## calculates fA of a site given only_loci matrix
+    
+    allele_freq <- rep(NA, ncol(loci_data))
+    
+    for(i in 1:ncol(loci_data)){
+        allele_freq[i] <- sum(loci_data[,i])/nrow(loci_data)
+    }
+    
+    
+    return(allele_freq)
+}
+
+
+calc_HT <- function(loci_data1, loci_data2){# calculates HT given a matrix of SNP locations for 2 populations
+    allele_freq1 <- calc_fA(loci_data1)
+    allele_freq2 <- calc_fA(loci_data2)
+    HT <- rep(NA, length(allele_freq1))
+    
+    for(i in 1:length(allele_freq1)){
+        fA1 <- allele_freq1[i]      # i.e. 1s in pop1
+        fA2 <- allele_freq2[i]  # i.e. 1s in pop2
+        HT[i] <- ((2*(fA1 + fA2)/2)*(1 - ((fA1 + fA2)/2)))
+    }
+    
+    
+    return(HT)
+}
+
+calc_Hs <- function(loci_data1, loci_data2){# calculates Hs given a matrix of SNP locations for 2 population
+    allele_freq1 <- calc_fA(loci_data1)
+    allele_freq2 <- calc_fA(loci_data2)
+    Hs <- rep(NA, length(allele_freq1))
+    
+    for(i in 1:length(allele_freq1)){
+        fA1 <- allele_freq1[i]      # i.e. 1s in pop 1
+        fA2 <- 1 - allele_freq2[i]  # i.e. 1s in pop 2
+        Hs[i] <- (fA1 * (1-fA1)) + (fA2*(1-fA2))#((2 * fA1*(1-fA1)) + (2*fA2*(1-fA2))/2)
+    }
+    
+    
+    return(Hs)
+}
+
+calc_Fst <- function(Ht, Hs){
+    Fst <- (Ht - Hs)/Ht
+    
+    return(mean(Fst, na.rm = T))
+} 
+
+####MAIN####
+dAlleleSNPOnly <- only_loci(d_allele) ## get only the SNP sites since other sites dont contribute to the calculations
+allelepop1 <- dAlleleSNPOnly[1:20,]#ind are diploid and there are 20 of them
+allelepop2 <- dAlleleSNPOnly[21:40,]
+allelepop3 <- dAlleleSNPOnly[41:60,]
+allelepop4 <- dAlleleSNPOnly[61:80,]
+
+#### pop 1 and 2 ####
+HT12 <- calc_HT(allelepop1, allelepop2)
+Hs12 <- calc_Hs(allelepop1, allelepop2) 
+Fst12 <- calc_Fst(HT12, Hs12)
+## pop 1 3###
+HT13 <- calc_HT(allelepop1, allelepop3)
+Hs13 <- calc_Hs(allelepop1, allelepop3) 
+Fst13 <- calc_Fst(HT13, Hs13)
+## pop 1 4###
+HT14 <- calc_HT(allelepop1, allelepop4)
+Hs14 <- calc_Hs(allelepop1, allelepop4)
+Fst14<- calc_Fst(HT14, Hs14)
+
+## pop 2 3###
+HT23 <- calc_HT(allelepop2, allelepop3)
+Hs23 <- calc_Hs(allelepop2, allelepop3)
+Fst23 <- calc_Fst(HT23, Hs23)
+
+## pop 2 4###
+HT24 <- calc_HT(allelepop2, allelepop4)
+Hs24 <- calc_Hs(allelepop2, allelepop4)
+Fst24 <- calc_Fst(HT24, Hs24)
+
+##pop 3 4 ###
+HT34 <- calc_HT(allelepop3, allelepop4)
+Hs34 <- calc_Hs(allelepop3, allelepop4)
+Fst34 <- calc_Fst(HT34, Hs34)
+
+
+
+
+
+
+
+
+#####TESTING######
+
+**********************************************************************
+
+Testing demography.R...
+
+Output (only first 500 characters): 
+
+**********************************************************************
+
+**********************************************************************
+
+Code ran without errors
+
+Time consumed = 0.48197s
+
+======================================================================
+Inspecting script file drift_mutation_divergence.R...
+
+File contents are:
+**********************************************************************
+## Desc: A script which takes three data sets from `../data`; `western_banded_gecko.csv`, `bent-toed_gecko.csv` and `leopard_gecko.csv`.  The data sets can be change by changing the directories under the `READ IN DATA` section.
+
+######HOUSE KEEPING#######
+rm(list = ls())
+
+
+######READ IN DATA########
+west_gecko <- read.csv("../data/western_banded_gecko.csv", stringsAsFactors = F, colClasses = "character", header = F)
+bent_toed_gecko <- read.csv("../data/bent-toed_gecko.csv", stringsAsFactors = F, colClasses = "character", header = F)
+leopard_gecko <- read.csv("../data/leopard_gecko.csv", stringsAsFactors = F, colClasses = "character", header = F)
+
+DivergeTime <- 30*10^6 ## time since divergence
+
+
+
+#####FUNCTIONS######
+Find_Fixed <- function(d){ #finds columns with more than 1 unique value and retruns them. 
+    #VARS: d = data
+    loci <- NULL
+    for(i in 1:ncol(d)){
+        if(length(unique(d[,i])) == 1){ # find column with more than 1 unique value and record it
+            loci <- c(loci, i) 
+        }
+        
+    }
+    return(loci)
+}
+
+
+
+Find_Diverged <- function(seq1, seq2){ # takes sequence data and outputs the diverged sites.
+    Fixed1 <- Find_Fixed(seq1)
+    Fixed2 <- Find_Fixed(seq2)
+    CommonSites <- intersect(Fixed1, Fixed2)
+    DivergedSites <- NULL
+    for(i in CommonSites){
+        if(seq1[1,i] != seq2[1,i]){
+            DivergedSites <- c(DivergedSites, i)
+            
+        }
+           
+    }
+    return(DivergedSites)
+}
+
+
+ Find_Common_Sites <- function(seq1, seq2){ # Find fixed sites which are comon
+     Fixed1 <- Find_Fixed(seq1)
+     Fixed2 <- Find_Fixed(seq2)
+     CommonSites <- intersect(Fixed1, Fixed2)
+     return(CommonSites)
+}
+
+Calc_dAB <- function(NumDivergedSites, NumCommonSites){# find expected divergence input: Number of diverged sites and umber of comon sites between the two species
+    dAB <- NumDivergedSites/NumCommonSites
+    return(dAB)
+}
+ 
+Calc_mu <- function(d_AB, t_AB){ # find mutation rate input: dAB = expected divergence, tAB = time since divergence
+    
+    
+    mu <- d_AB/(2*t_AB)
+    
+    return(mu)
+}
+
+Calc_tAB <- function(d_AB, mu){ # to estimate time since divergene. input dAB is expected divergence, mu is mutation rate to outgroup
+    t_AB <- d_AB/(2*mu)
+    return(t_AB)
+}
+######MAIN#######
+
+# Find diverged sites
+DivergedBentLeop <- Find_Diverged(bent_toed_gecko, leopard_gecko)
+DivergedWestBent <- Find_Diverged(west_gecko, bent_toed_gecko)
+DivergedLeopWest <- Find_Diverged(leopard_gecko, west_gecko)
+
+#Find common sites
+CommonWestBent <- Find_Common_Sites(west_gecko, bent_toed_gecko)
+CommonBentLeop <- Find_Common_Sites(bent_toed_gecko, leopard_gecko)
+CommonLeopWest <- Find_Common_Sites(leopard_gecko, west_gecko)
+
+# Find expected Divergence
+ExpDivWestBent <- Calc_dAB(length(DivergedWestBent), length(CommonWestBent))
+ExpDivBentLeop <-Calc_dAB(length(DivergedBentLeop), length(CommonBentLeop))
+ExpDivLeopWest <- Calc_dAB(length(DivergedLeopWest), length(CommonLeopWest))
+
+# Find mu 
+
+muWestBent <- Calc_mu(ExpDivWestBent, DivergeTime)
+muBentLeop <- Calc_mu(ExpDivBentLeop, DivergeTime)
+muLeopWest <- Calc_mu(ExpDivLeopWest, DivergeTime)
+
+# Find Time Diverence
+
+timeDiffWestBent <- Calc_tAB(ExpDivWestBent, muLeopWest)  ## this is time to ancestral state
+timeDiffLeopWest <- Calc_tAB(ExpDivLeopWest, muLeopWest)
+timeDiffBentLeop <- Calc_tAB(ExpDivBentLeop, muLeopWest)
+
+# Find divergence between ancestor and leopard
+
+timeDiffLeopAncestor <- DivergeTime - timeDiffWestBent
+        #note can also attempt to reconstruct ancestral sequence and estimate from there
+
+#DivergedALL <- Find_Diverged3(bent_toed_gecko, leopard_gecko, west_gecko)
+
+######DEBUG######
+#seq1 <- west_gecko
+#seq2 <- leopard_gecko
+#bentFixed <- Find_Fixed(bent_toed_gecko)
+#leopardFixed <- Find_Fixed(leopard_gecko)    
+#westFixed <- Find_Fixed(west_gecko)
+
+
+#########TEST############
+#Fixed1 <- c(1,2,3,4,5)
+#Fixed2 <- c(1,3,2,3,4)
+
+########steps to take#######
+# Find sites that are fixed in a species
+# Find which sites are different between species, but the same within a species
+#
+
+
+
+### to be fixed
+
+Find_Diverged3 <- function(seq1, seq2,seq3){ # takes sequence data and outputs the diverged sites. does so for 3 sequences
+    return("needs to be debugged")
+    Fixed1 <- Find_Fixed(seq1)
+    Fixed2 <- Find_Fixed(seq2)
+    Fixed3 <- Find_Fixed(seq3)
+    CommonSites <- intersect(Fixed1, intersect(Fixed2, Fixed3))
+    DivergedSites <- NULL
+    for(i in CommonSites){
+        if(seq1[1,i] != seq2[1,i]){
+            if(seq1[1,i] != seq3[1,i]){
+                if(seq1[1,i] != seq3[1,i]){
+                    DivergedSites <- c(DivergedSites, i)
+                }
+            }
+            
+        }
+        
+    }
+    return(DivergedSites)
+}**********************************************************************
+
+Testing drift_mutation_divergence.R...
+
+Output (only first 500 characters): 
+
+**********************************************************************
+
+**********************************************************************
+
+Code ran without errors
+
+Time consumed = 10.01122s
+
+======================================================================
+Inspecting script file coalescence.R...
+
+File contents are:
+**********************************************************************
+# Desc: script looking at how to calculate and interprete coalescence data.
+##HOUSEKEEPING####
+rm(list = ls())
+
+
+####read in data######
+north <- read.csv("../data/killer_whale_North.csv", header = F)
+south <- read.csv("../data/killer_whale_South.csv", header = F)
+
+###Define known variables####
+mu <- 1*10^-8
+
+##Functions###
+
+Find_SNPs <- function(d){ #finds columns with more than 1 unique value and retruns them. 
+    #VARS: d = data
+    loci <- NULL
+    for(i in 1:ncol(d)){
+        if(length(unique(d[,i])) > 1){ # find column with more than 1 unique value and record it
+            loci <- c(loci, i) 
+        }
+        
+    }
+    return(loci)
+}
+
+
+only_loci <- function(data, SNPloci){
+    lociDF <- matrix(NA, nrow = nrow(data), ncol = length(SNPloci))
+    ticker <- 1
+    for(i in SNPloci){
+        lociDF[,ticker] <- data[,i]
+        ticker <- ticker + 1
+    }
+    
+    return(lociDF)
+    
+}
+
+watterson <- function(data){
+    SNPloci <- Find_SNPs(data)
+    s <- length(SNPloci)#Find num of  SNPs
+    n <- nrow(data)
+    bot <- c()
+    for(i in 1:(n-1)){
+        bot <- c(bot, 1/i)
+    }
+    thetaW <- s/sum(bot)
+    
+    return(thetaW)
+}
+
+
+tajima <- function(data){
+    
+    SNPloci <- Find_SNPs(data)
+    data <- only_loci(data, SNPloci)
+    dij <- 0
+    n <- nrow(data)
+    for(i in 1:(nrow(data)-1)){
+        for(s in (i+1):nrow(data)){
+                dij <- dij + sum(data[i,] != data[s,])
+        }
+    }
+    
+    bot <- (n*(n-1))/2
+    
+    thetaT <- dij/bot
+    return(thetaT)
+}
+
+
+sfs <- function(data){
+    SNPloci <- Find_SNPs(data)
+    sfs_array <- rep(NA, length(SNPloci))
+    array_point <- 1
+    for(i in 1:length(SNPloci)){
+        tmp <- 0 # counter for number of 1s in a SNP locus
+        dcol <- SNPloci[i]
+        for(r in 1:nrow(data)){
+            if(isTRUE(data[r, dcol] == 1)){
+                tmp <- tmp + 1
+            }
+        } 
+        sfs_array[array_point] <- tmp
+        array_point <- array_point + 1
+    }
+    f <- c()
+    for(i in sfs_array){
+        f <- c(f, i/length(SNPloci))
+    }
+    
+    return(f)
+}
+
+
+###Main####
+
+wattNorth <- watterson(north)
+wattSouth <- watterson(south)
+tajNorth <- tajima(north)
+tajSouth <- tajima(south)
+thetaNorth <- 4*mu*(ncol(north))*(nrow(north))
+sfsNorth <- sfs(north)
+sfsSouth <- sfs(south)
+
+#####plotting#####
+par(mfrow = c(1,2))
+barplot(sfsNorth)
+barplot(sfsSouth)
+#### Testing ####
+SNPloci <- Find_SNPs(north)
+data <- north
+###planning####
+
+# need:
+    # differences pairwise
+    # pi
+
+
+    # S = num SNPs
+    # 
+
+**********************************************************************
+
+Testing coalescence.R...
+
+Output (only first 500 characters): 
+
+**********************************************************************
+
+**********************************************************************
+
+Code ran without errors
+
+Time consumed = 10.01994s
+
+======================================================================
+======================================================================
+Finished running scripts
+
+Ran into 0 errors
+
+======================================================================
+======================================================================
+
+FINISHED WEEKLY ASSESSMENT
+
+Current Points for the Week = 99
+
+NOTE THAT THESE ARE POINTS, NOT MARKS FOR THE WEEK!
